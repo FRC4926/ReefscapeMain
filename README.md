@@ -1,2 +1,2 @@
 # Reefscape_Main
-Team 4926 main codebase (2025)
+Team 4926 Main Codebase (2025)
