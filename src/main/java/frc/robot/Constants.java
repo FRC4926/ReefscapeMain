@@ -191,6 +191,16 @@ public class Constants {
                 FrontRight, BackLeft, BackRight);
     }
 
+    public static final class AutonConstants {
+        public static final double kHolonomicTranslationP = 10.0;
+        public static final double kHolonomicTranslationI = 0.0;
+        public static final double kHolonomicTranslationD = 0.0;
+
+        public static final double kHolonomicRotationP = 7.0;
+        public static final double kHolonomicRotationI = 0.0;
+        public static final double kHolonomicRotationD = 0.0;
+    }
+
     public static final class IOConstants {
         public static final int kDriverControllerPort = 0;
         public static final int kOperatorControllerPort = 1;
