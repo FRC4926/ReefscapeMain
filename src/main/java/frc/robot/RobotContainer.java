@@ -76,6 +76,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("straightAuto");
+        return new PathPlannerAuto("ThreeCoral");
     }
 }
