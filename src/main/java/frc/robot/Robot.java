@@ -20,7 +20,6 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
   PhotonCamera bigCamera;
   PhotonPipelineResult latestResult = null;
-  double tag = 0;
 
   public Robot() {
     bigCamera = new PhotonCamera("bigcam");
@@ -90,17 +89,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
-    if (!results.isEmpty())
-      latestResult = results.get(results.size() - 1);
+    // List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
+    // if (!results.isEmpty())
+    //   latestResult = results.get(results.size() - 1);
 
-    SmartDashboard.putBoolean("Camera is connected", bigCamera.isConnected());
-    SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
-    boolean hasTargets = false;
+    SmartDashboard.putNumber("April Tag ID", m_robotContainer.visionSubsystem.getID());
+    // SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
+    // boolean hasTargets = false;
 
-    if (latestResult != null) {
-      SmartDashboard.putNumber("Results", latestResult.hasTargets() ? latestResult.getBestTarget().getFiducialId() : -1);
-    }
+    // if (latestResult != null) {
+    //   SmartDashboard.putNumber("Results", latestResult.hasTargets() ? latestResult.getBestTarget().getFiducialId() : -1);
+    // }
 
     // if (!results.isEmpty()) {
     //   for (var result : results) {
