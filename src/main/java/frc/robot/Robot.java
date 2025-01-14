@@ -6,10 +6,20 @@ package frc.robot;
 
 import java.util.List;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -18,17 +28,47 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-  PhotonCamera bigCamera;
+  // PhotonCamera bigCamera;
   PhotonPipelineResult latestResult = null;
+  double tag = 0;
+
+  Mechanism2d mech;
 
   public Robot() {
-    bigCamera = new PhotonCamera("bigcam");
+    // bigCamera = new PhotonCamera("bigcam");
     m_robotContainer = new RobotContainer();
+
+
+    // // the main mechanism object
+    // mech = new Mechanism2d(3, 3);
+    // // the mechanism root node
+    // MechanismRoot2d root = mech.getRoot("climber", 2, 0);
+    // var m_elevator = root.append(new MechanismLigament2d("elevator", 1.0, 90, 10, new Color8Bit(Color.kGreen)));
+    // var m_wrist =
+    //     m_elevator.append(
+    //         new MechanismLigament2d("wrist", 0.5, 90, 6, new Color8Bit(Color.kPurple)));
   }
 
   boolean hasResults = false;
+
+
+  // double angleA = 90;
+  // double angleB = 90;
   @Override
   public void robotPeriodic() {
+    EstimatedRobotPose estimatedPose = m_robotContainer.visionSubsystem.getEstimatedPose();
+    if (estimatedPose != null) {
+      m_robotContainer.drivetrain.addVisionMeasurement(estimatedPose.estimatedPose.toPose2d(), estimatedPose.timestampSeconds);
+    }
+    // MechanismRoot2d root = mech.getRoot("climber", 2, 0);
+    // var m_elevator = root.append(new MechanismLigament2d("elevator", 1.0, angleA, 10, new Color8Bit(Color.kGreen)));
+    // var m_wrist =
+    //     m_elevator.append(
+    //         new MechanismLigament2d("wrist", 0.5, angleB, 6, new Color8Bit(Color.kPurple)));
+    // SmartDashboard.putData("Mech2d", mech);
+
+    // angleA += 0.003;
+    // angleB -= 0.001;
     // var result = bigCamera.getLatestResult();
     // var results = bigCamera.getLatestResult();
     // if (!results.hasTargets()) hasResults = true;
@@ -93,7 +133,7 @@ public class Robot extends TimedRobot {
     // if (!results.isEmpty())
     //   latestResult = results.get(results.size() - 1);
 
-    SmartDashboard.putNumber("April Tag ID", m_robotContainer.visionSubsystem.getID());
+    // SmartDashboard.putBoolean("Camera is connected", bigCamera.isConnected());
     // SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
     // boolean hasTargets = false;
 
