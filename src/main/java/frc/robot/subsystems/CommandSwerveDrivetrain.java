@@ -163,6 +163,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
     }
+
+    
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>

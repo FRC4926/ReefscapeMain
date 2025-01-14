@@ -134,7 +134,15 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    m_robotContainer.drivetrain.applyRequest(() ->
+    m_robotContainer.drive.withVelocityX(0) // Drive forward with negative Y (forward)
+        .withVelocityY(Math.abs(m_robotContainer.visionSubsystem.getYaw()) > 1 ? 1 : 0) // Drive left with negative X (left)
+        .withRotationalRate(0) // Drive counterclockwise with negative X (left)
+    );
+
+    SmartDashboard.putNumber("Yaw", m_robotContainer.visionSubsystem.getYaw());
+  }
 
   @Override
   public void testExit() {}
