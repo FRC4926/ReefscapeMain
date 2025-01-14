@@ -11,16 +11,27 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.VisionTargetSim;
+
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+
 
 
 public class VisionSubsystem extends SubsystemBase {
@@ -31,8 +42,14 @@ public class VisionSubsystem extends SubsystemBase {
     VisionSystemSim visionSim = new VisionSystemSim("main");
     TargetModel myModel = new TargetModel(10, 10);
     VisionTargetSim targetSim = new VisionTargetSim(new Pose3d(1, 2, 3, new Rotation3d(0, 0, Math.PI)), myModel);
+    private final StructPublisher<Pose3d> posePublisher =
+            NetworkTableInstance.getDefault()
+                    .getStructTopic("sheesh", Pose3d.struct)
+                    .publish();
 
     double tagID = 0;
+    public Pose3d robotPose = new Pose3d();
+    Pose3d tagPose = new Pose3d(); 
     double yaw = 0;
     double pitch = 0;
     double area = 0;
@@ -53,9 +70,9 @@ public class VisionSubsystem extends SubsystemBase {
         // Approximate detection noise with average and standard deviation error in pixels.
         camProps.setCalibError(0.25, 0.08);
         // Set the camera image capture framerate (Note: this is limited by robot loop rate).
-        camProps.setFPS(20);
+        camProps.setFPS(45);
         // The average and standard deviation in milliseconds of image data latency.
-        camProps.setAvgLatencyMs(35);
+        camProps.setAvgLatencyMs(25);
         camProps.setLatencyStdDevMs(5);
 
         bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
@@ -71,6 +88,19 @@ public class VisionSubsystem extends SubsystemBase {
     {
         return yaw;
     }
+    public Pose3d getRobotPose() {
+        return robotPose;
+    }
+    public Pose3d getTagPose() {
+        Translation2d offsetFromTag = new Translation2d(0, tagPose.getRotation().toRotation2d().rotateBy(Rotation2d.kCCW_90deg));
+
+        return tagPose.transformBy(new Transform3d(offsetFromTag.getX(), offsetFromTag.getY(), 0, new Rotation3d()));
+
+        // Pose3d sheesh = new Pose3d(tagPose.getX() + Math.cos(tagPose.getRotation().getAngle()), tagPose.getY() + Math.sin(tagPose.getRotation().getAngle()), tagPose.getZ(), tagPose.getRotation());
+     
+        // return sheesh;
+    }
+
 
 
     @Override
@@ -78,40 +108,51 @@ public class VisionSubsystem extends SubsystemBase {
     {
         visionSim.update(RobotContainer.drivetrain.getState().Pose);
         visionSim.getDebugField();
-
+    
         List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
         if (!results.isEmpty())
-        latestResult = results.get(results.size() - 1);
-
+            latestResult = results.get(results.size() - 1);
+    
         SmartDashboard.putBoolean("Camera is connected", bigCamera.isConnected());
         SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
-
+    
+       
+       // Pose3d robotPose = new Pose3d(); // Field-relative robot pose
+    
+        //RobotContainer.drivetrain.addVisionMeasurement(tagPose.toPose2d(), area);
+       
+    
         if (latestResult != null) {
             var bestTarget = latestResult.getBestTarget();
-            tagID = latestResult.hasTargets() ? latestResult.getBestTarget().getFiducialId() : -1;
-            yaw = latestResult.hasTargets() ? latestResult.getBestTarget().getYaw() : -1;
-            pitch = latestResult.hasTargets() ? latestResult.getBestTarget().getPitch() : -1;
-            area = latestResult.hasTargets() ? latestResult.getBestTarget().getArea() : -1;
-
+            tagID = latestResult.hasTargets() ? bestTarget.getFiducialId() : -1;
+            yaw = latestResult.hasTargets() ? bestTarget.getYaw() : -1;
+            pitch = latestResult.hasTargets() ? bestTarget.getPitch() : -1;
+            area = latestResult.hasTargets() ? bestTarget.getArea() : -1;
+    
             try {
+                // Load AprilTag field layout and get the tag's pose
                 AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
-                Pose3d tagPose = fieldLayout.getTagPose((int) tagID).orElse(null);
+                tagPose = fieldLayout.getTagPose((int) tagID).orElse(null);
     
                 if (tagPose != null) {
                     // Calculate robot pose using the tag pose and camera-to-tag transform
                     Transform3d cameraToTag = bestTarget.getBestCameraToTarget();
-                    Pose3d robotPose = tagPose.transformBy(cameraToTag.inverse());
+                    robotPose = tagPose.transformBy(cameraToTag.inverse());
     
-                    // Log the estimated pose
-                    SmartDashboard.putNumber("Estimated X", robotPose.getX());
-                    SmartDashboard.putNumber("Estimated Y", robotPose.getY());
-                    SmartDashboard.putNumber("Estimated Z", robotPose.getZ());
+                    // Log the estimated robot pose
+                    SmartDashboard.putNumber("tagID", tagID);
+                    SmartDashboard.putNumber("Robot Y", robotPose.getY());
+                    SmartDashboard.putNumber("Robot Z", robotPose.getZ());
                     SmartDashboard.putString("Robot Pose", robotPose.toString());
+                    posePublisher.set(getTagPose());
                 }
             } catch (IOException e) {
                 SmartDashboard.putString("Vision Error", "Failed to load field layout: " + e.getMessage());
             }
         }
-
+    
+        // Publish the robot pose to AdvantageScope
+        
     }
+
 }

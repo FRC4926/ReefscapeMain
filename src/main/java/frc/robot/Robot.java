@@ -9,10 +9,22 @@ import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -23,6 +35,7 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     bigCamera = new PhotonCamera("bigcam");
+    Pathfinding.setPathfinder(new LocalADStar());
     m_robotContainer = new RobotContainer();
   }
 
@@ -131,17 +144,37 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+        //     PathConstraints conts = new PathConstraints(
+        //     3.0, 4.0,
+        //     Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+        // PathPlannerPath shees = new PathPlannerPath(PathPlannerPath.waypointsFromPoses(RobotContainer.drivetrain.getState().Pose, new Pose2d(16.02, 0.76, Rotation2d.fromDegrees(127))), conts, null,  new GoalEndState(0.0, Rotation2d.fromDegrees(127)));
+        // AutoBuilder.followPath(shees).schedule();
+
+
+        //Pose2d targetPose = new Pose2d(12.25, 5.08, Rotation2d.fromDegrees(RobotContainer.visionSubsystem.getTagPose().getRotation().getAngle()*(180/Math.PI)));
+        Pose2d targetPose = RobotContainer.visionSubsystem.getTagPose().toPose2d();
+
+
+        
+
+        // Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+                3.0, 4.0,
+                Units.degreesToRadians(540), Units.degreesToRadians(720));
+        
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+                targetPose,
+                constraints,
+                0.0);
+        
+        CommandScheduler.getInstance().schedule(pathfindingCommand);
   }
 
   @Override
   public void testPeriodic() {
-    m_robotContainer.drivetrain.applyRequest(() ->
-    m_robotContainer.drive.withVelocityX(0) // Drive forward with negative Y (forward)
-        .withVelocityY(Math.abs(m_robotContainer.visionSubsystem.getYaw()) > 1 ? 1 : 0) // Drive left with negative X (left)
-        .withRotationalRate(0) // Drive counterclockwise with negative X (left)
-    );
-
-    SmartDashboard.putNumber("Yaw", m_robotContainer.visionSubsystem.getYaw());
+   
   }
 
   @Override
