@@ -5,10 +5,13 @@
 package frc.robot;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -16,9 +19,17 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +43,14 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
   PhotonCamera bigCamera;
   PhotonPipelineResult latestResult = null;
+  private final StructPublisher<Pose2d> posePublisher =
+        NetworkTableInstance.getDefault()
+                .getStructTopic("bob", Pose2d.struct)
+                .publish();
+  private final StructPublisher<Pose2d> photonPublisher =
+        NetworkTableInstance.getDefault()
+                .getStructTopic("joe", Pose2d.struct)
+                .publish();
 
   public Robot() {
     bigCamera = new PhotonCamera("bigcam");
@@ -63,6 +82,21 @@ public class Robot extends TimedRobot {
     //   SmartDashboard.putNumber("Target pitch", -1);
     //   SmartDashboard.putNumber("April tag Small Index", -1);
     // }
+
+    Optional<EstimatedRobotPose> estimatedPose = RobotContainer.visionSubsystem.getEstimatedGlobalPose();
+    SmartDashboard.putBoolean("estimatedPose is present", estimatedPose.isPresent());
+    if (estimatedPose.isPresent()) {
+      EstimatedRobotPose pose = estimatedPose.get();
+     // photonPublisher.set(pose.estimatedPose.toPose2d());
+      RobotContainer.drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(pose.timestampSeconds));
+      
+      //RobotContainer.drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {1, 1, 0.08}));
+    }
+
+    posePublisher.set(RobotContainer.drivetrain.getState().Pose);
+
+
+
 
 
     CommandScheduler.getInstance().run(); 
@@ -152,8 +186,8 @@ public class Robot extends TimedRobot {
         // AutoBuilder.followPath(shees).schedule();
 
 
-        //Pose2d targetPose = new Pose2d(12.25, 5.08, Rotation2d.fromDegrees(RobotContainer.visionSubsystem.getTagPose().getRotation().getAngle()*(180/Math.PI)));
-        Pose2d targetPose = RobotContainer.visionSubsystem.getTagPose().toPose2d();
+        Pose2d targetPose = new Pose2d(16.02, 0.76, Rotation2d.fromDegrees(127));
+        //Pose2d targetPose = RobotContainer.visionSubsystem.getTagPose().toPose2d();
 
 
         
