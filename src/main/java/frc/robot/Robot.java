@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -56,10 +57,7 @@ public class Robot extends TimedRobot {
   // double angleB = 90;
   @Override
   public void robotPeriodic() {
-    EstimatedRobotPose estimatedPose = m_robotContainer.visionSubsystem.getEstimatedPose();
-    if (estimatedPose != null) {
-      m_robotContainer.drivetrain.addVisionMeasurement(estimatedPose.estimatedPose.toPose2d(), estimatedPose.timestampSeconds);
-    }
+ 
     // MechanismRoot2d root = mech.getRoot("climber", 2, 0);
     // var m_elevator = root.append(new MechanismLigament2d("elevator", 1.0, angleA, 10, new Color8Bit(Color.kGreen)));
     // var m_wrist =
@@ -129,6 +127,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+
+    // Optional<EstimatedRobotPose> poses = m_robotContainer.visionSubsystem.getEstimatedGlobalPose();
+    // SmartDashboard.putBoolean("Is Present", poses.isPresent());
+    // if (poses.isPresent()) {
+    //   m_robotContainer.drivetrain.addVisionMeasurement(poses.get().estimatedPose.toPose2d(), poses.get().timestampSeconds);
+    // }
+
+
     // List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
     // if (!results.isEmpty())
     //   latestResult = results.get(results.size() - 1);

@@ -1,13 +1,2 @@
-﻿﻿﻿8:07:19.136 PM
- Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:440): The startCompetition() method (or methods called by it) should have handled the exception above.    See https://wpilib.org/stacktrace for more information.    The above stacktrace can help determine where the error occurred.  Warning at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:433): The robot program quit unexpectedly. This is usually due to a code error. ERROR  1  The startCompetition() method (or methods called by it) should have handled the exception above.  edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:440) Warning  1  The robot program quit unexpectedly. This is usually due to a code error.
-  The above stacktrace can help determine where the error occurred.
-  See https://wpilib.org/stacktrace for more information.  edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:433)    	at frc.robot.Main.main(Main.java:13)  	at edu.wpi.first.wpilibj.RobotBase.startRobot(RobotBase.java:510)  	at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:419)  	at edu.wpi.first.wpilibj.TimedRobot.startCompetition(TimedRobot.java:133)  	at edu.wpi.first.wpilibj.IterativeRobotBase.loopFunc(IterativeRobotBase.java:400)  	at frc.robot.Robot.robotPeriodic(Robot.java:59)  	at frc.robot.subsystems.VisionSubsystem.getEstimatedPose(VisionSubsystem.java:61)  	at java.base/java.util.Optional.get(Unknown Source)  Error at java.base/java.util.Optional.get(Unknown Source): Unhandled exception: java.util.NoSuchElementException: No value present ERROR  1  Unhandled exception: java.util.NoSuchElementException: No value present  java.base/java.util.Optional.get(Unknown Source)    	disabledPeriodic(): 0.000557s  	Shuffleboard.update(): 0.001502s  	LiveWindow.updateValues(): 0.000093s  	robotPeriodic(): 0.195573s  	disabledInit(): 0.002522s  Warning at edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62): 	SmartDashboard.updateValues(): 0.000964s Warning  1  	SmartDashboard.updateValues(): 0.000964s
-	disabledInit(): 0.002522s
-	robotPeriodic(): 0.195573s
-	LiveWindow.updateValues(): 0.000093s
-	Shuffleboard.update(): 0.001502s
-	disabledPeriodic(): 0.000557s
-  edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62)    	buttons.run(): 0.018495s  	CommandSwerveDrivetrain.periodic(): 0.008533s  Warning at edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62): 	VisionSubsystem.periodic(): 0.081916s Warning  1  	VisionSubsystem.periodic(): 0.081916s
-	CommandSwerveDrivetrain.periodic(): 0.008533s
-	buttons.run(): 0.018495s
-  edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62) 
+﻿﻿﻿7:46:08.282 PM
+ERROR  1  Unhandled exception: java.lang.NullPointerException: Cannot invoke "edu.wpi.first.apriltag.AprilTagFieldLayout.getTagPose(int)" because "this.fieldTags" is null  org.photonvision.PhotonPoseEstimator.averageBestTargetsStrategy(PhotonPoseEstimator.java:644) Warning  44000  DS A-Stop Disable  Driver Station 
