@@ -83,11 +83,12 @@ public class Robot extends TimedRobot {
     //   SmartDashboard.putNumber("April tag Small Index", -1);
     // }
 
+   // RobotContainer.visionSubsystem.setReferencePose();
     Optional<EstimatedRobotPose> estimatedPose = RobotContainer.visionSubsystem.getEstimatedGlobalPose();
     SmartDashboard.putBoolean("estimatedPose is present", estimatedPose.isPresent());
     if (estimatedPose.isPresent()) {
       EstimatedRobotPose pose = estimatedPose.get();
-     // photonPublisher.set(pose.estimatedPose.toPose2d());
+      photonPublisher.set(pose.estimatedPose.toPose2d());
       RobotContainer.drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(pose.timestampSeconds));
       
       //RobotContainer.drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {1, 1, 0.08}));

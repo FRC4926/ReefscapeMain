@@ -42,10 +42,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
     PhotonCamera bigCamera;
-    PhotonCameraSim bigCameraSim;
+  //  PhotonCameraSim bigCameraSim;
     PhotonPipelineResult latestResult = null;
 
-    VisionSystemSim visionSim = new VisionSystemSim("main");
+    //VisionSystemSim visionSim = new VisionSystemSim("main");
     // TargetModel myModel = new TargetModel(10, 10);
     // VisionTargetSim targetSim = new VisionTargetSim(new Pose3d(1, 2, 3, new Rotation3d(0, 0, Math.PI)), myModel);
     private final StructPublisher<Pose3d> posePublisher =
@@ -65,7 +65,7 @@ public class VisionSubsystem extends SubsystemBase {
     double pitch = 0;
     double area = 0;
     AprilTagFieldLayout fieldLayout = null;
-    Transform3d robotToBigCam = new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0,-0.262,0));
+    Transform3d robotToBigCam = new Transform3d(new Translation3d(7*0.0254, 13*0.0254, 19*0.0254), new Rotation3d(0,-0.262,0));
 
     Optional<EstimatedRobotPose> estimatedPose;
     PhotonPoseEstimator poseEstimator;
@@ -78,7 +78,7 @@ public class VisionSubsystem extends SubsystemBase {
         try
         {
             fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
-            visionSim.addAprilTags(fieldLayout);
+            //visionSim.addAprilTags(fieldLayout);
 
         } catch (Exception e)
         {
@@ -99,8 +99,8 @@ public class VisionSubsystem extends SubsystemBase {
         camProps.setAvgLatencyMs(25);
         camProps.setLatencyStdDevMs(5);
 
-        bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
-        visionSim.addCamera(bigCameraSim, new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0, Math.toRadians(-15), 0)));
+        //bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
+       // visionSim.addCamera(bigCameraSim, new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0, Math.toRadians(-15), 0)));
         poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToBigCam.inverse());
         //poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
@@ -130,19 +130,30 @@ public class VisionSubsystem extends SubsystemBase {
     }
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
         if (latestResult != null && latestResult.hasTargets()) {
-            var ret = poseEstimator.update(latestResult);
-            SmartDashboard.putBoolean("pose estimator is present", ret.isPresent());
-            return ret;
+            var estimated = poseEstimator.update(latestResult);
+            SmartDashboard.putBoolean("pose estimator is present", estimated.isPresent());
+            if (estimated.isEmpty()) return Optional.empty();
+
+            // Transform3d cameraToTag = latestResult.getBestTarget().getBestCameraToTarget();
+            // var ret = estimated.get().estimatedPose.transformBy(cameraToTag.inverse());
+
+            // return Optional.of(new EstimatedRobotPose(ret, estimated.get().timestampSeconds, null, null));
+
+            return estimated;
 
         } else {
             return Optional.empty();
         }
     }
 
+    public void setReferencePose() {
+        poseEstimator.setReferencePose(RobotContainer.drivetrain.getState().Pose);
+    }
+
     @Override
     public void periodic() 
     {
-       visionSim.update(RobotContainer.drivetrain.getState().Pose);
+       //visionSim.update(RobotContainer.drivetrain.getState().Pose);
         //visionSim.getDebugField();
     
         List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
