@@ -30,6 +30,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,7 +42,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-  PhotonCamera bigCamera;
+ // PhotonCamera bigCamera;
   PhotonPipelineResult latestResult = null;
   private final StructPublisher<Pose2d> posePublisher =
         NetworkTableInstance.getDefault()
@@ -51,9 +52,9 @@ public class Robot extends TimedRobot {
         NetworkTableInstance.getDefault()
                 .getStructTopic("joe", Pose2d.struct)
                 .publish();
-
+  
   public Robot() {
-    bigCamera = new PhotonCamera("bigcam");
+   // bigCamera = new PhotonCamera("bigcam");
     Pathfinding.setPathfinder(new LocalADStar());
     m_robotContainer = new RobotContainer();
   }
@@ -61,6 +62,10 @@ public class Robot extends TimedRobot {
   boolean hasResults = false;
   @Override
   public void robotPeriodic() {
+    for (int i = 0; i < m_robotContainer.logitechController.getButtonCount(); i++) {
+      SmartDashboard.putBoolean("Button #" + (i + 1), m_robotContainer.logitechController.getRawButton(i + 1));
+    }
+
     // var result = bigCamera.getLatestResult();
     // var results = bigCamera.getLatestResult();
     // if (!results.hasTargets()) hasResults = true;
@@ -84,15 +89,27 @@ public class Robot extends TimedRobot {
     // }
 
    // RobotContainer.visionSubsystem.setReferencePose();
-    Optional<EstimatedRobotPose> estimatedPose = RobotContainer.visionSubsystem.getEstimatedGlobalPose();
-    SmartDashboard.putBoolean("estimatedPose is present", estimatedPose.isPresent());
-    if (estimatedPose.isPresent()) {
-      EstimatedRobotPose pose = estimatedPose.get();
-      photonPublisher.set(pose.estimatedPose.toPose2d());
-      RobotContainer.drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(pose.timestampSeconds));
-      
-      //RobotContainer.drivetrain.setVisionMeasurementStdDevs(new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {1, 1, 0.08}));
-    }
+
+
+    // Optional<EstimatedRobotPose> estimatedPoseFront = RobotContainer.visionSubsystem.getEstimatedGlobalPoseFront();
+    // Optional<EstimatedRobotPose> estimatedPoseBack = RobotContainer.visionSubsystem.getEstimatedGlobalPoseBack();
+
+    
+
+    // SmartDashboard.putBoolean("estimatedPose is present front", estimatedPoseFront.isPresent());
+    // SmartDashboard.putBoolean("estimatedPose is present back", estimatedPoseBack.isPresent());
+
+    // if (estimatedPoseFront.isPresent()) {
+    //   EstimatedRobotPose poseFront = estimatedPoseFront.get();
+    //   photonPublisher.set(poseFront.estimatedPose.toPose2d());
+    //   RobotContainer.drivetrain.addVisionMeasurement(poseFront.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(poseFront.timestampSeconds), new Matrix<N3, N1> (Nat.N3(), Nat.N1(), new double[] {0.8, 0.8, 0.99}));
+    // }
+
+    // if (estimatedPoseBack.isPresent()) {
+    //   EstimatedRobotPose poseBack = estimatedPoseBack.get();
+    //   photonPublisher.set(poseBack.estimatedPose.toPose2d());
+    //   RobotContainer.drivetrain.addVisionMeasurement(poseBack.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(poseBack.timestampSeconds), new Matrix<N3, N1> (Nat.N3(), Nat.N1(), new double[] {0.8, 0.8, 0.99}));
+    // }
 
     posePublisher.set(RobotContainer.drivetrain.getState().Pose);
 
@@ -141,7 +158,7 @@ public class Robot extends TimedRobot {
     // if (!results.isEmpty())
     //   latestResult = results.get(results.size() - 1);
 
-    SmartDashboard.putNumber("April Tag ID", m_robotContainer.visionSubsystem.getID());
+    // SmartDashboard.putNumber("April Tag ID", m_robotContainer.visionSubsystem.getIDFront());
     // SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
     // boolean hasTargets = false;
 
@@ -187,7 +204,7 @@ public class Robot extends TimedRobot {
         // AutoBuilder.followPath(shees).schedule();
 
 
-        Pose2d targetPose = new Pose2d(16.02, 0.76, Rotation2d.fromDegrees(127));
+        Pose2d targetPose = new Pose2d(16.16, 7.07, Rotation2d.fromDegrees(-125.08));
         //Pose2d targetPose = RobotContainer.visionSubsystem.getTagPose().toPose2d();
 
 
@@ -195,7 +212,7 @@ public class Robot extends TimedRobot {
 
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-                3.0, 4.0,
+                1, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
         
         // Since AutoBuilder is configured, we can use it to build pathfinding commands

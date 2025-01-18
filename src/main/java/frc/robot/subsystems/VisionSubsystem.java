@@ -41,9 +41,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class VisionSubsystem extends SubsystemBase {
-    PhotonCamera bigCamera;
+    PhotonCamera frontCam;
+    PhotonCamera backCam;
   //  PhotonCameraSim bigCameraSim;
-    PhotonPipelineResult latestResult = null;
+    PhotonPipelineResult latestResultFront = null;
+    PhotonPipelineResult latestResultBack = null;
+
 
     //VisionSystemSim visionSim = new VisionSystemSim("main");
     // TargetModel myModel = new TargetModel(10, 10);
@@ -57,22 +60,25 @@ public class VisionSubsystem extends SubsystemBase {
                             .getStructTopic("bruh", Pose3d.struct)
                             .publish();
 
-    double tagID = 0;
+    double tagIDFront = 0;
     public Pose3d robotPose = new Pose3d();
 
     Pose3d tagPose = new Pose3d(); 
-    double yaw = 0;
-    double pitch = 0;
-    double area = 0;
+    double yawFront = 0;
+    double pitchFront = 0;
+    double areaFront = 0;
     AprilTagFieldLayout fieldLayout = null;
-    Transform3d robotToBigCam = new Transform3d(new Translation3d(7*0.0254, 13*0.0254, 19*0.0254), new Rotation3d(0,-0.262,0));
+    Transform3d robotToFrontCam = new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI));
+    Transform3d robotToBackCam = new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2));
 
     Optional<EstimatedRobotPose> estimatedPose;
-    PhotonPoseEstimator poseEstimator;
+    PhotonPoseEstimator poseEstimatorFront;
+    PhotonPoseEstimator poseEstimatorBack;
     private Matrix<N3, N1> curStdDevs;
     AprilTagFieldLayout aprilTagFieldLayout;
     public VisionSubsystem() {
-        bigCamera = new PhotonCamera("bigcam");
+        frontCam = new PhotonCamera("ArducamFront");
+        backCam = new PhotonCamera("ArducamBack");
 
        // visionSim.addVisionTargets(targetSim);
         try
@@ -101,18 +107,20 @@ public class VisionSubsystem extends SubsystemBase {
 
         //bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
        // visionSim.addCamera(bigCameraSim, new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0, Math.toRadians(-15), 0)));
-        poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToBigCam.inverse());
+        poseEstimatorFront = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToFrontCam.inverse());
+        poseEstimatorBack = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToBackCam.inverse());
+
         //poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
-    public double getID()
+    public double getIDFront()
     {
-        return tagID;
+        return tagIDFront;
     }
 
-    public double getYaw()
+    public double getYawFront()
     {
-        return yaw;
+        return yawFront;
     }
     public Pose3d getRobotPose() {
         return robotPose;
@@ -128,10 +136,23 @@ public class VisionSubsystem extends SubsystemBase {
      
         // return sheesh;
     }
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        if (latestResult != null && latestResult.hasTargets()) {
-            var estimated = poseEstimator.update(latestResult);
-            SmartDashboard.putBoolean("pose estimator is present", estimated.isPresent());
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseFront() {
+        if (latestResultFront != null && latestResultFront.hasTargets()) {
+            var estimated = poseEstimatorFront.update(latestResultFront);
+            SmartDashboard.putBoolean("pose estimator is present front", estimated.isPresent());
+            if (estimated.isEmpty()) return Optional.empty();
+
+            return estimated;
+
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseBack() {
+        if (latestResultBack != null && latestResultBack.hasTargets()) {
+            var estimated = poseEstimatorBack.update(latestResultBack);
+            SmartDashboard.putBoolean("pose estimator is present back", estimated.isPresent());
             if (estimated.isEmpty()) return Optional.empty();
 
             // Transform3d cameraToTag = latestResult.getBestTarget().getBestCameraToTarget();
@@ -146,8 +167,12 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public void setReferencePose() {
-        poseEstimator.setReferencePose(RobotContainer.drivetrain.getState().Pose);
+    public void setReferencePoseFront() {
+        poseEstimatorFront.setReferencePose(RobotContainer.drivetrain.getState().Pose);
+    }
+
+    public void setReferencePoseBack() {
+        poseEstimatorBack.setReferencePose(RobotContainer.drivetrain.getState().Pose);
     }
 
     @Override
@@ -156,13 +181,18 @@ public class VisionSubsystem extends SubsystemBase {
        //visionSim.update(RobotContainer.drivetrain.getState().Pose);
         //visionSim.getDebugField();
     
-        List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
-        if (!results.isEmpty())
-            latestResult = results.get(results.size() - 1);
+        List<PhotonPipelineResult> resultsFront = frontCam.getAllUnreadResults();
+        List<PhotonPipelineResult> resultsBack = backCam.getAllUnreadResults();
+        if (!resultsFront.isEmpty())
+            latestResultFront = resultsFront.get(resultsFront.size() - 1);
+        
+        if (!resultsBack.isEmpty())
+            latestResultBack = resultsBack.get(resultsBack.size() - 1);
+
     
-        SmartDashboard.putBoolean("Camera is connected", bigCamera.isConnected());
-        SmartDashboard.putBoolean("Camera has results", !results.isEmpty());
-        SmartDashboard.putBoolean("Result has targets", latestResult.hasTargets());
+        SmartDashboard.putBoolean("Camera is connected", frontCam.isConnected());
+        SmartDashboard.putBoolean("Camera has results", !resultsFront.isEmpty());
+        SmartDashboard.putBoolean("Result has targets", latestResultFront.hasTargets());
        // Optional<EstimatedRobotPose> poses = getEstimatedGlobalPose();
         // if (poses.isPresent()) {
         //     Pose3d tagPose = poses.get().estimatedPose;
@@ -178,12 +208,12 @@ public class VisionSubsystem extends SubsystemBase {
         //RobotContainer.drivetrain.addVisionMeasurement(tagPose.toPose2d(), area);
        
     
-        if (latestResult != null) {
-            var bestTarget = latestResult.getBestTarget();
-            tagID = latestResult.hasTargets() ? bestTarget.getFiducialId() : -1;
-            yaw = latestResult.hasTargets() ? bestTarget.getYaw() : -1;
-            pitch = latestResult.hasTargets() ? bestTarget.getPitch() : -1;
-            area = latestResult.hasTargets() ? bestTarget.getArea() : -1;
+        if (latestResultFront != null) {
+            var bestTarget = latestResultFront.getBestTarget();
+            tagIDFront = latestResultFront.hasTargets() ? bestTarget.getFiducialId() : -1;
+            yawFront = latestResultFront.hasTargets() ? bestTarget.getYaw() : -1;
+            pitchFront = latestResultFront.hasTargets() ? bestTarget.getPitch() : -1;
+            areaFront = latestResultFront.hasTargets() ? bestTarget.getArea() : -1;
     
             // try {
             //     // Load AprilTag field layout and get the tag's pose

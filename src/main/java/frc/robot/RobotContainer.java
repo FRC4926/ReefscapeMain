@@ -21,6 +21,7 @@ import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -47,10 +48,11 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public final CommandXboxController joystick = new CommandXboxController(0);
+    Joystick logitechController = new Joystick(2);
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+    // public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();

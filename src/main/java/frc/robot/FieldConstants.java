@@ -10,7 +10,7 @@ public class FieldConstants {
     //AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025Reefscape.m_resourceFile);
 
 
-    public final static  Pose2d CORAL_STATION = new Pose2d(12.25, 5.08, Rotation2d.fromDegrees(RobotContainer.visionSubsystem.getTagPose().getRotation().getAngle()));
+    // public final static  Pose2d CORAL_STATION = new Pose2d(12.25, 5.08, Rotation2d.fromDegrees(RobotContainer.visionSubsystem.getTagPose().getRotation().getAngle()));
 
     
 }
