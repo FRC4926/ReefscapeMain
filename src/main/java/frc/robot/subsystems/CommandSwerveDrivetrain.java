@@ -135,7 +135,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
  private void configureAutoBuilder() {
-        System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
+        //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(

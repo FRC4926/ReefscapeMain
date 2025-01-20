@@ -1,7 +1,11 @@
 package frc.robot.subsystems;
 import java.io.IOException;
+import java.lang.StackWalker.Option;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.lang.model.util.ElementScanner14;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -37,15 +41,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
-
-
 public class VisionSubsystem extends SubsystemBase {
-    PhotonCamera frontCam;
-    PhotonCamera backCam;
-  //  PhotonCameraSim bigCameraSim;
-    PhotonPipelineResult latestResultFront = null;
-    PhotonPipelineResult latestResultBack = null;
+   private List<CameraWrapper> camWrappers = new ArrayList<>();
+    // PhotonCamera frontCam;
+    // PhotonCamera backCam;
+    //  PhotonCameraSim bigCameraSim;
+    // PhotonPipelineResult latestResultFront = null;
+    // PhotonPipelineResult latestResultBack = null;
 
 
     //VisionSystemSim visionSim = new VisionSystemSim("main");
@@ -68,18 +70,15 @@ public class VisionSubsystem extends SubsystemBase {
     double pitchFront = 0;
     double areaFront = 0;
     AprilTagFieldLayout fieldLayout = null;
-    Transform3d robotToFrontCam = new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI));
-    Transform3d robotToBackCam = new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2));
+    // Transform3d robotToFrontCam = new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI));
+    // Transform3d robotToBackCam = new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2));
 
     Optional<EstimatedRobotPose> estimatedPose;
-    PhotonPoseEstimator poseEstimatorFront;
-    PhotonPoseEstimator poseEstimatorBack;
+    // PhotonPoseEstimator poseEstimatorFront;
+    // PhotonPoseEstimator poseEstimatorBack;
     private Matrix<N3, N1> curStdDevs;
     AprilTagFieldLayout aprilTagFieldLayout;
     public VisionSubsystem() {
-        frontCam = new PhotonCamera("ArducamFront");
-        backCam = new PhotonCamera("ArducamBack");
-
        // visionSim.addVisionTargets(targetSim);
         try
         {
@@ -90,6 +89,12 @@ public class VisionSubsystem extends SubsystemBase {
         {
             SmartDashboard.putString("bro actually errored....", e.toString());
         }
+
+        addCamera("ArducamFront", new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI)), fieldLayout);
+        addCamera("ArducamBack", new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2)), fieldLayout);
+        addCamera("ArducamRight", new Transform3d(new Translation3d(-7.5*0.0254, 7.5*0.0254, 7*0.0254), new Rotation3d(0,0,0)), fieldLayout);
+        addCamera("ArducamLeft", new Transform3d(new Translation3d(-7.5*0.0254, -4*0.0254, 13.5*0.0254), new Rotation3d(0,0,-Math.PI/2)), fieldLayout);
+        addCamera("limelight", new Transform3d(new Translation3d(-7.5*0.0254, -4*0.0254, 13.5*0.0254), new Rotation3d(0,0,-Math.PI/2)), fieldLayout);
         
 
 
@@ -107,10 +112,19 @@ public class VisionSubsystem extends SubsystemBase {
 
         //bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
        // visionSim.addCamera(bigCameraSim, new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0, Math.toRadians(-15), 0)));
-        poseEstimatorFront = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToFrontCam.inverse());
-        poseEstimatorBack = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToBackCam.inverse());
+        // poseEstimatorFront = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToFrontCam.inverse());
+        // poseEstimatorBack = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToBackCam.inverse());
 
         //poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+    }
+
+    public void addCamera(String camName, Transform3d robotToCam, AprilTagFieldLayout _fieldLayout) {
+        camWrappers.add(new CameraWrapper(camName, robotToCam, _fieldLayout));
+    }
+
+    public List<CameraWrapper> getCameras()
+    {
+        return camWrappers;
     }
 
     public double getIDFront()
@@ -136,63 +150,58 @@ public class VisionSubsystem extends SubsystemBase {
      
         // return sheesh;
     }
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseFront() {
-        if (latestResultFront != null && latestResultFront.hasTargets()) {
-            var estimated = poseEstimatorFront.update(latestResultFront);
-            SmartDashboard.putBoolean("pose estimator is present front", estimated.isPresent());
-            if (estimated.isEmpty()) return Optional.empty();
+    // public Optional<EstimatedRobotPose> getEstimatedGlobalPoseFront() {
+    //     if (latestResultFront != null && latestResultFront.hasTargets()) {
+    //         var estimated = poseEstimatorFront.update(latestResultFront);
+    //         SmartDashboard.putBoolean("pose estimator is present front", estimated.isPresent());
+    //         if (estimated.isEmpty()) return Optional.empty();
 
-            return estimated;
+    //         return estimated;
 
-        } else {
-            return Optional.empty();
-        }
-    }
+    //     } else {
+    //         return Optional.empty();
+    //     }
+    // }
 
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPoseBack() {
-        if (latestResultBack != null && latestResultBack.hasTargets()) {
-            var estimated = poseEstimatorBack.update(latestResultBack);
-            SmartDashboard.putBoolean("pose estimator is present back", estimated.isPresent());
-            if (estimated.isEmpty()) return Optional.empty();
+    // public Optional<EstimatedRobotPose> getEstimatedGlobalPoseBack() {
+    //     if (latestResultBack != null && latestResultBack.hasTargets()) {
+    //         var estimated = poseEstimatorBack.update(latestResultBack);
+    //         SmartDashboard.putBoolean("pose estimator is present back", estimated.isPresent());
+    //         if (estimated.isEmpty()) return Optional.empty();
 
-            // Transform3d cameraToTag = latestResult.getBestTarget().getBestCameraToTarget();
-            // var ret = estimated.get().estimatedPose.transformBy(cameraToTag.inverse());
+    //         // Transform3d cameraToTag = latestResult.getBestTarget().getBestCameraToTarget();
+    //         // var ret = estimated.get().estimatedPose.transformBy(cameraToTag.inverse());
 
-            // return Optional.of(new EstimatedRobotPose(ret, estimated.get().timestampSeconds, null, null));
+    //         // return Optional.of(new EstimatedRobotPose(ret, estimated.get().timestampSeconds, null, null));
 
-            return estimated;
+    //         return estimated;
 
-        } else {
-            return Optional.empty();
-        }
-    }
+    //     } else {
+    //         return Optional.empty();
+    //     }
+    // }
 
-    public void setReferencePoseFront() {
-        poseEstimatorFront.setReferencePose(RobotContainer.drivetrain.getState().Pose);
-    }
+    // public List<Optional<EstimatedRobotPose>> getEstimatedGlobalPoses() {
+    //     List<Optional<EstimatedRobotPose>> ret = new ArrayList<>(camWrappers.size());
+    //     for (CameraWrapper camWrapper : camWrappers) {
+    //         ret.add(camWrapper.getEstimatedGlobalPose());
+    //     }
 
-    public void setReferencePoseBack() {
-        poseEstimatorBack.setReferencePose(RobotContainer.drivetrain.getState().Pose);
-    }
+    //     return ret;
+    // }
+
 
     @Override
     public void periodic() 
     {
+        for (CameraWrapper cam: camWrappers)
+        {
+            cam.checkForResult();
+        }
        //visionSim.update(RobotContainer.drivetrain.getState().Pose);
         //visionSim.getDebugField();
     
-        List<PhotonPipelineResult> resultsFront = frontCam.getAllUnreadResults();
-        List<PhotonPipelineResult> resultsBack = backCam.getAllUnreadResults();
-        if (!resultsFront.isEmpty())
-            latestResultFront = resultsFront.get(resultsFront.size() - 1);
-        
-        if (!resultsBack.isEmpty())
-            latestResultBack = resultsBack.get(resultsBack.size() - 1);
 
-    
-        SmartDashboard.putBoolean("Camera is connected", frontCam.isConnected());
-        SmartDashboard.putBoolean("Camera has results", !resultsFront.isEmpty());
-        SmartDashboard.putBoolean("Result has targets", latestResultFront.hasTargets());
        // Optional<EstimatedRobotPose> poses = getEstimatedGlobalPose();
         // if (poses.isPresent()) {
         //     Pose3d tagPose = poses.get().estimatedPose;
@@ -208,12 +217,7 @@ public class VisionSubsystem extends SubsystemBase {
         //RobotContainer.drivetrain.addVisionMeasurement(tagPose.toPose2d(), area);
        
     
-        if (latestResultFront != null) {
-            var bestTarget = latestResultFront.getBestTarget();
-            tagIDFront = latestResultFront.hasTargets() ? bestTarget.getFiducialId() : -1;
-            yawFront = latestResultFront.hasTargets() ? bestTarget.getYaw() : -1;
-            pitchFront = latestResultFront.hasTargets() ? bestTarget.getPitch() : -1;
-            areaFront = latestResultFront.hasTargets() ? bestTarget.getArea() : -1;
+
     
             // try {
             //     // Load AprilTag field layout and get the tag's pose
@@ -241,5 +245,3 @@ public class VisionSubsystem extends SubsystemBase {
         // Publish the robot pose to AdvantageScope
         
     }
-
-}

@@ -52,7 +52,7 @@ public class RobotContainer {
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    // public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+    public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.CameraWrapper;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends TimedRobot {
@@ -62,9 +64,9 @@ public class Robot extends TimedRobot {
   boolean hasResults = false;
   @Override
   public void robotPeriodic() {
-    for (int i = 0; i < m_robotContainer.logitechController.getButtonCount(); i++) {
-      SmartDashboard.putBoolean("Button #" + (i + 1), m_robotContainer.logitechController.getRawButton(i + 1));
-    }
+    // for (int i = 0; i < m_robotContainer.logitechController.getButtonCount(); i++) {
+    //   SmartDashboard.putBoolean("Button #" + (i + 1), m_robotContainer.logitechController.getRawButton(i + 1));
+    // }
 
     // var result = bigCamera.getLatestResult();
     // var results = bigCamera.getLatestResult();
@@ -90,6 +92,21 @@ public class Robot extends TimedRobot {
 
    // RobotContainer.visionSubsystem.setReferencePose();
 
+  List<CameraWrapper> camWrappers = RobotContainer.visionSubsystem.getCameras();
+
+   for (int i = 0; i < camWrappers.size(); i++)
+   {
+      CameraWrapper cam = camWrappers.get(i);
+      if (cam.isConnected())
+      {
+        Optional<EstimatedRobotPose> estimatedPose = camWrappers.get(i).getEstimatedGlobalPose();
+        if (estimatedPose.isPresent()) {
+          EstimatedRobotPose poseCam = estimatedPose.get();
+          photonPublisher.set(poseCam.estimatedPose.toPose2d());
+          RobotContainer.drivetrain.addVisionMeasurement(poseCam.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(poseCam.timestampSeconds), new Matrix<N3, N1> (Nat.N3(), Nat.N1(), new double[] {0.8, 0.8, 0.99}));
+        }
+      }
+  }
 
     // Optional<EstimatedRobotPose> estimatedPoseFront = RobotContainer.visionSubsystem.getEstimatedGlobalPoseFront();
     // Optional<EstimatedRobotPose> estimatedPoseBack = RobotContainer.visionSubsystem.getEstimatedGlobalPoseBack();
