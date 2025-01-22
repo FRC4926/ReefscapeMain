@@ -50,10 +50,10 @@ public class Robot extends TimedRobot {
         NetworkTableInstance.getDefault()
                 .getStructTopic("bob", Pose2d.struct)
                 .publish();
-  private final StructPublisher<Pose2d> photonPublisher =
-        NetworkTableInstance.getDefault()
-                .getStructTopic("joe", Pose2d.struct)
-                .publish();
+  // private final StructPublisher<Pose2d> photonPublisher =
+  //       NetworkTableInstance.getDefault()
+  //               .getStructTopic("joe", Pose2d.struct)
+  //               .publish();
   
   public Robot() {
    // bigCamera = new PhotonCamera("bigcam");
@@ -102,7 +102,7 @@ public class Robot extends TimedRobot {
         Optional<EstimatedRobotPose> estimatedPose = camWrappers.get(i).getEstimatedGlobalPose();
         if (estimatedPose.isPresent()) {
           EstimatedRobotPose poseCam = estimatedPose.get();
-          photonPublisher.set(poseCam.estimatedPose.toPose2d());
+          //photonPublisher.set(poseCam.estimatedPose.toPose2d());
           RobotContainer.drivetrain.addVisionMeasurement(poseCam.estimatedPose.toPose2d(), Utils.fpgaToCurrentTime(poseCam.timestampSeconds), new Matrix<N3, N1> (Nat.N3(), Nat.N1(), new double[] {0.8, 0.8, 0.99}));
         }
       }
@@ -221,7 +221,9 @@ public class Robot extends TimedRobot {
         // AutoBuilder.followPath(shees).schedule();
 
 
-        Pose2d targetPose = new Pose2d(16.16, 7.07, Rotation2d.fromDegrees(-125.08));
+        Pose2d targetPose = new Pose2d(12.63, 5.60, Rotation2d.fromDegrees(-62.77));
+        //Pose2d targetPose = new Pose2d(12.88, 6.17, new Rotation2d(-109.81*Math.PI/180));
+
         //Pose2d targetPose = RobotContainer.visionSubsystem.getTagPose().toPose2d();
 
 

@@ -76,7 +76,7 @@ public class CameraWrapper {
         var estimated = poseEstimator.update(latestResult);
         if (estimated.isEmpty()) return Optional.empty();
 
-        SmartDashboard.putBoolean("Pose estimator is present for" + camera.getName(), estimated.isPresent());
+        //SmartDashboard.putBoolean("Pose estimator is present for" + camera.getName(), estimated.isPresent());
 
         return estimated;
 
