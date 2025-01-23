@@ -240,6 +240,7 @@ public class Robot extends TimedRobot {
                 constraints,
                 0.0);
         
+        
         CommandScheduler.getInstance().schedule(pathfindingCommand);
   }
 
