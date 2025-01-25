@@ -14,7 +14,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
-
+import frc.robot.FieldConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -52,6 +53,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     Command generatedPath = null;
+   // Pose2d sheesh = null;
 
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
@@ -153,9 +155,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(20, 0, 0),
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
+                    new PIDConstants(9, 0, 0)
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
@@ -294,13 +296,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    public Command generatedPath(Pose2d targetPose)
+    public Command updatedPath(Pose2d targetPose)
     {
+
         PathConstraints constraints = new PathConstraints(
-                1, 1,
+                3, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
+       return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
         
-        return AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
 
     }
+
+    // public Pose2d targetChange() {
+    //     if(RobotContainer.logitechController.getRawButton(1)) {
+    //         sheesh = FieldConstants.reefFaces[5];
+    //     } else if(RobotContainer.logitechController.getRawButton(2)) {
+    //         sheesh = FieldConstants.CoralStation.rightCenterFace;
+    //     }
+
+    //     return sheesh;
+    // }
+
+    public Command generatedPath()
+    {
+   
+        return generatedPath;
+    }
+
 }

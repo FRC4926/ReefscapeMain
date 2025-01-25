@@ -23,6 +23,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,6 +38,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -89,7 +91,7 @@ public class VisionSubsystem extends SubsystemBase {
         {
             SmartDashboard.putString("bro actually errored....", e.toString());
         }
-
+        updateOrigin();
         addCamera("ArducamFront", new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI)), fieldLayout);
         addCamera("ArducamBack", new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2)), fieldLayout);
         addCamera("ArducamRight", new Transform3d(new Translation3d(-8.5*0.0254, -3.5*0.0254, 13*0.0254), new Rotation3d(0,0,3*Math.PI/2)), fieldLayout);
@@ -118,6 +120,19 @@ public class VisionSubsystem extends SubsystemBase {
         //poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
+    public void updateOrigin()
+    {
+        if (DriverStation.getAlliance().get().toString().equals("Red"))
+        {
+            fieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+        } else if (DriverStation.getAlliance().get().toString().equals("Blue"))
+        {
+            fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+        } else
+        {
+            System.out.println("Bro actually errored");
+        }
+    }
     public void addCamera(String camName, Transform3d robotToCam, AprilTagFieldLayout _fieldLayout) {
         camWrappers.add(new CameraWrapper(camName, robotToCam, _fieldLayout));
     }
@@ -198,6 +213,7 @@ public class VisionSubsystem extends SubsystemBase {
         {
             cam.checkForResult();
         }
+        SmartDashboard.putString("Alliance", DriverStation.getAlliance().get().toString());
        //visionSim.update(RobotContainer.drivetrain.getState().Pose);
         //visionSim.getDebugField();
     

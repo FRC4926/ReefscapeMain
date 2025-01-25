@@ -22,17 +22,23 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.FieldConstants;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 
 public class RobotContainer {
@@ -48,12 +54,32 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    public final CommandXboxController joystick = new CommandXboxController(0);
-    Joystick logitechController = new Joystick(2);
+    public static final CommandXboxController driverController = new CommandXboxController(0);
+    public static final CommandJoystick operatorController = new CommandJoystick(1);
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+
+    private int reefFaceIdx = 0;
+    private int[] reefFaceIdxToOperatorButtonId = {
+        1, 2, 3,
+        6, 7, 8
+    };
+    private final StructPublisher<Pose2d> reefFacePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("reefFace pose", Pose2d.struct)
+        .publish();
+
+    private void setReefFaceIdx(int idx) {
+        reefFaceIdx = idx;
+        SmartDashboard.putNumber("reefFaceIdx", reefFaceIdx);
+        reefFacePublisher.set(FieldConstants.reefFaces[reefFaceIdx]);
+    }
+    private int getReefFaceIdx() {
+        return reefFaceIdx;
+    }
+    //public Trigger logitechButtonTrigger = new Trigger(() -> logitechController.getRawButton(1));
+    //public Pose2d targetPose2d;
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();
@@ -67,31 +93,46 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
         //align command
 
+        operatorController.button(4).onTrue(new RunCommand(() -> SmartDashboard.putBoolean("PLEASE JUST WORK OKAY???", true)));
+        SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
+            final int idx = i;
+            operatorController.button(reefFaceIdxToOperatorButtonId[idx])
+                // .onTrue(new RunCommand(() -> setReefFaceIdx(idx)));
+                .onTrue(new RunCommand(() -> SmartDashboard.putNumber("HELLO WORLD ! ! !", idx)));
+        }
+        driverController.x().onTrue(RobotContainer.drivetrain.updatedPath(FieldConstants.reefFaces[getReefFaceIdx()]));
+
+        driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        driverController.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))
         ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         // joystick.x().whileTrue(new RunCommand() -> )
-        joystick.x().whileTrue(drivetrain.generatedPath(new Pose2d(12.63, 5.60, Rotation2d.fromDegrees(-62.77))));
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // joystick.x().whileTrue(drivetrain.generatedPath(new Pose2d(12.63, 5.60, Rotation2d.fromDegrees(-62.77))));
+        
+        //logitechController.button(1, null).getAsBoolean();
+        //Trigger.whileTrue(logitechController.getRawButton(1));
+        // joystick.x().onTrue(RobotContainer.drivetrain.updatedPath());
+
+        driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 
