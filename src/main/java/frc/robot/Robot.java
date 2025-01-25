@@ -69,6 +69,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        for (int i = 0; i < RobotContainer.reefFaceIdxToOperatorButtonId.length; i++) {
+            if (RobotContainer.operatorController.getRawButtonPressed(RobotContainer.reefFaceIdxToOperatorButtonId[i])) {
+                m_robotContainer.setReefFaceIdx(i);
+                break;
+            }
+        }
         // for (int i = 0; i < m_robotContainer.logitechController.getButtonCount();
         // i++) {
         // SmartDashboard.putBoolean("Button #" + (i + 1),

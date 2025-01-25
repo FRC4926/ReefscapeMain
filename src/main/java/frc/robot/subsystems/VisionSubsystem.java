@@ -94,7 +94,7 @@ public class VisionSubsystem extends SubsystemBase {
         updateOrigin();
         addCamera("ArducamFront", new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI)), fieldLayout);
         addCamera("ArducamBack", new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2)), fieldLayout);
-        addCamera("ArducamRight", new Transform3d(new Translation3d(-8.5*0.0254, -3.5*0.0254, 13*0.0254), new Rotation3d(0,0,3*Math.PI/2)), fieldLayout);
+        addCamera("ArducamRight", new Transform3d(new Translation3d(-8.25*0.0254, -4*0.0254, 13.25*0.0254), new Rotation3d(0,0,3*Math.PI/2)), fieldLayout);
         addCamera("ArducamLeft", new Transform3d(new Translation3d(-8.5*0.0254, 11.5*0.0254, 10*0.0254), new Rotation3d(0,0,0)), fieldLayout);
         //addCamera("limelight", new Transform3d(new Translation3d(-7.5*0.0254, -4*0.0254, 13.5*0.0254), new Rotation3d(0,0,-Math.PI/2)), fieldLayout);
         

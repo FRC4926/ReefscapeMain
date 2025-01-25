@@ -23,6 +23,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -280,7 +281,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
     }
-
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
@@ -296,13 +296,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    public Command updatedPath() {
+        return updatedPath(FieldConstants.reefFaces[RobotContainer.getReefFaceIdx()]);
+    }
+
     public Command updatedPath(Pose2d targetPose)
     {
-
+        RobotContainer.targetPosePublisher.set(targetPose);
+        
         PathConstraints constraints = new PathConstraints(
                 3, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-       return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
         
 
     }

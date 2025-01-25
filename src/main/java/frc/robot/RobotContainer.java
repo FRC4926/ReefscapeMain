@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.FieldConstants;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
@@ -49,33 +50,42 @@ public class RobotContainer {
     public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    public final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public static final CommandXboxController driverController = new CommandXboxController(0);
-    public static final CommandJoystick operatorController = new CommandJoystick(1);
+    public static final Joystick operatorController = new Joystick(1);
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+    public final static LimelightAligner limelightAligner = new LimelightAligner();
 
-    private int reefFaceIdx = 0;
-    private int[] reefFaceIdxToOperatorButtonId = {
-        1, 2, 3,
-        6, 7, 8
+    private static int reefFaceIdx = 0;
+    public static int[] reefFaceIdxToOperatorButtonId = {
+        7, 6, 1,
+        2, 3, 8,
+
+        9, 10
     };
-    private final StructPublisher<Pose2d> reefFacePublisher = NetworkTableInstance.getDefault()
+    private static final StructPublisher<Pose2d> reefFacePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("reefFace pose", Pose2d.struct)
         .publish();
+    public static final StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("bobget pose", Pose2d.struct)
+        .publish();
 
-    private void setReefFaceIdx(int idx) {
+    public static void setReefFaceIdx(int idx) {
         reefFaceIdx = idx;
         SmartDashboard.putNumber("reefFaceIdx", reefFaceIdx);
         reefFacePublisher.set(FieldConstants.reefFaces[reefFaceIdx]);
     }
-    private int getReefFaceIdx() {
+    public static int getReefFaceIdx() {
         return reefFaceIdx;
     }
     //public Trigger logitechButtonTrigger = new Trigger(() -> logitechController.getRawButton(1));
@@ -101,21 +111,23 @@ public class RobotContainer {
 
         //align command
 
-        operatorController.button(4).onTrue(new RunCommand(() -> SmartDashboard.putBoolean("PLEASE JUST WORK OKAY???", true)));
+        // operatorController.button(4).onTrue(new RunCommand(() -> SmartDashboard.putBoolean("PLEASE JUST WORK OKAY???", true)));
         SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
 
-        for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
-            final int idx = i;
-            operatorController.button(reefFaceIdxToOperatorButtonId[idx])
-                // .onTrue(new RunCommand(() -> setReefFaceIdx(idx)));
-                .onTrue(new RunCommand(() -> SmartDashboard.putNumber("HELLO WORLD ! ! !", idx)));
-        }
-        driverController.x().onTrue(RobotContainer.drivetrain.updatedPath(FieldConstants.reefFaces[getReefFaceIdx()]));
+        // for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
+        //     final int idx = i;
+        //     operatorController.button(reefFaceIdxToOperatorButtonId[idx])
+        //         // .onTrue(new RunCommand(() -> setReefFaceIdx(idx)));
+        //         .onTrue(new RunCommand(() -> SmartDashboard.putNumber("HELLO WORLD ! ! !", idx)));
+        // }
+        driverController.y().onTrue(new RunCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
+        driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
+        driverController.x().whileTrue(drivetrain.applyRequest(() -> limelightAligner.align(relativeDrive)));
 
-        driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driverController.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))
-        ));
+        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driverController.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))
+        // ));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
