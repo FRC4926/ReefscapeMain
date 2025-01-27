@@ -21,6 +21,8 @@ import org.photonvision.simulation.VisionTargetSim;
 
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
@@ -52,7 +54,7 @@ public class VisionSubsystem extends SubsystemBase {
     // PhotonPipelineResult latestResultBack = null;
 
 
-    //VisionSystemSim visionSim = new VisionSystemSim("main");
+    private final VisionSystemSim visionSim;
     // TargetModel myModel = new TargetModel(10, 10);
     // VisionTargetSim targetSim = new VisionTargetSim(new Pose3d(1, 2, 3, new Rotation3d(0, 0, Math.PI)), myModel);
     private final StructPublisher<Pose3d> posePublisher =
@@ -79,7 +81,6 @@ public class VisionSubsystem extends SubsystemBase {
     // PhotonPoseEstimator poseEstimatorFront;
     // PhotonPoseEstimator poseEstimatorBack;
     private Matrix<N3, N1> curStdDevs;
-    AprilTagFieldLayout aprilTagFieldLayout;
     public VisionSubsystem() {
        // visionSim.addVisionTargets(targetSim);
         try
@@ -92,25 +93,31 @@ public class VisionSubsystem extends SubsystemBase {
             SmartDashboard.putString("bro actually errored....", e.toString());
         }
         updateOrigin();
-        addCamera("ArducamFront", new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI)), fieldLayout);
-        addCamera("ArducamBack", new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2)), fieldLayout);
-        addCamera("ArducamRight", new Transform3d(new Translation3d(-8.25*0.0254, -4*0.0254, 13.25*0.0254), new Rotation3d(0,0,3*Math.PI/2)), fieldLayout);
-        addCamera("ArducamLeft", new Transform3d(new Translation3d(-8.5*0.0254, 11.5*0.0254, 10*0.0254), new Rotation3d(0,0,0)), fieldLayout);
-        //addCamera("limelight", new Transform3d(new Translation3d(-7.5*0.0254, -4*0.0254, 13.5*0.0254), new Rotation3d(0,0,-Math.PI/2)), fieldLayout);
-        
 
+        for (CameraWrapperConstants camConstant : VisionConstants.camConstants) {
+            addCamera(camConstant.name(), camConstant.robotToCamera());
+        }
 
+        if (Robot.isSimulation()) {
+            visionSim = new VisionSystemSim("main");
+            visionSim.addAprilTags(fieldLayout);
+            for (CameraWrapper cam : camWrappers) {
+                cam.addToSimulator(visionSim);
+            }
+        } else {
+            visionSim = null;
+        }
 
-        SimCameraProperties camProps = new SimCameraProperties();
-        // A 640 x 480 camera with a 100 degree diagonal FOV.
-        camProps.setCalibration(640, 480, Rotation2d.fromDegrees(100));
-        // Approximate detection noise with average and standard deviation error in pixels.
-        camProps.setCalibError(0.25, 0.08);
-        // Set the camera image capture framerate (Note: this is limited by robot loop rate).
-        camProps.setFPS(45);
-        // The average and standard deviation in milliseconds of image data latency.
-        camProps.setAvgLatencyMs(25);
-        camProps.setLatencyStdDevMs(5);
+        // SimCameraProperties camProps = new SimCameraProperties();
+        // // A 640 x 480 camera with a 100 degree diagonal FOV.
+        // camProps.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+        // // Approximate detection noise with average and standard deviation error in pixels.
+        // camProps.setCalibError(0.25, 0.08);
+        // // Set the camera image capture framerate (Note: this is limited by robot loop rate).
+        // camProps.setFPS(45);
+        // // The average and standard deviation in milliseconds of image data latency.
+        // camProps.setAvgLatencyMs(25);
+        // camProps.setLatencyStdDevMs(5);
 
         //bigCameraSim = new PhotonCameraSim(bigCamera, camProps);
        // visionSim.addCamera(bigCameraSim, new Transform3d(new Translation3d(7*0.0254, -13*0.0254, 19*0.0254), new Rotation3d(0, Math.toRadians(-15), 0)));
@@ -133,8 +140,9 @@ public class VisionSubsystem extends SubsystemBase {
             System.out.println("Bro actually errored");
         }
     }
-    public void addCamera(String camName, Transform3d robotToCam, AprilTagFieldLayout _fieldLayout) {
-        camWrappers.add(new CameraWrapper(camName, robotToCam, _fieldLayout));
+
+    public void addCamera(String camName, Transform3d robotToCam) {
+        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, false));
     }
 
     public List<CameraWrapper> getCameras()
@@ -196,14 +204,15 @@ public class VisionSubsystem extends SubsystemBase {
     //     }
     // }
 
-    // public List<Optional<EstimatedRobotPose>> getEstimatedGlobalPoses() {
-    //     List<Optional<EstimatedRobotPose>> ret = new ArrayList<>(camWrappers.size());
-    //     for (CameraWrapper camWrapper : camWrappers) {
-    //         ret.add(camWrapper.getEstimatedGlobalPose());
-    //     }
+    public EstimatedRobotPose[] getEstimatedGlobalPoses() {
+        EstimatedRobotPose[] ret = new EstimatedRobotPose[4];
+        for (int i = 0; i < camWrappers.size(); i++) {
+            Optional<EstimatedRobotPose> estimated = camWrappers.get(i).getEstimatedGlobalPose();
+            ret[i] = estimated.isPresent() ? estimated.get() : null;
+        }
 
-    //     return ret;
-    // }
+        return ret;
+    }
 
 
     @Override
@@ -214,7 +223,10 @@ public class VisionSubsystem extends SubsystemBase {
             cam.checkForResult();
         }
         SmartDashboard.putString("Alliance", DriverStation.getAlliance().get().toString());
-       //visionSim.update(RobotContainer.drivetrain.getState().Pose);
+
+        if (Robot.isSimulation()) {
+            visionSim.update(RobotContainer.drivetrain.getState().Pose);
+        }
         //visionSim.getDebugField();
     
 

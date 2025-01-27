@@ -9,19 +9,25 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
+import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.VisionConstants;
 
 public class LimelightAligner extends SubsystemBase {
-    private PhotonCamera camera = new PhotonCamera("limelight");
+    private final PhotonCamera camera = new PhotonCamera("limelight");
     private PhotonPipelineResult latestResult = null;
     private int tagId = -1;
     private double yaw = 0.0;
     private double distanceX = 0.0;
     private double distanceY = 0.0;
+    private final PIDController rotationController  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
+    private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
+    private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
 
     public LimelightAligner() {
 
@@ -31,13 +37,13 @@ public class LimelightAligner extends SubsystemBase {
         return tagId;
     }
 
-    private double makeDistance(double pitch) {
-        return PhotonUtils.calculateDistanceToTargetMeters(
-            Units.inchesToMeters(13),
-            Units.inchesToMeters(12.125),
-            Units.degreesToRadians(-13),
-            Units.degreesToRadians(pitch));
-    }
+    // private double makeDistance(double pitch) {
+    //     return PhotonUtils.calculateDistanceToTargetMeters(
+    //         Units.inchesToMeters(13),
+    //         Units.inchesToMeters(12.125),
+    //         Units.degreesToRadians(-13),
+    //         Units.degreesToRadians(pitch));
+    // }
 
     @Override
     public void periodic() {
@@ -78,8 +84,12 @@ public class LimelightAligner extends SubsystemBase {
 
     public RobotCentric align(RobotCentric drive) {
         return drive
-            .withRotationalRate(-yaw * 0.1)
-            .withVelocityX(0.05 - 1.5*distanceX)
-            .withVelocityY(-distanceY);
+            .withRotationalRate(rotationController.calculate(yaw, 0.0))
+            .withVelocityX(relativeXController.calculate(-distanceX, 0.05))
+            .withVelocityY(relativeYController.calculate(distanceY, 0.0));
+    }
+
+    private PIDController makePIDFromConstants(PIDConstants constants) {
+        return new PIDController(constants.kP, constants.kI, constants.kD);
     }
 }

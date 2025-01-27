@@ -6,7 +6,12 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
+
+import org.photonvision.EstimatedRobotPose;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -16,11 +21,14 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -28,6 +36,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -35,11 +44,12 @@ import edu.wpi.first.wpilibj2.command.button.InternalButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-import frc.robot.generated.TunerConstants;
+import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.FieldConstants;
+import frc.robot.Constants.FieldConstants;
 import edu.wpi.first.wpilibj2.command.button.InternalButton;
 
 public class RobotContainer {
@@ -59,7 +69,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public static final CommandXboxController driverController = new CommandXboxController(0);
-    public static final Joystick operatorController = new Joystick(1);
+    public static final CommandJoystick operatorController = new CommandJoystick(1);
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -67,11 +77,15 @@ public class RobotContainer {
     public final static LimelightAligner limelightAligner = new LimelightAligner();
 
     private static int reefFaceIdx = 0;
-    public static int[] reefFaceIdxToOperatorButtonId = {
+    public static final int[] reefFaceIdxToOperatorButtonId = {
         7, 6, 1,
         2, 3, 8,
 
         9, 10
+    };
+    public static final int[] cameraIdxToOperatorButtonId = {
+        17, 18, // up and down
+        19, 20  // left and right
     };
     private static final StructPublisher<Pose2d> reefFacePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("reefFace pose", Pose2d.struct)
@@ -87,6 +101,20 @@ public class RobotContainer {
     }
     public static int getReefFaceIdx() {
         return reefFaceIdx;
+    }
+
+    public static final boolean[] allowAddVisionMeasurements = new boolean[VisionConstants.camConstants.length];
+    static {
+        for (int i = 0; i < allowAddVisionMeasurements.length; i++) {
+            allowAddVisionMeasurements[i] = true;
+            SmartDashboard.putBoolean(VisionConstants.camConstants[i].name() + " is adding vision measurement",
+                allowAddVisionMeasurements[i]);
+        }
+    }
+    public static void toggleAllowAddVisionMeasurement(int idx) {
+        allowAddVisionMeasurements[idx] = !allowAddVisionMeasurements[idx];
+        SmartDashboard.putBoolean(VisionConstants.camConstants[idx].name() + " is adding vision measurement",
+            allowAddVisionMeasurements[idx]);
     }
     //public Trigger logitechButtonTrigger = new Trigger(() -> logitechController.getRawButton(1));
     //public Pose2d targetPose2d;
@@ -109,18 +137,40 @@ public class RobotContainer {
             )
         );
 
+        visionSubsystem.setDefaultCommand(new RunCommand(() -> {
+            EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
+            for (int i = 0; i < poses.length; i++) {
+                if ((poses[i] != null) && allowAddVisionMeasurements[i])
+                    drivetrain.addVisionMeasurement(
+                        poses[i].estimatedPose.toPose2d(),
+                        Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
+                        new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+                            VisionConstants.kalmanPositionStdDev, VisionConstants.kalmanPositionStdDev,
+                            VisionConstants.kalmanRotationStdDev
+                        })
+                    );
+            }
+        }, visionSubsystem));
+
         //align command
 
         // operatorController.button(4).onTrue(new RunCommand(() -> SmartDashboard.putBoolean("PLEASE JUST WORK OKAY???", true)));
         SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
 
-        // for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
-        //     final int idx = i;
-        //     operatorController.button(reefFaceIdxToOperatorButtonId[idx])
-        //         // .onTrue(new RunCommand(() -> setReefFaceIdx(idx)));
-        //         .onTrue(new RunCommand(() -> SmartDashboard.putNumber("HELLO WORLD ! ! !", idx)));
-        // }
-        driverController.y().onTrue(new RunCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
+        for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
+            final int idx = i;
+            operatorController.button(reefFaceIdxToOperatorButtonId[idx])
+                .onTrue(new RunCommand(() -> setReefFaceIdx(idx)).ignoringDisable(true));
+        }
+        for (int i = 0; i < cameraIdxToOperatorButtonId.length; i++) {
+            final int idx = i;
+            operatorController.button(cameraIdxToOperatorButtonId[idx])
+                .onTrue(new RunCommand(() -> toggleAllowAddVisionMeasurement(idx)));
+        }
+
+        // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
+        // Does this make it stutter less?
+        driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().whileTrue(drivetrain.applyRequest(() -> limelightAligner.align(relativeDrive)));
 

@@ -42,16 +42,54 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CameraWrapper {
-    public PhotonCamera camera;
-    public Transform3d robotToCam;
-    public PhotonPipelineResult latestResult;
-    public PhotonPoseEstimator poseEstimator;
+    private final PhotonCamera camera;
+    private final PhotonCameraSim cameraSim;
+    private final PhotonPoseEstimator poseEstimator;
+    private final StructPublisher<Pose2d> posePublisher;
+    private Transform3d robotToCam;
+    private PhotonPipelineResult latestResult;
+    private boolean publishPose;
 
-    public CameraWrapper(String camName, Transform3d _robotToCam, AprilTagFieldLayout _fieldLayout) {
+    public CameraWrapper(String camName, Transform3d _robotToCam, AprilTagFieldLayout fieldLayout, boolean _publishPose) {
         camera = new PhotonCamera(camName);
+
         robotToCam = _robotToCam;
-        poseEstimator = new PhotonPoseEstimator(_fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, _robotToCam.inverse());
+        poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam.inverse());
         poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+        publishPose = _publishPose;
+        if (publishPose) {
+            posePublisher = NetworkTableInstance.getDefault().getStructTopic(camName + " pose", Pose2d.struct).publish();
+        } else {
+            posePublisher = null;
+        }
+   
+        if (Robot.isSimulation()) {
+            SimCameraProperties camProps = new SimCameraProperties();
+            // A 640 x 480 camera with a 100 degree diagonal FOV.
+            camProps.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+            // Approximate detection noise with average and standard deviation error in pixels.
+            camProps.setCalibError(0.25, 0.08);
+            // Set the camera image capture framerate (Note: this is limited by robot loop rate).
+            camProps.setFPS(45);
+            // The average and standard deviation in milliseconds of image data latency.
+            camProps.setAvgLatencyMs(25);
+            camProps.setLatencyStdDevMs(5);
+
+            cameraSim = new PhotonCameraSim(camera, camProps);
+        } else {
+            cameraSim = null;
+        }
+    }
+
+    public void addToSimulator(VisionSystemSim sim) {
+        if (Robot.isSimulation()) {
+            sim.addCamera(cameraSim, robotToCam);
+        }
+    }
+
+    public Transform3d getRobotToCam() {
+        return robotToCam;
     }
 
     public boolean isConnected() {
@@ -75,6 +113,14 @@ public class CameraWrapper {
 
         var estimated = poseEstimator.update(latestResult);
         if (estimated.isEmpty()) return Optional.empty();
+
+        if (publishPose) {
+            if (estimated.isPresent()) {
+                posePublisher.set(estimated.get().estimatedPose.toPose2d());
+            } else {
+                posePublisher.set(new Pose2d());
+            }
+        }
 
         //SmartDashboard.putBoolean("Pose estimator is present for" + camera.getName(), estimated.isPresent());
 
