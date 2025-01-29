@@ -142,7 +142,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void addCamera(String camName, Transform3d robotToCam) {
-        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, false));
+        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, true));
     }
 
     public List<CameraWrapper> getCameras()

@@ -149,6 +149,8 @@ public class Robot extends TimedRobot {
 
         posePublisher.set(RobotContainer.drivetrain.getState().Pose);
 
+
+
         CommandScheduler.getInstance().run();
     }
 

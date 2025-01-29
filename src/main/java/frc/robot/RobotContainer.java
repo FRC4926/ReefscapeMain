@@ -160,12 +160,12 @@ public class RobotContainer {
         for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
             final int idx = i;
             operatorController.button(reefFaceIdxToOperatorButtonId[idx])
-                .onTrue(new RunCommand(() -> setReefFaceIdx(idx)).ignoringDisable(true));
+                .onTrue(new InstantCommand(() -> setReefFaceIdx(idx)).ignoringDisable(true));
         }
         for (int i = 0; i < cameraIdxToOperatorButtonId.length; i++) {
             final int idx = i;
             operatorController.button(cameraIdxToOperatorButtonId[idx])
-                .onTrue(new RunCommand(() -> toggleAllowAddVisionMeasurement(idx)));
+                .onTrue(new InstantCommand(() -> toggleAllowAddVisionMeasurement(idx)));
         }
 
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.

@@ -38,8 +38,8 @@ public class Constants {
         public static final double kalmanPositionStdDev = 1.2;
         public static final double kalmanRotationStdDev = 0.09;
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.1);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(1.5);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(1.0);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(0.0 /* 1.5 */);
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(1.5);
     }
 
     public class AutonConstants {

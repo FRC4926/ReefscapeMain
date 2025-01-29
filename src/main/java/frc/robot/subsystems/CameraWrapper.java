@@ -12,6 +12,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import org.photonvision.PhotonUtils;
 import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -108,10 +109,26 @@ public class CameraWrapper {
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
         if (!camera.isConnected() || latestResult == null || !latestResult.hasTargets())
         {
+            if (publishPose) {
+                posePublisher.set(new Pose2d());
+            }
             return Optional.empty();
         } 
 
-        var estimated = poseEstimator.update(latestResult);
+        List<PhotonTrackedTarget> betterTargets = new ArrayList<>();
+        for (PhotonTrackedTarget target : latestResult.targets)
+        {
+            if (target.getPoseAmbiguity() <= 0.2)
+            {
+                betterTargets.add(target);
+            }
+        }
+        PhotonPipelineResult betterResult = new PhotonPipelineResult(latestResult.metadata.sequenceID, latestResult.metadata.captureTimestampMicros, latestResult.metadata.publishTimestampMicros, latestResult.metadata.timeSinceLastPong, betterTargets);
+
+        var estimated = poseEstimator.update(betterResult);
+        SmartDashboard.putNumber(camera.getName() + " target count", betterResult.targets.size());
+
+
         if (estimated.isEmpty()) return Optional.empty();
 
         if (publishPose) {

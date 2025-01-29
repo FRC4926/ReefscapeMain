@@ -25,9 +25,11 @@ public class LimelightAligner extends SubsystemBase {
     private double yaw = 0.0;
     private double distanceX = 0.0;
     private double distanceY = 0.0;
+    private double distanceZ = 0.0;
     private final PIDController rotationController  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
     private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
     private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
+    private final PIDController relativeZController = new PIDController(1.0, 0.0, 0.0);
 
     public LimelightAligner() {
 
@@ -60,6 +62,7 @@ public class LimelightAligner extends SubsystemBase {
                     Transform3d camToTag = target.getBestCameraToTarget();
                     distanceX = camToTag.getX();
                     distanceY = camToTag.getY();
+                    distanceZ = camToTag.getRotation().toRotation2d().toDegrees();
                     break;
                 }
             }
@@ -71,6 +74,8 @@ public class LimelightAligner extends SubsystemBase {
         SmartDashboard.putNumber("Limelight yaw", yaw);
         SmartDashboard.putNumber("Limelight distance X", distanceX);
         SmartDashboard.putNumber("Limelight distance Y", distanceY);
+        SmartDashboard.putNumber("Limelight distance Z", distanceZ);
+
 
     }
 
@@ -85,7 +90,7 @@ public class LimelightAligner extends SubsystemBase {
     public RobotCentric align(RobotCentric drive) {
         return drive
             .withRotationalRate(rotationController.calculate(yaw, 0.0))
-            .withVelocityX(relativeXController.calculate(-distanceX, 0.05))
+            .withVelocityX(relativeXController.calculate(distanceX, 0.05))
             .withVelocityY(relativeYController.calculate(distanceY, 0.0));
     }
 
