@@ -62,7 +62,7 @@ public class LimelightAligner extends SubsystemBase {
                     Transform3d camToTag = target.getBestCameraToTarget();
                     distanceX = camToTag.getX();
                     distanceY = camToTag.getY();
-                    distanceZ = camToTag.getRotation().toRotation2d().toDegrees();
+                    //distanceZ = camToTag.getRotation().toRotation2d().toDegrees();
                     break;
                 }
             }

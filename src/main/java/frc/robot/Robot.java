@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         // bigCamera = new PhotonCamera("bigcam");
-        Pathfinding.setPathfinder(new LocalADStar());
+        Pathfinding.setPathfinder(new RemoteADStar());
         m_robotContainer = new RobotContainer();
     }
 

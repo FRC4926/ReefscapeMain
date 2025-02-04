@@ -50,6 +50,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+    private boolean interrupt = true;
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -164,7 +165,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                () -> DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue,
                 this // Subsystem for requirements
             );
         } catch (Exception ex) {
@@ -265,6 +266,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
+
+        SmartDashboard.putBoolean("Interuppt", interrupt);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -307,11 +310,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         RobotContainer.targetPosePublisher.set(targetPose);
         
         PathConstraints constraints = new PathConstraints(
-                3, 1,
+                3, 3,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
     }
 
+    public void setInterupt(boolean value)
+    {
+        interrupt = value;
+    }
     // public Pose2d targetChange() {
     //     if(RobotContainer.logitechController.getRawButton(1)) {
     //         sheesh = FieldConstants.reefFaces[5];

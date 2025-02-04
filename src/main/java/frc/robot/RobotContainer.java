@@ -35,6 +35,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -134,10 +135,9 @@ public class RobotContainer {
                 drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+            ).alongWith(new RunCommand(() -> drivetrain.setInterupt(true))));
 
-        visionSubsystem.setDefaultCommand(new RunCommand(() -> {
+            visionSubsystem.setDefaultCommand(new RunCommand(() -> {
             EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
             for (int i = 0; i < poses.length; i++) {
                 if ((poses[i] != null) && allowAddVisionMeasurements[i])
@@ -173,7 +173,7 @@ public class RobotContainer {
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().whileTrue(drivetrain.applyRequest(() -> limelightAligner.align(relativeDrive)));
-
+        driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->
         //     point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))
