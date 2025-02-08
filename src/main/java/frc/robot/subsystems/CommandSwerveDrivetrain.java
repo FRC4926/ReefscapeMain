@@ -2,7 +2,11 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -10,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -310,10 +315,51 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         RobotContainer.targetPosePublisher.set(targetPose);
         
         PathConstraints constraints = new PathConstraints(
-                3, 3,
+                3, 2,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
         return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
     }
+
+    // public Command limelightUpdate()
+    // {
+    //     CameraWrapper limelight = RobotContainer.visionSubsystem.getCameras().get(4);
+    //     Optional<EstimatedRobotPose> estimated = limelight.getEstimatedGlobalPose();
+    //     EstimatedRobotPose limelightPose = estimated.isPresent() ? estimated.get() : null;
+
+        
+    //     PathConstraints constraints = new PathConstraints(
+    //             3, 3,
+    //             Units.degreesToRadians(540), Units.degreesToRadians(720));
+    //     PathfindingCommand limePath = null;
+    //     try
+    //     {
+    //     var config = RobotConfig.fromGUISettings();
+    //     limePath = new PathfindingCommand(
+    //         FieldConstants.reefFaces[limelight.getBestTarget().getFiducialId()],
+    //         constraints,
+    //         0,
+    //         () -> limelightPose.estimatedPose.toPose2d(),
+    //         () -> getState().Speeds,
+    //         (speeds, feedforwards) -> setControl(
+    //                 m_pathApplyRobotSpeeds.withSpeeds(speeds)
+    //                     .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+    //                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+    //             ),
+    //         new PPHolonomicDriveController(
+    //             // PID constants for translation
+    //             AutonConstants.pathplannerTranslationPIDConstants,
+    //             // PID constants for rotation
+    //             AutonConstants.pathplannerRotationPIDConstants
+    //         ),
+    //         config,
+    //         this);
+    //     } catch (Exception ex) {
+    //         DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+    //     }
+
+    //     return limePath;
+
+    // }
 
     public void setInterupt(boolean value)
     {

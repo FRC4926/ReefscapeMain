@@ -22,6 +22,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.hal.PWMJNI;
+import edu.wpi.first.hal.simulation.PWMDataJNI;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.KalmanFilter;
@@ -35,6 +37,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -51,24 +56,41 @@ public class Robot extends TimedRobot {
     private final RobotContainer m_robotContainer;
     // PhotonCamera bigCamera;
     PhotonPipelineResult latestResult = null;
-    private final StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
-            .getStructTopic("bob", Pose2d.struct)
-            .publish();
+    // private final StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
+    //         .getStructTopic("bob", Pose2d.struct)
+    //         .publish();
     // private final StructPublisher<Pose2d> photonPublisher =
     // NetworkTableInstance.getDefault()
     // .getStructTopic("joe", Pose2d.struct)
     // .publish();
 
+    Timer timer = new Timer();
+    Timer timer2 = new Timer();
+
+    // AnalogInput myInput = new AnalogInput(1);
+    DutyCycle dc = new DutyCycle(new DigitalInput(9));
+    // DigitalInput myInput = new DigitalInput(9);
+
     public Robot() {
+        timer.start();
+        timer2.start();
         // bigCamera = new PhotonCamera("bigcam");
         Pathfinding.setPathfinder(new RemoteADStar());
         m_robotContainer = new RobotContainer();
+
+        // PWMJNI.getPWMPosition(0)
+        // myInput.setAverageBits(16);
     }
 
     boolean hasResults = false;
 
+ 
     @Override
     public void robotPeriodic() {
+        SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);
+        // SmartDashboard.putNumber("Color Sensor My Input", PWMJNI.getPWMPosition(0));
+        // SmartDashboard.putNumber("Color Sensor My Input 2", PWMJNI.getPWMSpeed(0));
+
         // for (int i = 0; i < RobotContainer.reefFaceIdxToOperatorButtonId.length; i++) {
         //     if (RobotContainer.operatorController.getRawButtonPressed(RobotContainer.reefFaceIdxToOperatorButtonId[i])) {
         //         m_robotContainer.setReefFaceIdx(i);
@@ -147,11 +169,16 @@ public class Robot extends TimedRobot {
         // (Nat.N3(), Nat.N1(), new double[] {0.8, 0.8, 0.99}));
         // }
 
-        posePublisher.set(RobotContainer.drivetrain.getState().Pose);
 
+        SmartDashboard.putNumber("loop time", timer.get());
+        timer.reset();
 
+        timer2.reset();
 
+        // posePublisher.set(RobotContainer.drivetrain.getState().Pose);
         CommandScheduler.getInstance().run();
+
+        SmartDashboard.putNumber("period time", timer2.get());
     }
 
     @Override

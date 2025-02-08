@@ -142,7 +142,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void addCamera(String camName, Transform3d robotToCam) {
-        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, true));
+        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, false));
     }
 
     public List<CameraWrapper> getCameras()
@@ -205,7 +205,7 @@ public class VisionSubsystem extends SubsystemBase {
     // }
 
     public EstimatedRobotPose[] getEstimatedGlobalPoses() {
-        EstimatedRobotPose[] ret = new EstimatedRobotPose[4];
+        EstimatedRobotPose[] ret = new EstimatedRobotPose[camWrappers.size()];
         for (int i = 0; i < camWrappers.size(); i++) {
             Optional<EstimatedRobotPose> estimated = camWrappers.get(i).getEstimatedGlobalPose();
             ret[i] = estimated.isPresent() ? estimated.get() : null;

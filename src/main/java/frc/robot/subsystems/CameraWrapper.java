@@ -106,6 +106,10 @@ public class CameraWrapper {
             latestResult = results.get(results.size() - 1);
     }
 
+    public PhotonPipelineResult getLatestResult() {
+        return latestResult;
+    }
+
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
         if (!camera.isConnected() || latestResult == null || !latestResult.hasTargets())
         {
@@ -155,5 +159,15 @@ public class CameraWrapper {
         {
             return -1;
         }
+    }
+
+    public PhotonTrackedTarget getBestTarget()
+    {
+        return latestResult.getBestTarget();
+    }
+
+    public PhotonCamera getCamera()
+    {
+        return camera;
     }
 }

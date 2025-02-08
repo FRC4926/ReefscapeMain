@@ -21,6 +21,23 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Constants {
+    public class ElevatorConstants {
+        // TODO CHANGE THESE!!!
+        public static final int leftMotorCanId  = 14;
+        public static final int rightMotorCanId = 15;
+        public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
+        public static final double motorkG = 1.0;
+        public static final double gearRatio = 9.0;
+
+        public static final double[] levels = {
+            -1,
+            -1,
+            2,
+            3,
+            4,
+        };
+    }
+
     public class VisionConstants {
         public record CameraWrapperConstants(String name, Transform3d robotToCamera) {};
         public static final CameraWrapperConstants[] camConstants = {
@@ -32,14 +49,14 @@ public class Constants {
                 new Transform3d(new Translation3d(-8.5*0.0254, 11.5*0.0254, 10*0.0254), new Rotation3d(0,0,0))),
             new CameraWrapperConstants("ArducamRight",
                 new Transform3d(new Translation3d(-8.25*0.0254, -4*0.0254, 13.25*0.0254), new Rotation3d(0,0,3*Math.PI/2))),
-            // new CameraWrapperConstants("limelight",
-            //     new Transform3d(new Translation3d(-7.5*0.0254, -4*0.0254, 13.5*0.0254), new Rotation3d(0,0,-Math.PI/2)), fieldLayout);
+            new CameraWrapperConstants("limelight",
+                 new Transform3d(new Translation3d(0*0.0254, -11*0.0254, 11.5*0.0254), new Rotation3d(0,0,Math.PI)))
         };
         public static final double kalmanPositionStdDev = 1.2;
         public static final double kalmanRotationStdDev = 0.09;
-        public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.1);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(0.0 /* 1.5 */);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(1.5);
+        public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(1.8 /* 1.5 */);
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(1 /* 1.5 */);
     }
 
     public class AutonConstants {
@@ -49,6 +66,8 @@ public class Constants {
 
     public class FieldConstants {
         public static final Pose2d[] reefFaces = new Pose2d[8]; // Starting facing the driver station in clockwise order
+
+
 
         static {
             // Initialize faces
@@ -144,7 +163,7 @@ public class Constants {
 
         // The stator current at which the wheels start to slip;
         // This needs to be tuned to your individual robot
-        private static final Current kSlipCurrent = Amps.of(120.0);
+        private static final Current kSlipCurrent = Amps.of(80);
 
         // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
         // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -154,7 +173,7 @@ public class Constants {
                 new CurrentLimitsConfigs()
                     // Swerve azimuth does not require much torque output, so we can set a relatively low
                     // stator current limit to help avoid brownouts without impacting performance.
-                    .withStatorCurrentLimit(Amps.of(60))
+                    .withStatorCurrentLimit(Amps.of(20))
                     .withStatorCurrentLimitEnable(true)
             );
         private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();

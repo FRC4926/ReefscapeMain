@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.GoalEndState;
@@ -48,22 +49,23 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
-import edu.wpi.first.wpilibj2.command.button.InternalButton;
+import frc.robot.commands.LimelightAlignAuton;
 
 public class RobotContainer {
-    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    public double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-
-    /* Setting up bindings for necessary control of the swerve drive platform */
+    public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+        public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+            
+        /* Setting up bindings for necessary control of the swerve drive platform */
     public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    public final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    public static final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
+        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -76,6 +78,8 @@ public class RobotContainer {
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static LimelightAligner limelightAligner = new LimelightAligner();
+
+    public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
 
     private static int reefFaceIdx = 0;
     public static final int[] reefFaceIdxToOperatorButtonId = {
@@ -122,11 +126,11 @@ public class RobotContainer {
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();
+        NamedCommands.registerCommand("Align", new LimelightAlignAuton());
         configureBindings();
     }
 
     private void configureBindings() { 
-        
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -168,6 +172,13 @@ public class RobotContainer {
                 .onTrue(new InstantCommand(() -> toggleAllowAddVisionMeasurement(idx)));
         }
 
+
+        elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
+        operatorController.button(24).onTrue(elevator.moveToLevelCommand(2));
+        operatorController.button(23).onTrue(elevator.moveToLevelCommand(3));
+        operatorController.button(22).onTrue(elevator.moveToLevelCommand(4));
+        operatorController.button(21).onTrue(elevator.toggleManualCommand());
+
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
@@ -199,6 +210,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("ThreeCoral");
+        return new PathPlannerAuto("AlignAuton");
     }
 }
