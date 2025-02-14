@@ -40,6 +40,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -48,6 +49,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.CameraWrapper;
+import frc.robot.subsystems.ThroughboreEncoder;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends TimedRobot {
@@ -68,8 +70,11 @@ public class Robot extends TimedRobot {
     Timer timer2 = new Timer();
 
     // AnalogInput myInput = new AnalogInput(1);
-    DutyCycle dc = new DutyCycle(new DigitalInput(9));
+    // DutyCycle dc = new DutyCycle(new DigitalInput(9));
     // DigitalInput myInput = new DigitalInput(9);
+
+    ThroughboreEncoder encoder = new ThroughboreEncoder(new DigitalInput(0), new DigitalInput(1), new DigitalInput(2), 1.0);
+    // Encoder enc2 = new Encoder(new DigitalInput(0), new DigitalInput(1));
 
     public Robot() {
         timer.start();
@@ -83,11 +88,14 @@ public class Robot extends TimedRobot {
     }
 
     boolean hasResults = false;
-
  
     @Override
     public void robotPeriodic() {
-        SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);
+        SmartDashboard.putNumber("Relative Position", encoder.getRelativePosition());
+        SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
+        //SmartDashboard.putNumber("Refined Position", encoder.getRefinedPosition());
+        // SmartDashboard.putNumber("Relative Position 2", enc2.getDistance());
+        // SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);
         // SmartDashboard.putNumber("Color Sensor My Input", PWMJNI.getPWMPosition(0));
         // SmartDashboard.putNumber("Color Sensor My Input 2", PWMJNI.getPWMSpeed(0));
 

@@ -1,32 +1,31 @@
-package frc.robot.subsystems;
-
-import java.util.function.DoubleSupplier;
+package frc.robot.reefscape;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ReefscapeState;
 
-public class ElevatorSubsystem implements Subsystem {
+public class Elevator {
     private final TalonFX leftMotor  = new TalonFX(ElevatorConstants.leftMotorCanId);
     private final TalonFX rightMotor = new TalonFX(ElevatorConstants.rightMotorCanId);
     
+    private ReefscapeState currentState;
 
     private boolean manualControl = false;
 
-    public ElevatorSubsystem() {
-        Slot0Configs conf = new Slot0Configs();
-        conf.GravityType = GravityTypeValue.Elevator_Static;
-        conf.kG = ElevatorConstants.motorkG;
-        conf.kP = ElevatorConstants.motorPidConstants.kP;
-        conf.kI = ElevatorConstants.motorPidConstants.kI;
-        conf.kD = ElevatorConstants.motorPidConstants.kD;
+    public Elevator(ReefscapeState initialState) {
+        currentState = initialState;
+        
+        Slot0Configs conf = new Slot0Configs()
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(ElevatorConstants.motorkG)
+            .withKP(ElevatorConstants.motorPidConstants.kP)
+            .withKI(ElevatorConstants.motorPidConstants.kI)
+            .withKD(ElevatorConstants.motorPidConstants.kD);
 
         leftMotor.getConfigurator().apply(conf);
         rightMotor.getConfigurator().apply(conf);
@@ -44,35 +43,29 @@ public class ElevatorSubsystem implements Subsystem {
         rightMotor.setControl(new VelocityVoltage(ElevatorConstants.gearRatio * velocity));
     }
 
-    public Command moveWithVelocityCommand(DoubleSupplier input) {
-        return runOnce(() -> moveWithVelocity(input.getAsDouble()));
-    }
-
-    public void moveToLevel(int level) {
+    public void moveToLevel(ReefscapeState state) {
         // if ((level > ElevatorConstants.levels.length - 1) || (ElevatorConstants.levels[level] == -1))
         //     return;
         if (manualControl)
             return;
-        leftMotor.setControl(new PositionVoltage(ElevatorConstants.levels[level]));
-        rightMotor.setControl(new PositionVoltage(ElevatorConstants.levels[level]));
-    }
-
-    public Command moveToLevelCommand(int level) {
-        if ((level > ElevatorConstants.levels.length - 1) || ElevatorConstants.levels[level] == -1)
-            return null;
-        return runOnce(() -> moveToLevel(level));
+        currentState = state;
+        double height = ElevatorConstants.levels[state.ordinal()];
+        leftMotor.setControl(new PositionVoltage(height));
+        rightMotor.setControl(new PositionVoltage(height));
     }
 
     public void toggleManual() {
         manualControl = !manualControl;
     }
-
-    public Command toggleManualCommand() {
-        return runOnce(() -> toggleManual());
+    public boolean isManual() {
+        return manualControl;
     }
 
     public double getPosition() {
         return 0.5*(leftMotor.getPosition().getValueAsDouble() + rightMotor.getPosition().getValueAsDouble()) / ElevatorConstants.gearRatio;
+    }
+    public ReefscapeState getState() {
+        return currentState;
     }
 
     public void moveRelatively(double offset) {

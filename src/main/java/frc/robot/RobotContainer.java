@@ -28,6 +28,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.util.Units;
@@ -49,11 +50,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightAligner;
+import frc.robot.subsystems.ReefscapeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ReefscapeState;
 import frc.robot.commands.LimelightAlignAuton;
+import frc.robot.reefscape.Elevator;
 
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -79,7 +82,7 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static LimelightAligner limelightAligner = new LimelightAligner();
 
-    public static final ElevatorSubsystem elevator = new ElevatorSubsystem();
+    public static final ReefscapeSubsystem reefscapeSubsystem = new ReefscapeSubsystem();
 
     private static int reefFaceIdx = 0;
     public static final int[] reefFaceIdxToOperatorButtonId = {
@@ -128,6 +131,26 @@ public class RobotContainer {
         //private final AutoChoosersd autoChooser = new AutoChooser();
         NamedCommands.registerCommand("Align", new LimelightAlignAuton());
         configureBindings();
+    }
+
+    private boolean posesClose(Pose2d a, Pose2d b, double threshold) {
+        Translation2d between = a.getTranslation().minus(b.getTranslation());
+        double distSquared = Math.pow(between.getX(), 2) + Math.pow(between.getY(), 2);
+
+        return distSquared <= threshold*threshold;
+    }
+    // returns -1 if not near coral station, and reef face index otherwise
+    private int nearCoralStation() {
+        Pose2d pose = drivetrain.getState().Pose;
+        if (posesClose(pose, FieldConstants.reefFaces[6], FieldConstants.coralStationToRobotThreshold))
+            return 6;
+        if (posesClose(pose, FieldConstants.reefFaces[7], FieldConstants.coralStationToRobotThreshold))
+            return 7;
+        return -1;
+    }
+    private boolean shouldSetStateToCoralStation() {
+        int idx = nearCoralStation();
+        return (idx != -1) && (reefFaceIdx == idx);
     }
 
     private void configureBindings() { 
@@ -179,11 +202,16 @@ public class RobotContainer {
         operatorController.button(22).onTrue(elevator.moveToLevelCommand(4));
         operatorController.button(21).onTrue(elevator.toggleManualCommand());
 
+        new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.CoralStation));
+        new Trigger(() -> (reefscapeSubsystem.getState() == ReefscapeState.CoralStation) && (reefscapeSubsystem.coralInIntake()))
+            .onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Home));
+        // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
+
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
-        driverController.x().whileTrue(drivetrain.applyRequest(() -> limelightAligner.align(relativeDrive)));
+        driverController.x().onTrue(limelightAligner.alignCommand(drivetrain, relativeDrive).alongWith(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level1, true, true, false)).andThen(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level1)));
         driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->

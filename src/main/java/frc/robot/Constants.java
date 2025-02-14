@@ -21,6 +21,77 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Constants {
+    public static enum ReefscapeState {
+        Home,
+        CoralStation,
+        Level1,
+        Level2,
+        Level3,
+        Level4;
+
+        public boolean isLevel() {
+            switch (this) {
+                case Level1:
+                case Level2:
+                case Level3:
+                case Level4:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+
+    public class PivotConstants {
+        // TODO CHANGE THESE!!!
+        public static final int motorId  = 17;
+        public static final PIDConstants motorPidConstants  = new PIDConstants(1.0, 0.0, 0.0);
+        public static final double motorkG = 1.0;
+        public static final int motorEncoderAChannel   = 2;
+        public static final int motorEncoderBChannel   = 3;
+        public static final int motorEncoderPWMChannel = 4;
+
+
+        public static final double[] anglesDegrees = {
+            1234.0, // home
+            1525.0, // coral station
+            4926.0, // level 1
+            3824.0, // level 2
+            3824.0, // level 3
+            3952.0, // level 4
+        };
+    }
+
+    public class IntakeConstants {
+        // TODO CHANGE THESE!!!
+        public static final int motorId = 16;
+        public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
+        public static final double metersPerRotation = 1234.5678;
+        public static final int proximitySensorChannel = 1;
+
+        public static final double intakeVelocity  =  123.434;
+        public static final double outtakeVelocity = -123.435;
+        public static final double[] velocitiesMetersPerSecond = {
+            0.0,             // home
+            outtakeVelocity, // coral station
+            intakeVelocity,  // level 1
+            intakeVelocity,  // level 2
+            intakeVelocity,  // level 3
+            intakeVelocity,  // level 4
+        };
+
+        // public static enum Velocity {
+        //     Zero,
+        //     Intake,
+        //     Outtake,
+        // }
+        // public static final double[] velocitiesMetersPerSecond = {
+        //     0.0, // zero
+        //     123.434,  // intake
+        //     -123.435, // outtake
+        // };
+    }
+
     public class ElevatorConstants {
         // TODO CHANGE THESE!!!
         public static final int leftMotorCanId  = 14;
@@ -30,11 +101,12 @@ public class Constants {
         public static final double gearRatio = 9.0;
 
         public static final double[] levels = {
-            -1,
-            -1,
-            2,
-            3,
-            4,
+            -1, // home
+            -1, // coral
+            -1, // level 1
+            2,  // level 2
+            3,  // level 3
+            4,  // level 4
         };
     }
 
@@ -66,8 +138,6 @@ public class Constants {
 
     public class FieldConstants {
         public static final Pose2d[] reefFaces = new Pose2d[8]; // Starting facing the driver station in clockwise order
-
-
 
         static {
             // Initialize faces
@@ -115,6 +185,8 @@ public class Constants {
                 reefFaces[i] = reefFaces[i].transformBy(coralStationTransform);
             }
         }
+
+        public static final double coralStationToRobotThreshold = 1.0;
 
         public static class CoralStation {
             public static final Pose2d leftCenterFace = new Pose2d(

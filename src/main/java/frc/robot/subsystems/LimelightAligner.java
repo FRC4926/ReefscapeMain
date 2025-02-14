@@ -19,12 +19,14 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 
-public class LimelightAligner extends SubsystemBase {
+public class LimelightAligner implements Subsystem {
     // private final PhotonCamera camera = new PhotonCamera("limelight");
     private final CameraWrapper camera = RobotContainer.visionSubsystem.getCameras().get(4);
     private int tagId = -1;
@@ -112,6 +114,10 @@ public class LimelightAligner extends SubsystemBase {
                 .withVelocityX(relativeXController.calculate(distanceX, 0.0))
                 .withVelocityY(relativeYController.calculate(distanceY, 0.0));
         }
+    }
+    // TODO should LimelightAligner be added as a requirement?
+    public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive) {
+        return drivetrain.applyRequest(() -> align(drive)).until(() -> isFinishedAlign());
     }
 
     public boolean isFinishedAlign()
