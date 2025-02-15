@@ -73,11 +73,11 @@ public class Constants {
         public static final double outtakeVelocity = -123.435;
         public static final double[] velocitiesMetersPerSecond = {
             0.0,             // home
-            outtakeVelocity, // coral station
-            intakeVelocity,  // level 1
-            intakeVelocity,  // level 2
-            intakeVelocity,  // level 3
-            intakeVelocity,  // level 4
+            intakeVelocity,  // coral station
+            outtakeVelocity, // level 1
+            outtakeVelocity, // level 2
+            outtakeVelocity, // level 3
+            outtakeVelocity, // level 4
         };
 
         // public static enum Velocity {
@@ -108,6 +108,11 @@ public class Constants {
             3,  // level 3
             4,  // level 4
         };
+    }
+
+    public enum LimelightAlignerDirection {
+        Left,
+        Right,
     }
 
     public class VisionConstants {
@@ -187,6 +192,7 @@ public class Constants {
         }
 
         public static final double coralStationToRobotThreshold = 1.0;
+        public static final double reefDistanceBetween = Units.inchesToMeters(12.94);
 
         public static class CoralStation {
             public static final Pose2d leftCenterFace = new Pose2d(

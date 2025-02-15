@@ -15,8 +15,6 @@ public class Elevator {
     
     private ReefscapeState currentState;
 
-    private boolean manualControl = false;
-
     public Elevator(ReefscapeState initialState) {
         currentState = initialState;
         
@@ -32,33 +30,31 @@ public class Elevator {
     }
 
     public void moveToPosition(double position) {
+        if (!isManual())
+            return;
         leftMotor.setControl(new PositionVoltage(ElevatorConstants.gearRatio * position));
         rightMotor.setControl(new PositionVoltage(ElevatorConstants.gearRatio * position));
     }
 
     public void moveWithVelocity(double velocity) {
-        if (!manualControl)
+        if (!isManual())
             return;
         leftMotor.setControl(new VelocityVoltage(ElevatorConstants.gearRatio * velocity));
         rightMotor.setControl(new VelocityVoltage(ElevatorConstants.gearRatio * velocity));
     }
 
     public void moveToLevel(ReefscapeState state) {
-        // if ((level > ElevatorConstants.levels.length - 1) || (ElevatorConstants.levels[level] == -1))
-        //     return;
-        if (manualControl)
-            return;
         currentState = state;
         double height = ElevatorConstants.levels[state.ordinal()];
-        leftMotor.setControl(new PositionVoltage(height));
-        rightMotor.setControl(new PositionVoltage(height));
+        leftMotor.setControl(new PositionVoltage(ElevatorConstants.gearRatio * height));
+        rightMotor.setControl(new PositionVoltage(ElevatorConstants.gearRatio * height));
     }
 
-    public void toggleManual() {
-        manualControl = !manualControl;
+    public void setManual() {
+        currentState = null;
     }
     public boolean isManual() {
-        return manualControl;
+        return currentState == null;
     }
 
     public double getPosition() {

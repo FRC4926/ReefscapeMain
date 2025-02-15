@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 
@@ -103,12 +105,15 @@ public class LimelightAligner implements Subsystem {
 
     }
 
-    public RobotCentric align(RobotCentric drive) {
+    public RobotCentric align(RobotCentric drive, LimelightAlignerDirection direction) {
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             return zeroDrive(drive);
         } else
         {
+            double setpoint = FieldConstants.reefDistanceBetween / 2.0;
+            if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
+
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
                 .withVelocityX(relativeXController.calculate(distanceX, 0.0))
@@ -116,8 +121,8 @@ public class LimelightAligner implements Subsystem {
         }
     }
     // TODO should LimelightAligner be added as a requirement?
-    public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive) {
-        return drivetrain.applyRequest(() -> align(drive)).until(() -> isFinishedAlign());
+    public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
+        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
     }
 
     public boolean isFinishedAlign()

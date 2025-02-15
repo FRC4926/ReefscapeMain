@@ -2,6 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// TODO this should be drastically changed
 package frc.robot.commands;
 
 
@@ -38,7 +39,7 @@ public class LimelightAlignAuton extends Command {
   public void execute() {
     System.out.println("runnign!");
     RobotContainer.limelightAligner.setTagToBestTag();
-    RobotContainer.drivetrain.applyRequest(() -> RobotContainer.limelightAligner.align(RobotContainer.relativeDrive));
+    // RobotContainer.drivetrain.applyRequest(() -> RobotContainer.limelightAligner.align(RobotContainer.relativeDrive));
 
   }
 

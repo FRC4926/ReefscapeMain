@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 
@@ -54,6 +55,7 @@ import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.ReefscapeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
 import frc.robot.commands.LimelightAlignAuton;
 import frc.robot.reefscape.Elevator;
@@ -153,6 +155,12 @@ public class RobotContainer {
         return (idx != -1) && (reefFaceIdx == idx);
     }
 
+    private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
+        return limelightAligner.alignCommand(drivetrain, relativeDrive, direction)
+            .alongWith(reefscapeSubsystem.applyStateCommand(() -> reefscapeSubsystem.getLastLevel(), true, true, false))
+            .andThen(reefscapeSubsystem.applyStateCommand(() -> reefscapeSubsystem.getLastLevel(), true, true, true));
+    }
+
     private void configureBindings() { 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -196,23 +204,26 @@ public class RobotContainer {
         }
 
 
-        elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
-        operatorController.button(24).onTrue(elevator.moveToLevelCommand(2));
-        operatorController.button(23).onTrue(elevator.moveToLevelCommand(3));
-        operatorController.button(22).onTrue(elevator.moveToLevelCommand(4));
-        operatorController.button(21).onTrue(elevator.toggleManualCommand());
+        // elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
+        reefscapeSubsystem.elevatorIsManual().whileTrue(reefscapeSubsystem.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
+        operatorController.button(24).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level2, false, false, false));
+        operatorController.button(23).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level3, false, false, false));
+        operatorController.button(22).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level4, false, false, false));
+        operatorController.button(21).onTrue(reefscapeSubsystem.makeElevatorManualCommand());
 
         new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.CoralStation));
         new Trigger(() -> (reefscapeSubsystem.getState() == ReefscapeState.CoralStation) && (reefscapeSubsystem.coralInIntake()))
             .onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Home));
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
-
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
-        driverController.x().onTrue(limelightAligner.alignCommand(drivetrain, relativeDrive).alongWith(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level1, true, true, false)).andThen(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level1)));
-        driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
+        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
+        driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
+        new Trigger(() -> reefscapeSubsystem.getState().isLevel() && (!reefscapeSubsystem.coralInIntake()))
+            .onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Home));
+        // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->
         //     point.withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))
