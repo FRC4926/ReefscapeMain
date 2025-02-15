@@ -75,8 +75,11 @@ public class ReefscapeSubsystem implements Subsystem {
         return lastLevel;
     }
 
-    public boolean coralInIntake() {
-        return intake.coralInIntake();
+    public boolean coralInInnerIntake() {
+        return intake.coralInInnerIntake();
+    }
+    public boolean coralInOuterIntake() {
+        return intake.coralInInnerIntake();
     }
 
     public void makeElevatorManual() {

@@ -67,7 +67,8 @@ public class Constants {
         public static final int motorId = 16;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
         public static final double metersPerRotation = 1234.5678;
-        public static final int proximitySensorChannel = 1;
+        public static final int innerProximitySensorChannel = 1;
+        public static final int outerProximitySensorChannel = 2;
 
         public static final double intakeVelocity  =  123.434;
         public static final double outtakeVelocity = -123.435;

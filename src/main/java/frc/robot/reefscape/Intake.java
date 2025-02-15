@@ -13,7 +13,8 @@ import frc.robot.Constants.ReefscapeState;
 
 public class Intake {
     private final SparkMax intakeMotor = new SparkMax(IntakeConstants.motorId, MotorType.kBrushless);
-    private final DigitalInput proximitySensor = new DigitalInput(IntakeConstants.proximitySensorChannel);
+    private final DigitalInput innerProximitySensor = new DigitalInput(IntakeConstants.innerProximitySensorChannel);
+    private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
 
     private ReefscapeState currentState;
 
@@ -31,10 +32,12 @@ public class Intake {
         intakeMotor.configure(intakeMotorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public boolean coralInIntake() {
-        return proximitySensor.get();
+    public boolean coralInInnerIntake() {
+        return innerProximitySensor.get();
     }
-
+    public boolean coralInOuterIntake() {
+        return outerProximitySensor.get();
+    }
 
     // Positive = intake, negative = outtake
     public void setSpeed(double speedMetersPerSecond) {                   
