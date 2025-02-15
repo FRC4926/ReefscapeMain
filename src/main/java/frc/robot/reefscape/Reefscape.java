@@ -1,26 +1,24 @@
-package frc.robot.subsystems;
+package frc.robot.reefscape;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ReefscapeState;
-import frc.robot.reefscape.Elevator;
-import frc.robot.reefscape.Intake;
-import frc.robot.reefscape.Pivot;
 
-public class ReefscapeSubsystem implements Subsystem {
+public class Reefscape {
     private ReefscapeState currentState = ReefscapeState.Home;
     private ReefscapeState lastLevel = ReefscapeState.Level2;
 
-    private final Elevator elevator = new Elevator(currentState);
-    private final Pivot pivot = new Pivot(currentState);
-    private final Intake intake = new Intake(currentState);
+    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+    private final PivotSubsystem    pivot    = new PivotSubsystem();
+    private final IntakeSubsystem   intake   = new IntakeSubsystem();
 
-    public ReefscapeSubsystem() {
+    public Reefscape() {
     }
 
     // Applies `state` to elevator, pivot, and intake
@@ -32,16 +30,7 @@ public class ReefscapeSubsystem implements Subsystem {
         applyState(currentState, applyToElevator, applyToPivot, applyToIntake);
     }
     public void applyState(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        currentState = state;
-        if (state.isLevel())
-            lastLevel = state;
 
-        if (applyToElevator)
-            elevator.moveToLevel(state);
-        if (applyToPivot)
-            pivot.pivotTo(state);
-        if (applyToIntake)
-            intake.setState(state);
     }
     public Command applyStateCommand(ReefscapeState state) {
         return applyStateCommand(state, true, true, true);
@@ -50,10 +39,27 @@ public class ReefscapeSubsystem implements Subsystem {
         return applyStateCommand(stateSupplier, true, true, true);
     }
     public Command applyStateCommand(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        return runOnce(() -> applyState(state, applyToElevator, applyToPivot, applyToIntake));
+        currentState = state;
+        if (state.isLevel())
+            lastLevel = state;
+        ParallelCommandGroup command = new ParallelCommandGroup();
+        if (applyToElevator)
+            command.addCommands(elevator.setStateCommand(state));
+        if (applyToPivot)
+            command.addCommands(pivot.setStateCommand(state));
+        if (applyToIntake)
+            command.addCommands(intake.setStateCommand(state));
+        return command;
     }
     public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        return runOnce(() -> applyState(stateSupplier.get(), applyToElevator, applyToPivot, applyToIntake));
+        ParallelCommandGroup command = new ParallelCommandGroup();
+        if (applyToElevator)
+            command.addCommands(elevator.setStateCommand(stateSupplier));
+        if (applyToPivot)
+            command.addCommands(pivot.setStateCommand(stateSupplier));
+        if (applyToIntake)
+            command.addCommands(intake.setStateCommand(stateSupplier));
+        return command;
     }
     public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
         return runOnce(() -> applyState(currentState, applyToElevator, applyToPivot, applyToIntake));

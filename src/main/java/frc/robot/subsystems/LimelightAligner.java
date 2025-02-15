@@ -131,6 +131,10 @@ public class LimelightAligner implements Subsystem {
         return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint());
     }
 
+    public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
+        return runOnce(() -> setTagToBestTag()).andThen(alignCommand(drivetrain, drive, direction));
+    }
+
     private PIDController makePIDFromConstants(PIDConstants constants) {
         return new PIDController(constants.kP, constants.kI, constants.kD);
     }

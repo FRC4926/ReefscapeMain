@@ -57,7 +57,6 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
-import frc.robot.commands.LimelightAlignAuton;
 import frc.robot.reefscape.Elevator;
 
 public class RobotContainer {
@@ -131,7 +130,8 @@ public class RobotContainer {
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();
-        NamedCommands.registerCommand("Align", new LimelightAlignAuton());
+        NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left));
+        NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right));
         configureBindings();
     }
 
