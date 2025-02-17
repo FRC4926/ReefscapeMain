@@ -18,7 +18,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
 
     public IntakeSubsystem() {
-        super(true);
+        super(true, true);
 
         SparkMaxConfig intakeMotorConf = new SparkMaxConfig();
         intakeMotorConf.encoder.velocityConversionFactor(IntakeConstants.metersPerRotation);
