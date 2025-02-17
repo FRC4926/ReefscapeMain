@@ -42,6 +42,7 @@ public class Reefscape {
         currentState = state;
         if (state.isLevel())
             lastLevel = state;
+
         ParallelCommandGroup command = new ParallelCommandGroup();
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(state));
@@ -62,7 +63,7 @@ public class Reefscape {
         return command;
     }
     public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        return runOnce(() -> applyState(currentState, applyToElevator, applyToPivot, applyToIntake));
+        return applyStateCommand(currentState, applyToElevator, applyToPivot, applyToIntake);
     }
     public ReefscapeState getState() {
         return currentState;
@@ -71,7 +72,7 @@ public class Reefscape {
         return elevator.getState();
     }
     public ReefscapeState getPivotState() {
-        return pivot.getCurrentState();
+        return pivot.getState();
     }
     public ReefscapeState getIntakeState() {
         return intake.getState();
@@ -88,19 +89,19 @@ public class Reefscape {
         return intake.coralInInnerIntake();
     }
 
-    public void makeElevatorManual() {
-        elevator.setManual();
+    public void toggleElevatorManual() {
+        elevator.toggleManualControl();
     }
-    public Command makeElevatorManualCommand() {
-        return runOnce(() -> makeElevatorManual());
+    public Command toggleElevatorManualCommand() {
+        return elevator.toggleManualControlCommand();
     }
     public Trigger elevatorIsManual() {
-        return new Trigger(() -> elevator.isManual());
+        return new Trigger(() -> elevator.isManualControl());
     }
     public Command elevatorMoveWithVelocityCommand(double velocity) {
-        return runOnce(() -> elevator.moveWithVelocity(velocity));
+        return elevator.setManualVelocityCommand(() -> velocity);
     }
     public Command elevatorMoveWithVelocityCommand(DoubleSupplier velocity) {
-        return run(() -> elevator.moveWithVelocity(velocity.getAsDouble()));
+        return elevator.setManualVelocityCommand(velocity);
     }
 }

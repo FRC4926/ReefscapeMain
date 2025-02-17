@@ -100,7 +100,9 @@ public class Constants {
         public static final int rightMotorCanId = 15;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
         public static final double motorkG = 1.0;
-        public static final double gearRatio = 9.0;
+        public static final double metersPerRotation = 9.0;
+        public static final double minPositionMeters = 0.0;
+        public static final double maxPositionMeters = 10.0;
 
         public static final double[] levels = {
             -1, // home

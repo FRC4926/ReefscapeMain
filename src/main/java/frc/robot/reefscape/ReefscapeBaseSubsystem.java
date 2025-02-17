@@ -17,6 +17,7 @@ public abstract class ReefscapeBaseSubsystem implements Subsystem {
     protected ReefscapeState currentState = ReefscapeState.Home;
     protected ReefscapeState backupState = null;
     protected boolean velocityBased;
+    protected boolean hasSysId;
 
     abstract void setVoltage(Voltage voltage);
     abstract Voltage getVoltage();
@@ -29,25 +30,34 @@ public abstract class ReefscapeBaseSubsystem implements Subsystem {
     // abstract double getCurrentVelocity();
     // abstract double getCurrentVoltage();
 
-    public ReefscapeBaseSubsystem(boolean _velocityBased) {
-        velocityBased = _velocityBased;
+    public ReefscapeBaseSubsystem(boolean velocityBased, boolean hasSysId) {
+        this.velocityBased = velocityBased;
+        this.hasSysId = hasSysId;
 
-        sysIdRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null,
-                Units.Volts.of(4.0),
-                null,
-                (state) -> SignalLogger.writeString("state", state.toString())
-            ),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> setVoltage(voltage), null, this
-            ));
+        if (hasSysId) {
+            sysIdRoutine = new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,
+                    Units.Volts.of(4.0),
+                    null,
+                    (state) -> SignalLogger.writeString("state", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                    (voltage) -> setVoltage(voltage), null, this
+                ));
+        } else {
+            sysIdRoutine = null;
+        }
     }
 
     public Command sysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
+        if (!hasSysId)
+            return null;
         return sysIdRoutine.quasistatic(direction);
     }
     public Command sysIdDynamicCommand(SysIdRoutine.Direction direction) {
+        if (!hasSysId)
+            return null;
         return sysIdRoutine.dynamic(direction);
     }
 
@@ -86,6 +96,9 @@ public abstract class ReefscapeBaseSubsystem implements Subsystem {
             return;
         
         setReferenceVelocity(velocity);
+    }
+    public Command setManualVelocityCommand(double velocity) {
+        return runOnce(() -> setManualVelocity(velocity));
     }
     public Command setManualVelocityCommand(DoubleSupplier velocitySupplier) {
         return run(() -> setManualVelocity(velocitySupplier.getAsDouble()));

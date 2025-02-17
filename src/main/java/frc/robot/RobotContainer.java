@@ -52,12 +52,11 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightAligner;
-import frc.robot.subsystems.ReefscapeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
-import frc.robot.reefscape.Elevator;
+import frc.robot.reefscape.Reefscape;
 
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -83,7 +82,7 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static LimelightAligner limelightAligner = new LimelightAligner();
 
-    public static final ReefscapeSubsystem reefscapeSubsystem = new ReefscapeSubsystem();
+    public static final Reefscape reefscape = new Reefscape();
 
     private static int reefFaceIdx = 0;
     public static final int[] reefFaceIdxToOperatorButtonId = {
@@ -157,8 +156,8 @@ public class RobotContainer {
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         return limelightAligner.alignCommand(drivetrain, relativeDrive, direction)
-            .alongWith(reefscapeSubsystem.applyStateCommand(() -> reefscapeSubsystem.getLastLevel(), true, true, false))
-            .andThen(reefscapeSubsystem.applyStateCommand(() -> reefscapeSubsystem.getLastLevel(), true, true, true));
+            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, true));
     }
 
     private void configureBindings() { 
@@ -205,15 +204,15 @@ public class RobotContainer {
 
 
         // elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
-        reefscapeSubsystem.elevatorIsManual().whileTrue(reefscapeSubsystem.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
-        operatorController.button(24).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level2, false, false, false));
-        operatorController.button(23).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level3, false, false, false));
-        operatorController.button(22).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Level4, false, false, false));
-        operatorController.button(21).onTrue(reefscapeSubsystem.makeElevatorManualCommand());
+        reefscape.elevatorIsManual().whileTrue(reefscape.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
+        operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, false, false, false));
+        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, false, false, false));
+        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, false, false, false));
+        operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
-        new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.CoralStation));
-        new Trigger(() -> (reefscapeSubsystem.getState() == ReefscapeState.CoralStation) && (reefscapeSubsystem.coralInInnerIntake()))
-            .onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Home));
+        new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
+        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation) && (reefscape.coralInInnerIntake()))
+            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
@@ -221,8 +220,8 @@ public class RobotContainer {
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
-        new Trigger(() -> reefscapeSubsystem.getState().isLevel() && (!reefscapeSubsystem.coralInOuterIntake()))
-            .onTrue(reefscapeSubsystem.applyStateCommand(ReefscapeState.Home));
+        new Trigger(() -> reefscape.getState().isLevel() && (!reefscape.coralInOuterIntake()))
+            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->

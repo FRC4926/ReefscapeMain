@@ -21,7 +21,7 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
     //     new DigitalInput(PivotConstants.motorEncoderPWMChannel), 1);
 
     public PivotSubsystem() {
-        super(false);
+        super(false, true);
 
         Slot0Configs motorConf = new Slot0Configs()
             .withGravityType(GravityTypeValue.Arm_Cosine)
