@@ -10,7 +10,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.PivotConstants;
-import frc.robot.subsystems.ThroughboreEncoder;
+//import frc.robot.subsystems.ThroughboreEncoder;
 
 public class PivotSubsystem extends ReefscapeBaseSubsystem {
     private final TalonFX motor = new TalonFX(PivotConstants.motorId);

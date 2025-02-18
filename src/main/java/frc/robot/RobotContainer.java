@@ -211,7 +211,7 @@ public class RobotContainer {
         operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
         new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
-        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation) && (reefscape.coralInInnerIntake()))
+        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation)) //&& (reefscape.coralInInnerIntake()))
             .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
@@ -220,7 +220,7 @@ public class RobotContainer {
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
-        new Trigger(() -> reefscape.getState().isLevel() && (!reefscape.coralInOuterIntake()))
+        new Trigger(() -> reefscape.getState().isLevel()) //&& (!reefscape.coralInOuterIntake()))
             .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));

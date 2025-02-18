@@ -3,6 +3,7 @@ package frc.robot.reefscape;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
@@ -25,10 +26,10 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         super(false, false);
 
         leftMotor.getConfigurator().apply(
-            new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
+            new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
         );
         rightMotor.getConfigurator().apply(
-            new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
+            new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
         );
 
         Slot0Configs slot0Conf = new Slot0Configs()
@@ -38,14 +39,19 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
             .withKI(ElevatorConstants.motorPidConstants.kI)
             .withKD(ElevatorConstants.motorPidConstants.kD);
 
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30);
+        leftMotor.getConfigurator().apply(currentLimitsConfigs);
+        rightMotor.getConfigurator().apply(currentLimitsConfigs);
+
+
         leftMotor.getConfigurator().apply(slot0Conf);
         rightMotor.getConfigurator().apply(slot0Conf);
 
         SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitEnable(true)
-            .withReverseSoftLimitThreshold(ElevatorConstants.minPositionMeters / ElevatorConstants.metersPerRotation)
+            .withReverseSoftLimitThreshold(ElevatorConstants.minPositionInches / ElevatorConstants.conversionFactor)
             .withForwardSoftLimitEnable(true)
-            .withForwardSoftLimitThreshold(ElevatorConstants.maxPositionMeters / ElevatorConstants.metersPerRotation);
+            .withForwardSoftLimitThreshold(ElevatorConstants.maxPositionInches / ElevatorConstants.conversionFactor);
         
         // CurrentLimitsConfigs currentLimitConf = new CurrentLimitsConfigs()
         //     .
@@ -76,18 +82,18 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     }
     @Override
     void setReferencePosition(double position) {
-        setToBothMotors(motor -> motor.setControl(new PositionVoltage(position / ElevatorConstants.metersPerRotation)));
+        setToBothMotors(motor -> motor.setControl(new PositionVoltage(position / ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor)));
     }
     @Override
     void setReferenceVelocity(double velocity) {
-        setToBothMotors(motor -> motor.setControl(new VelocityVoltage(velocity / ElevatorConstants.metersPerRotation)));
+        setToBothMotors(motor -> motor.setControl(new VelocityVoltage(velocity / ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor)));
     }
     @Override
     double getPosition() {
-        return averageMotors(motor -> motor.getPosition().getValueAsDouble()) * ElevatorConstants.metersPerRotation;
+        return averageMotors(motor -> motor.getPosition().getValueAsDouble()) * ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor;
     }
     @Override
     double getVelocity() {
-        return averageMotors(motor -> motor.getVelocity().getValueAsDouble()) * ElevatorConstants.metersPerRotation;
+        return averageMotors(motor -> motor.getVelocity().getValueAsDouble()) * ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor;
     }
 }

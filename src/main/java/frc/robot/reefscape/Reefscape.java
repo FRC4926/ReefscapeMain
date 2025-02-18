@@ -16,7 +16,7 @@ public class Reefscape {
 
     private final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final PivotSubsystem    pivot    = new PivotSubsystem();
-    private final IntakeSubsystem   intake   = new IntakeSubsystem();
+    //rivate final IntakeSubsystem   intake   = new IntakeSubsystem();
 
     public Reefscape() {
     }
@@ -46,10 +46,10 @@ public class Reefscape {
         ParallelCommandGroup command = new ParallelCommandGroup();
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(state));
-        if (applyToPivot)
+        if (applyToPivot)   
             command.addCommands(pivot.setStateCommand(state));
-        if (applyToIntake)
-            command.addCommands(intake.setStateCommand(state));
+        // if (applyToIntake)
+        //     command.addCommands(intake.setStateCommand(state));
         return command;
     }
     public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
@@ -58,8 +58,8 @@ public class Reefscape {
             command.addCommands(elevator.setStateCommand(stateSupplier));
         if (applyToPivot)
             command.addCommands(pivot.setStateCommand(stateSupplier));
-        if (applyToIntake)
-            command.addCommands(intake.setStateCommand(stateSupplier));
+        // if (applyToIntake)
+        //     command.addCommands(intake.setStateCommand(stateSupplier));
         return command;
     }
     public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
@@ -74,20 +74,20 @@ public class Reefscape {
     public ReefscapeState getPivotState() {
         return pivot.getState();
     }
-    public ReefscapeState getIntakeState() {
-        return intake.getState();
-    }
+    // public ReefscapeState getIntakeState() {
+    //     return intake.getState();
+    // }
 
     public ReefscapeState getLastLevel() {
         return lastLevel;
     }
 
-    public boolean coralInInnerIntake() {
-        return intake.coralInInnerIntake();
-    }
-    public boolean coralInOuterIntake() {
-        return intake.coralInInnerIntake();
-    }
+    // public boolean coralInInnerIntake() {
+    //     return intake.coralInInnerIntake();
+    // }
+    // public boolean coralInOuterIntake() {
+    //     return intake.coralInInnerIntake();
+    // }
 
     public void toggleElevatorManual() {
         elevator.toggleManualControl();
