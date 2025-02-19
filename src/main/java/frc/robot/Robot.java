@@ -48,6 +48,8 @@ import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ReefscapeState;
+import frc.robot.reefscape.Reefscape;
 import frc.robot.subsystems.CameraWrapper;
 import frc.robot.subsystems.ThroughboreEncoder;
 import frc.robot.subsystems.VisionSubsystem;
@@ -93,6 +95,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         SmartDashboard.putNumber("Relative Position", encoder.getRelativePosition());
         SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
+
+        SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
         //SmartDashboard.putNumber("Refined Position", encoder.getRefinedPosition());
         // SmartDashboard.putNumber("Relative Position 2", enc2.getDistance());
         // SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);
@@ -220,6 +224,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        m_robotContainer.reefscape.applyState(ReefscapeState.Home);
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
@@ -227,6 +232,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+
+        SmartDashboard.putNumber("Left PID output", RobotContainer.reefscape.elevator.leftMotor.getClosedLoopOutput().getValueAsDouble());
+        SmartDashboard.putNumber("Right PID output",RobotContainer.reefscape.elevator.rightMotor.getClosedLoopOutput().getValueAsDouble());
 
         // RobotContainer.drivetrain.targetChange();
         // List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();

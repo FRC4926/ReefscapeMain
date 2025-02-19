@@ -35,7 +35,9 @@ import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -205,14 +207,16 @@ public class RobotContainer {
 
         // elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
         reefscape.elevatorIsManual().whileTrue(reefscape.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
-        operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, false, false, false));
-        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, false, false, false));
-        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, false, false, false));
+        operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, true, false, false));
+        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, true, false, false));
+        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, false, false));
         operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
-        new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
-        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation)) //&& (reefscape.coralInInnerIntake()))
-            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+        new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
+
+        // new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
+        // new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation)) //&& (reefscape.coralInInnerIntake()))
+        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
@@ -220,8 +224,8 @@ public class RobotContainer {
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
-        new Trigger(() -> reefscape.getState().isLevel()) //&& (!reefscape.coralInOuterIntake()))
-            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+        // new Trigger(() -> reefscape.getState().isLevel()) //&& (!reefscape.coralInOuterIntake()))
+        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
         // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->

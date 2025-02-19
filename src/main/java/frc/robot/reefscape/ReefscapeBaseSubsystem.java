@@ -7,7 +7,9 @@ import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ReefscapeState;
@@ -105,10 +107,12 @@ public abstract class ReefscapeBaseSubsystem implements Subsystem {
     }
 
     public void setState(ReefscapeState state) {
-        if (!isManualControl())
+        // SmartDashboard.putNumber("my ordingal", state.ordinal());
+        if (isManualControl())
             return;
         
         double parameter = getParameterFromArray(state.ordinal());
+        SmartDashboard.putNumber("My parameter", parameter);
         if (velocityBased)
             setReferenceVelocity(parameter);
         else

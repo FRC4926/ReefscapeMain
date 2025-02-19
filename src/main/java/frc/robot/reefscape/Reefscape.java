@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
@@ -14,7 +15,7 @@ public class Reefscape {
     private ReefscapeState currentState = ReefscapeState.Home;
     private ReefscapeState lastLevel = ReefscapeState.Level2;
 
-    private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+    public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final PivotSubsystem    pivot    = new PivotSubsystem();
     //rivate final IntakeSubsystem   intake   = new IntakeSubsystem();
 

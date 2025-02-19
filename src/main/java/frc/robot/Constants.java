@@ -98,7 +98,7 @@ public class Constants {
         // TODO CHANGE THESE!!!
         public static final int leftMotorCanId  = 14;
         public static final int rightMotorCanId = 15;
-        public static final PIDConstants motorPidConstants = new PIDConstants(2.0, 0.0, 0.0);
+        public static final PIDConstants motorPidConstants = new PIDConstants(1.05, 0.0, 0.0);
         public static final double motorkG = 1.0;
         public static final double gearRatio = 9.0;
         public static final double minPositionInches = 0.0;
@@ -106,8 +106,8 @@ public class Constants {
         public static final double conversionFactor = 5.5;
 
         public static final double[] levels = {
-            -1, // home
-            -1, // coral
+            0, // home
+            0, // coral
             0, // level 1
             0,  // level 2
             6,  // level 3
