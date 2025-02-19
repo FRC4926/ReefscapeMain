@@ -6,6 +6,7 @@ import java.util.function.Function;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -40,6 +41,13 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
             .withKI(ElevatorConstants.motorPidConstants.kI)
             .withKD(ElevatorConstants.motorPidConstants.kD);
 
+        Slot1Configs slot1Conf = new Slot1Configs()
+            .withGravityType(GravityTypeValue.Elevator_Static)
+            .withKG(ElevatorConstants.motorkG)
+            .withKP(0.7)
+            .withKI(ElevatorConstants.motorPidConstants.kI)
+            .withKD(ElevatorConstants.motorPidConstants.kD);
+
         CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30);
         leftMotor.getConfigurator().apply(currentLimitsConfigs);
         rightMotor.getConfigurator().apply(currentLimitsConfigs);
@@ -47,6 +55,8 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
 
         leftMotor.getConfigurator().apply(slot0Conf);
         rightMotor.getConfigurator().apply(slot0Conf);
+        leftMotor.getConfigurator().apply(slot1Conf);
+        rightMotor.getConfigurator().apply(slot1Conf);
 
         SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitEnable(false)
@@ -90,8 +100,14 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         double convert = position * ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor;
         SmartDashboard.putNumber("my convert position", convert);
 
-        leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor));
-        rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor));
+        if (position > 3)
+        {
+            leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
+            rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
+        } else {
+            leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
+            rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
+        }
         // setToBothMotors(motor -> motor.setControl(new PositionVoltage(position / (ElevatorConstants.gearRatio * ElevatorConstants.conversionFactor))));
     }
     @Override
