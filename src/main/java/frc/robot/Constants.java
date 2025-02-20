@@ -63,23 +63,27 @@ public class Constants {
         };
     }
 
+    // All intake constants are in inches
     public class IntakeConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId = 16;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
-        public static final double metersPerRotation = 1234.5678;
         public static final int innerProximitySensorChannel = 1;
         public static final int outerProximitySensorChannel = 2;
 
-        public static final double intakeVelocity  =  123.434;
-        public static final double outtakeVelocity = -123.435;
-        public static final double[] velocitiesMetersPerSecond = {
+        public static final double motorRotationsPerWheelRotation = 12.0;
+        public static final double wheelRadiusInches = 3.0;
+        public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
+
+        public static final double intakeVelocity  =  10.0;
+        public static final double outtakeVelocity = -10.0;
+        public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
             intakeVelocity,  // coral station
             outtakeVelocity, // level 1
             outtakeVelocity, // level 2
             outtakeVelocity, // level 3
-            outtakeVelocity, // level 4
+            intakeVelocity,  // level 4 (for level 4 we just intake in the other direction to outtake)
         };
 
         // public static enum Velocity {
@@ -94,24 +98,27 @@ public class Constants {
         // };
     }
 
+    // Elevator constants are defined in inches
     public class ElevatorConstants {
-        // TODO CHANGE THESE!!!
         public static final int leftMotorCanId  = 14;
         public static final int rightMotorCanId = 15;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.05, 0.0, 0.0);
         public static final double motorkG = 1.0;
-        public static final double gearRatio = 9.0;
+
         public static final double minPositionInches = 0.0;
         public static final double maxPositionInches = 25.0;
-        public static final double conversionFactor = 5.5;
 
-        public static final double[] levels = {
-            0, // home
-            0, // coral
-            0, // level 1
-            0,  // level 2
-            6,  // level 3
-            20,  // level 4
+        public static final double motorRotationsPerShaftRotations = 9.0;
+        public static final double inchesPerShaftRotation = 5.5;
+        public static final double inchesPerMotorRotation = inchesPerShaftRotation / motorRotationsPerShaftRotations;
+
+        public static final double[] levelsInches = {
+            0.0,  // home
+            0.0,  // coral
+            0.0,  // level 1
+            0.0,  // level 2
+            6.0,  // level 3
+            20.0, // level 4
         };
     }
 

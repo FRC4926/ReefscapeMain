@@ -17,12 +17,17 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     public final TalonFX leftMotor  = new TalonFX(ElevatorConstants.leftMotorCanId);
     public final TalonFX rightMotor = new TalonFX(ElevatorConstants.rightMotorCanId);
+
+    // private final Mechanism2d mech = new Mechanism2d(10.0, 10.0);
+    // private final MechanismRoot2d mechRoot = mech.getRoot("elevator", 0.0, 0.0);
 
     public ElevatorSubsystem() {
         super(false, false);
@@ -60,21 +65,13 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
 
         SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
             .withReverseSoftLimitEnable(false)
-            // .withReverseSoftLimitThreshold(ElevatorConstants.minPositionInches / ElevatorConstants.conversionFactor)
+            // .withReverseSoftLimitThreshold(motorRotationsFromInches(ElevatorConstants.minPositionInches))
             .withForwardSoftLimitEnable(false);
-            // .withForwardSoftLimitThreshold(ElevatorConstants.maxPositionInches / ElevatorConstants.conversionFactor);
+            // .withForwardSoftLimitThreshold(motorRotationsFromInches(ElevatorConstants.maxPositionInches));
         
         
         leftMotor.getConfigurator().apply(softLimitConf);
         rightMotor.getConfigurator().apply(softLimitConf);
-    }
-
-    private void setToBothMotors(Consumer<TalonFX> fn) {
-        fn.accept(leftMotor);
-        fn.accept(rightMotor);
-    }
-    private double averageMotors(Function<TalonFX, Double> fn) {
-        return 0.5*(fn.apply(leftMotor) + fn.apply(rightMotor));
     }
 
     @Override
@@ -92,34 +89,55 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     }
     @Override
     double getParameterFromArray(int stateIdx) {
-        return ElevatorConstants.levels[stateIdx];
+        return ElevatorConstants.levelsInches[stateIdx];
     }
     @Override
     void setReferencePosition(double position) {
-        SmartDashboard.putNumber("my position", position);
-        double convert = position * ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor;
-        SmartDashboard.putNumber("my convert position", convert);
+        // SmartDashboard.putNumber("my position", position);
+        // double convert = position * ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor;
+        // SmartDashboard.putNumber("my convert position", convert);
 
-        if (position > 3)
-        {
-            leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
-            rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
-        } else {
-            leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
-            rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
-        }
-        // setToBothMotors(motor -> motor.setControl(new PositionVoltage(position / (ElevatorConstants.gearRatio * ElevatorConstants.conversionFactor))));
+        // if (position > 3)
+        // {
+        //     leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
+        //     rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(0));
+        // } else {
+        //     leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
+        //     rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
+        // }
+        mech.
+
+        int slot = (position > 3) ? 0 : 1;
+
+        setToBothMotors(motor -> motor.setControl(new PositionVoltage(motorRotationsFromInches(position)).withSlot(slot)));
     }
     @Override
     void setReferenceVelocity(double velocity) {
-        setToBothMotors(motor -> motor.setControl(new VelocityVoltage(ElevatorConstants.conversionFactor * velocity / ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor)));
+        setToBothMotors(motor -> motor.setControl(new VelocityVoltage(motorRotationsFromInches(velocity))));
     }
     @Override
     public double getPosition() {
-        return averageMotors(motor -> ElevatorConstants.conversionFactor*motor.getPosition().getValueAsDouble() /ElevatorConstants.gearRatio);
+        return inchesFromMotorRotations(averageMotors(motor -> motor.getPosition().getValueAsDouble()));
     }
     @Override
-    double getVelocity() {
-        return averageMotors(motor -> motor.getVelocity().getValueAsDouble()) * ElevatorConstants.gearRatio*ElevatorConstants.conversionFactor;
+    public double getVelocity() {
+        return inchesFromMotorRotations(averageMotors(motor -> motor.getVelocity().getValueAsDouble()));
+    }
+
+    // Utility methods
+
+    private void setToBothMotors(Consumer<TalonFX> fn) {
+        fn.accept(leftMotor);
+        fn.accept(rightMotor);
+    }
+    private double averageMotors(Function<TalonFX, Double> fn) {
+        return 0.5*(fn.apply(leftMotor) + fn.apply(rightMotor));
+    }
+
+    private double inchesFromMotorRotations(double rotations) {
+        return rotations * ElevatorConstants.inchesPerMotorRotation;
+    }
+    private double motorRotationsFromInches(double inches) {
+        return inches / ElevatorConstants.inchesPerMotorRotation;
     }
 }

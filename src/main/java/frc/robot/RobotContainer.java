@@ -212,6 +212,10 @@ public class RobotContainer {
         operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, false, false));
         operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
+        operatorController.button(12).onTrue(reefscape.intakeCommand());
+        operatorController.button(14).onTrue(reefscape.outtakeCommand());
+
+
         new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
 
         // new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));

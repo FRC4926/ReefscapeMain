@@ -17,7 +17,7 @@ public class Reefscape {
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final PivotSubsystem    pivot    = new PivotSubsystem();
-    //rivate final IntakeSubsystem   intake   = new IntakeSubsystem();
+    rivate final IntakeSubsystem   intake   = new IntakeSubsystem();
 
     public Reefscape() {
     }
@@ -104,5 +104,12 @@ public class Reefscape {
     }
     public Command elevatorMoveWithVelocityCommand(DoubleSupplier velocity) {
         return elevator.setManualVelocityCommand(velocity);
+    }
+    
+    public Command intakeCommand() {
+        return intake.intakeCommand();
+    }
+    public Command outtakeCommand() {
+        return intake.outtakeCommand();
     }
 }

@@ -81,7 +81,7 @@ public abstract class ReefscapeBaseSubsystem implements Subsystem {
         setManualControl(!isManualControl());
     }
     public Command toggleManualControlCommand() {
-        return runOnce(() -> toggleManualControl());
+        return runOnce(this::toggleManualControl);
     }
 
     public void setManualPosition(double position) {
