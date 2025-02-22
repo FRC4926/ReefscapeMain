@@ -1,2 +1,13 @@
-﻿﻿﻿10:50:41.051 AM
-ERROR  1  Unhandled exception: java.lang.NullPointerException: Cannot invoke "org.photonvision.targeting.PhotonPipelineResult.hasTargets()" because "this.latestResult" is null  frc.robot.subsystems.LimelightAligner.align(LimelightAligner.java:105) 
+﻿﻿﻿4:57:05.282 PM
+ Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:383): The robot program quit unexpectedly. This is usually due to a code error.    	at frc.robot.Main.main(Main.java:13)  	at edu.wpi.first.wpilibj.RobotBase.startRobot(RobotBase.java:510)  	at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:370)  	at frc.robot.Robot.<init>(Robot.java:86) ERROR  1  The robot program quit unexpectedly. This is usually due to a code error.
+  The above stacktrace can help determine where the error occurred.
+  See https://wpilib.org/stacktrace for more information.
+  edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:383)  	at frc.robot.RobotContainer.<clinit>(RobotContainer.java:87)  	at frc.robot.reefscape.Reefscape.<init>(Reefscape.java:20)  	at frc.robot.reefscape.IntakeSubsystem.<init>(IntakeSubsystem.java:18)  	at edu.wpi.first.wpilibj.DigitalInput.<init>(DigitalInput.java:35)  	at edu.wpi.first.hal.DIOJNI.initializeDIOPort(Native Method)  Location of the current allocation:    	at frc.robot.Main.main(Main.java:13)  	at edu.wpi.first.wpilibj.RobotBase.startRobot(RobotBase.java:510)  	at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:370)  	at frc.robot.Robot.<init>(Robot.java:78)  Location of the previous allocation:  PWM or DIO 1 previously allocated.  Error at frc.robot.reefscape.IntakeSubsystem.<init>(IntakeSubsystem.java:18): Unhandled exception instantiating robot edu.wpi.first.hal.DIOJNI edu.wpi.first.hal.util.AllocationException: Code: -1029 ERROR  1  Unhandled exception instantiating robot edu.wpi.first.hal.DIOJNI edu.wpi.first.hal.util.AllocationException: Code: -1029
+PWM or DIO 1 previously allocated.
+Location of the previous allocation:
+	at frc.robot.Robot.<init>(Robot.java:78)
+	at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:370)
+	at edu.wpi.first.wpilibj.RobotBase.startRobot(RobotBase.java:510)
+	at frc.robot.Main.main(Main.java:13)
+
+Location of the current allocation:  frc.robot.reefscape.IntakeSubsystem.<init>(IntakeSubsystem.java:18) 

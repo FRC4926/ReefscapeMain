@@ -168,8 +168,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ).alongWith(new RunCommand(() -> drivetrain.setInterupt(true))));
 
@@ -207,14 +207,19 @@ public class RobotContainer {
 
         // elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
         reefscape.elevatorIsManual().whileTrue(reefscape.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
-        operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, true, false, false));
-        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, true, false, false));
-        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, false, false));
-        operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
+        operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, true, true, false));
+        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, true, true, false));
+        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false));
+        operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, false, false));
+        // operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
+
+        // operatorController.button(24).negate()
+        // .and(operatorController.button(23).negate()
+        // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
         operatorController.button(12).onTrue(reefscape.intakeCommand());
         operatorController.button(14).onTrue(reefscape.outtakeCommand());
-
+        operatorController.button(13).onTrue(reefscape.zeroCommand());
 
         new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
 

@@ -46,7 +46,7 @@ public class Constants {
     public class PivotConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId  = 17;
-        public static final PIDConstants motorPidConstants  = new PIDConstants(1.0, 0.0, 0.0);
+        public static final PIDConstants motorPidConstants  = new PIDConstants(1.6, 0.0, 0.0);
         public static final double motorkG = 1.0;
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
@@ -54,12 +54,12 @@ public class Constants {
 
 
         public static final double[] anglesDegrees = {
-            1234.0, // home
-            1525.0, // coral station
-            4926.0, // level 1
-            3824.0, // level 2
-            3824.0, // level 3
-            3952.0, // level 4
+            2, // home
+            2, // coral station
+            0, // level 1
+            0, // level 2
+            115, // level 3
+            115, // level 4
         };
     }
 
@@ -75,8 +75,8 @@ public class Constants {
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  10.0;
-        public static final double outtakeVelocity = -10.0;
+        public static final double intakeVelocity  =  0.5;
+        public static final double outtakeVelocity = -0.5;
         public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
             intakeVelocity,  // coral station
@@ -114,10 +114,10 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            0.0,  // coral
+            7.0,  // coral
             0.0,  // level 1
             0.0,  // level 2
-            6.0,  // level 3
+            7.0,  // level 3
             20.0, // level 4
         };
     }

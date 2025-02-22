@@ -15,8 +15,8 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     private final SparkMax motor = new SparkMax(IntakeConstants.motorId, MotorType.kBrushless);
-    private final DigitalInput innerProximitySensor = new DigitalInput(IntakeConstants.innerProximitySensorChannel);
-    private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
+    // private final DigitalInput innerProximitySensor = new DigitalInput(IntakeConstants.innerProximitySensorChannel);
+    // private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
 
     public IntakeSubsystem() {
         super(true, true);
@@ -55,8 +55,8 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         return motor.getEncoder().getPosition();
     }
     @Override
-    void setReferenceVelocity(double velocity) {
-        motor.getClosedLoopController().setReference(velocity, ControlType.kVelocity);
+    void setReferenceVelocity(double effort) {
+        motor.set(effort);
     }
     @Override
     double getVelocity() {
@@ -67,8 +67,14 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         setReferenceVelocity(IntakeConstants.intakeVelocity);
     }
     public void outtake() {
-        setReferenceVelocity(IntakeConstants.intakeVelocity);
+        setReferenceVelocity(IntakeConstants.outtakeVelocity);
     }
+
+    public void zero()
+    {
+        setReferenceVelocity(0);
+    }
+
     public Command intakeCommand() {
         return runOnce(this::intake);
     }
@@ -76,12 +82,17 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         return runOnce(this::outtake);
     }
 
-    public boolean isCoralInInnerIntake() {
-        return innerProximitySensor.get();
+    public Command zeroIntake()
+    {
+        return runOnce(this::zero);
     }
-    public boolean isCoralInOuterIntake() {
-        return outerProximitySensor.get();
-    }
+
+    // public boolean isCoralInInnerIntake() {
+    //     return innerProximitySensor.get();
+    // }
+    // public boolean isCoralInOuterIntake() {
+    //     return outerProximitySensor.get();
+    // }
 
     // Utility methods
 

@@ -16,8 +16,8 @@ public class Reefscape {
     private ReefscapeState lastLevel = ReefscapeState.Level2;
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
-    private final PivotSubsystem    pivot    = new PivotSubsystem();
-    rivate final IntakeSubsystem   intake   = new IntakeSubsystem();
+    public final PivotSubsystem    pivot    = new PivotSubsystem();
+    private final IntakeSubsystem   intake   = new IntakeSubsystem();
 
     public Reefscape() {
     }
@@ -111,5 +111,10 @@ public class Reefscape {
     }
     public Command outtakeCommand() {
         return intake.outtakeCommand();
+    }
+
+    public Command zeroCommand()
+    {
+        return intake.zeroIntake();
     }
 }

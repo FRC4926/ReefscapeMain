@@ -105,7 +105,6 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         //     leftMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
         //     rightMotor.setControl(new PositionVoltage(position* ElevatorConstants.gearRatio / ElevatorConstants.conversionFactor).withSlot(1));
         // }
-        mech.
 
         int slot = (position > 3) ? 0 : 1;
 

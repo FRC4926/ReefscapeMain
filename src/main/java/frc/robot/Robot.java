@@ -93,10 +93,12 @@ public class Robot extends TimedRobot {
  
     @Override
     public void robotPeriodic() {
-        SmartDashboard.putNumber("Relative Position", encoder.getRelativePosition());
-        SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
+        // SmartDashboard.putNumber("Relative Position", encoder.getRelativePosition());
+        // SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
 
         SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
+        SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
+        SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0);
         //SmartDashboard.putNumber("Refined Position", encoder.getRefinedPosition());
         // SmartDashboard.putNumber("Relative Position 2", enc2.getDistance());
         // SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);
