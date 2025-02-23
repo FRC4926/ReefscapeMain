@@ -43,6 +43,19 @@ public class Constants {
         }
     }
 
+    public class ClimberConstants {
+        public static final int climb1Id = 18;
+        public static final int climb2Id = 19;
+
+        public static final int climbForwardCurrentLimit = 10;
+        public static final int climbBackCurrentLimit = 50;
+
+        public static final double climberRatio = 163.2;
+
+        public static final double climbVelocityForward = 0.125;
+        public static final double climbVelocityBack = -0.125;
+    }
+
     public class PivotConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId  = 17;
@@ -54,12 +67,12 @@ public class Constants {
 
 
         public static final double[] anglesDegrees = {
-            2, // home
-            2, // coral station
-            0, // level 1
-            0, // level 2
-            115, // level 3
-            115, // level 4
+            10, // home
+            10, // coral station
+            10, // level 1
+            10, // level 2
+            123, // level 3
+            123, // level 4
         };
     }
 
@@ -68,15 +81,18 @@ public class Constants {
         // TODO CHANGE THESE!!!
         public static final int motorId = 16;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
-        public static final int innerProximitySensorChannel = 1;
-        public static final int outerProximitySensorChannel = 2;
+        public static final int innerProximitySensorChannel = 3;
+        // public static final int outerProximitySensorChannel = 9;
 
         public static final double motorRotationsPerWheelRotation = 12.0;
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  0.5;
+        public static final double intakeVelocity  =  0.75;
         public static final double outtakeVelocity = -0.5;
+        public static final double lowerIntakeVelocity  =  0.5;
+        public static final double lowerOuttakeVelocity = -0.5;
+
         public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
             intakeVelocity,  // coral station
@@ -131,21 +147,21 @@ public class Constants {
         public record CameraWrapperConstants(String name, Transform3d robotToCamera) {};
         public static final CameraWrapperConstants[] camConstants = {
             new CameraWrapperConstants("ArducamFront",
-                new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI))),
+                new Transform3d(new Translation3d(11.804*0.0254, 4.828*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,Math.PI/3))),
             new CameraWrapperConstants("ArducamBack",
-                new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2))),
+                new Transform3d(new Translation3d(11.804*0.0254, 2.184*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,2*Math.PI/3))),
             new CameraWrapperConstants("ArducamLeft",
-                new Transform3d(new Translation3d(-8.5*0.0254, 11.5*0.0254, 10*0.0254), new Rotation3d(0,0,0))),
+                new Transform3d(new Translation3d(-11.804*0.0254, -2.184*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,-2*Math.PI/3))),
             new CameraWrapperConstants("ArducamRight",
-                new Transform3d(new Translation3d(-8.25*0.0254, -4*0.0254, 13.25*0.0254), new Rotation3d(0,0,3*Math.PI/2))),
+                new Transform3d(new Translation3d(-11.804*0.0254, -4.828*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,-Math.PI/3))),
             new CameraWrapperConstants("limelight",
-                 new Transform3d(new Translation3d(0*0.0254, -11*0.0254, 11.5*0.0254), new Rotation3d(0,0,Math.PI)))
+                 new Transform3d(new Translation3d(-1.75*0.0254, 12.5*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)))
         };
-        public static final double kalmanPositionStdDev = 1.2;
-        public static final double kalmanRotationStdDev = 0.09;
+        public static final double kalmanPositionStdDev = 0.8;
+        public static final double kalmanRotationStdDev = 0.99;
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(1.8 /* 1.5 */);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(1 /* 1.5 */);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(2 /* 1.5 */);
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(2 /* 1.5 */);
     }
 
     public class AutonConstants {
@@ -193,8 +209,8 @@ public class Constants {
                     Units.inchesToMeters(25.824),
                     Rotation2d.fromDegrees(144.011 - 90));
 
-            Transform2d reefFaceTransform = new Transform2d(new Translation2d(1, 0.0), Rotation2d.kZero);
-            Transform2d coralStationTransform = new Transform2d(new Translation2d(0.5, 0.0), Rotation2d.kZero);
+            Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1, 0.0), Rotation2d.k180deg);
+            Transform2d coralStationTransform = new Transform2d(new Translation2d(-0.5, 0.0), Rotation2d.k180deg);
             for (int i = 0; i < 6; i++) {
                 reefFaces[i] = reefFaces[i].transformBy(reefFaceTransform);
             }

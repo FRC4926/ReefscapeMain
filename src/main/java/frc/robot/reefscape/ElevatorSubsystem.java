@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         Slot1Configs slot1Conf = new Slot1Configs()
             .withGravityType(GravityTypeValue.Elevator_Static)
             .withKG(ElevatorConstants.motorkG)
-            .withKP(0.7)
+            .withKP(0.4)
             .withKI(ElevatorConstants.motorPidConstants.kI)
             .withKD(ElevatorConstants.motorPidConstants.kD);
 

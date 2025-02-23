@@ -9,17 +9,23 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ReefscapeState;
 
 public class IntakeSubsystem extends ReefscapeBaseSubsystem {
-    private final SparkMax motor = new SparkMax(IntakeConstants.motorId, MotorType.kBrushless);
-    // private final DigitalInput innerProximitySensor = new DigitalInput(IntakeConstants.innerProximitySensorChannel);
+    public final SparkMax motor = new SparkMax(IntakeConstants.motorId, MotorType.kBrushless);
+    public final AnalogInput innerProximitySensor = new AnalogInput(IntakeConstants.innerProximitySensorChannel);
     // private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
 
     public IntakeSubsystem() {
         super(true, true);
+
+        innerProximitySensor.setAverageBits(4);
 
         SparkMaxConfig intakeMotorConf = new SparkMaxConfig();
         // TODO does this work???
@@ -56,6 +62,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     }
     @Override
     void setReferenceVelocity(double effort) {
+
         motor.set(effort);
     }
     @Override
@@ -64,7 +71,36 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     }
 
     public void intake() {
-        setReferenceVelocity(IntakeConstants.intakeVelocity);
+        ReefscapeState current = getState();
+        double velocity = 0;
+
+        if (RobotContainer.reefscape.pivot.getPosition() > 30 && isCoralInInnerIntake())
+        {
+            velocity = IntakeConstants.intakeVelocity;
+        }
+        else if (isCoralInInnerIntake())
+        {
+            velocity = 0;
+        } else {
+            velocity = IntakeConstants.intakeVelocity;
+        }
+        // }
+        // if (current == ReefscapeState.Home)
+        // {
+        //     velocity = 0;
+        // } else if (current == ReefscapeState.CoralStation && isCoralInInnerIntake())
+        // {
+        //     velocity = 0;
+
+        // } else if (current == ReefscapeState.CoralStation && !isCoralInInnerIntake())
+        // {
+        //     velocity = IntakeConstants.intakeVelocity;
+        // } else if (current.isLevel())
+        // {
+        //     velocity = IntakeConstants.intakeVelocity;
+        // }
+        setReferenceVelocity(velocity);
+        //(IntakeConstants.intakeVelocity);
     }
     public void outtake() {
         setReferenceVelocity(IntakeConstants.outtakeVelocity);
@@ -76,23 +112,25 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     }
 
     public Command intakeCommand() {
-        return runOnce(this::intake);
+        return run(this::intake);
     }
     public Command outtakeCommand() {
         return runOnce(this::outtake);
     }
 
-    public Command zeroIntake()
+    public  Command zeroIntake()
     {
         return runOnce(this::zero);
     }
+    
 
-    // public boolean isCoralInInnerIntake() {
-    //     return innerProximitySensor.get();
-    // }
-    // public boolean isCoralInOuterIntake() {
-    //     return outerProximitySensor.get();
-    // }
+    public boolean isCoralInInnerIntake() {
+        return innerProximitySensor.getAverageVoltage() > 2.0;
+    }
+    public boolean isCoralInOuterIntake() {
+       return motor.getOutputCurrent() > 25.0;
+    }
+
 
     // Utility methods
 

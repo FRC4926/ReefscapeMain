@@ -58,6 +58,8 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
+import frc.robot.reefscape.ClimberSubsystem;
+import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.reefscape.Reefscape;
 
 public class RobotContainer {
@@ -83,6 +85,8 @@ public class RobotContainer {
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static LimelightAligner limelightAligner = new LimelightAligner();
+    public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
+   // public final static IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     public static final Reefscape reefscape = new Reefscape();
 
@@ -157,9 +161,9 @@ public class RobotContainer {
     }
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
-        return limelightAligner.alignCommand(drivetrain, relativeDrive, direction)
-            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
-            .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, true));
+        return limelightAligner.alignCommand(drivetrain, relativeDrive, direction);
+            // .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            // .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, true));
     }
 
     private void configureBindings() { 
@@ -168,8 +172,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ).alongWith(new RunCommand(() -> drivetrain.setInterupt(true))));
 
@@ -210,31 +214,49 @@ public class RobotContainer {
         operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, true, true, false));
         operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, true, true, false));
         operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false));
-        operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, false, false));
+        operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false));
         // operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
         // operatorController.button(24).negate()
         // .and(operatorController.button(23).negate()
         // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
-        operatorController.button(12).onTrue(reefscape.intakeCommand());
-        operatorController.button(14).onTrue(reefscape.outtakeCommand());
-        operatorController.button(13).onTrue(reefscape.zeroCommand());
+        operatorController.button(15).onTrue(reefscape.intakeCommand());
+        operatorController.button(16).onTrue(reefscape.outtakeCommand());
+        operatorController.button(4).onTrue(reefscape.zeroCommand());
+
+        // operatorController.button(16).negate()
+        // .and(operatorController.button(15).negate()
+        // .onTrue(reefscape.zeroCommand()));
+
+        operatorController.button(11).onTrue(climberSystem.climbForward());
+        operatorController.button(12).onTrue(climberSystem.climbBack());
+        operatorController.button(13).onTrue(climberSystem.climbZero());
+        
+        // operatorController.button(11).negate().and(operatorController.button(12).negate()
+        // .onTrue(climberSystem.climbZero()));
+
 
         new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
 
         // new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
-        // new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation)) //&& (reefscape.coralInInnerIntake()))
-        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation) && reefscape.isCoralInInnerIntake())
+            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+
+        // new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation && reefscape.coralInOuterIntake()));
+
+
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
-        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
+        driverController.x().whileTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
-        // new Trigger(() -> reefscape.getState().isLevel()) //&& (!reefscape.coralInOuterIntake()))
-        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+
+        new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
+            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+
         // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
         // driverController.b().whileTrue(drivetrain.applyRequest(() ->

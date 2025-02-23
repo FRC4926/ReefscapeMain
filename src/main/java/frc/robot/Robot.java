@@ -16,6 +16,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -79,10 +80,12 @@ public class Robot extends TimedRobot {
     // Encoder enc2 = new Encoder(new DigitalInput(0), new DigitalInput(1));
 
     public Robot() {
+
         timer.start();
         timer2.start();
         // bigCamera = new PhotonCamera("bigcam");
         Pathfinding.setPathfinder(new RemoteADStar());
+        //PathfindingCommand.warmupCommand().schedule();
         m_robotContainer = new RobotContainer();
 
         // PWMJNI.getPWMPosition(0)
@@ -98,7 +101,19 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
         SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
-        SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0);
+        SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
+        ;
+        SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
+        SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
+        SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
+
+        SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
+        SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
+        SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
+
+        SmartDashboard.putBoolean("is finished lime", RobotContainer.limelightAligner.isFinishedAlign());
+
+    
         //SmartDashboard.putNumber("Refined Position", encoder.getRefinedPosition());
         // SmartDashboard.putNumber("Relative Position 2", enc2.getDistance());
         // SmartDashboard.putNumber("Color Sensor My Input", dc.getOutput() * 256);

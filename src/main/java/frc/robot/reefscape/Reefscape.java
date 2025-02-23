@@ -17,7 +17,7 @@ public class Reefscape {
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     public final PivotSubsystem    pivot    = new PivotSubsystem();
-    private final IntakeSubsystem   intake   = new IntakeSubsystem();
+    public final IntakeSubsystem   intake   = new IntakeSubsystem();
 
     public Reefscape() {
     }
@@ -75,19 +75,19 @@ public class Reefscape {
     public ReefscapeState getPivotState() {
         return pivot.getState();
     }
-    // public ReefscapeState getIntakeState() {
-    //     return intake.getState();
-    // }
+    public ReefscapeState getIntakeState() {
+        return intake.getState();
+    }
 
     public ReefscapeState getLastLevel() {
         return lastLevel;
     }
 
-    // public boolean coralInInnerIntake() {
-    //     return intake.coralInInnerIntake();
-    // }
+    public boolean isCoralInInnerIntake() {
+        return intake.isCoralInInnerIntake();
+    }
     // public boolean coralInOuterIntake() {
-    //     return intake.coralInInnerIntake();
+    //     return intake.isCoralInOuterIntake();
     // }
 
     public void toggleElevatorManual() {
