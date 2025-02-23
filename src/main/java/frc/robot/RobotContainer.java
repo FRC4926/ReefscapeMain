@@ -223,7 +223,7 @@ public class RobotContainer {
 
         operatorController.button(15).onTrue(reefscape.intakeCommand());
         operatorController.button(16).onTrue(reefscape.outtakeCommand());
-        operatorController.button(4).onTrue(reefscape.zeroCommand());
+        operatorController.button(14).onTrue(reefscape.zeroCommand());
 
         // operatorController.button(16).negate()
         // .and(operatorController.button(15).negate()

@@ -74,7 +74,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         ReefscapeState current = getState();
         double velocity = 0;
 
-        if (RobotContainer.reefscape.pivot.getPosition() > 30 && isCoralInInnerIntake())
+        if ((RobotContainer.reefscape.pivot.getPosition()/32.0*360.0) > 30 && isCoralInInnerIntake())
         {
             velocity = IntakeConstants.intakeVelocity;
         }

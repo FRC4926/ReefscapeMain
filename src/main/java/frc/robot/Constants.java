@@ -71,8 +71,8 @@ public class Constants {
             10, // coral station
             10, // level 1
             10, // level 2
-            123, // level 3
-            123, // level 4
+            130, // level 3
+            130, // level 4
         };
     }
 
