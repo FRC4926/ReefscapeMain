@@ -84,7 +84,7 @@ public class RobotContainer {
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
-    public final static LimelightAligner limelightAligner = new LimelightAligner();
+    public final LimelightAligner limelightAligner = new LimelightAligner();
     public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
    // public final static IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
@@ -161,9 +161,8 @@ public class RobotContainer {
     }
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
-        return limelightAligner.alignCommand(drivetrain, relativeDrive, direction);
-            // .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
-            // .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, true));
+        return limelightAligner.alignCommand(drivetrain, relativeDrive, direction)
+            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false));
     }
 
     private void configureBindings() { 
@@ -222,12 +221,10 @@ public class RobotContainer {
         // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
         operatorController.button(15).onTrue(reefscape.intakeCommand());
-        operatorController.button(16).onTrue(reefscape.outtakeCommand());
+        operatorController.button(5).onTrue(reefscape.outtakeCommand());
         operatorController.button(14).onTrue(reefscape.zeroCommand());
+        operatorController.button(16).onTrue(reefscape.levelCommand());
 
-        // operatorController.button(16).negate()
-        // .and(operatorController.button(15).negate()
-        // .onTrue(reefscape.zeroCommand()));
 
         operatorController.button(11).onTrue(climberSystem.climbForward());
         operatorController.button(12).onTrue(climberSystem.climbBack());
@@ -251,7 +248,7 @@ public class RobotContainer {
         // Does this make it stutter less?
         driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
-        driverController.x().whileTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
+        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
 
         new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())

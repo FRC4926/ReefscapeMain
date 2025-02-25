@@ -105,6 +105,11 @@ public class Reefscape {
     public Command elevatorMoveWithVelocityCommand(DoubleSupplier velocity) {
         return elevator.setManualVelocityCommand(velocity);
     }
+
+    public Command levelCommand()
+    {
+        return intake.levelCommand();
+    }
     
     public Command intakeCommand() {
         return intake.intakeCommand();

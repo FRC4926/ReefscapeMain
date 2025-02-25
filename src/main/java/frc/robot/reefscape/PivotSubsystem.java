@@ -1,5 +1,6 @@
 package frc.robot.reefscape;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -48,6 +49,8 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
         motor.setPosition(0);
         motor.getConfigurator().apply(
             new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        motor.getConfigurator().apply(
+            new CurrentLimitsConfigs().withSupplyCurrentLimit(PivotConstants.currentLimit));
     }
 
     @Override
@@ -71,6 +74,10 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
     @Override
     void setReferenceVelocity(double velocity) {
         motor.setControl(new VelocityVoltage(velocity));
+    }
+    @Override
+    public double getCurrent() {
+        return motor.getStatorCurrent().getValueAsDouble();
     }
 
     private double degreesFromMotorRotations(double rotations) {

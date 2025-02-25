@@ -28,7 +28,7 @@ import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 
-public class LimelightAligner implements Subsystem {
+public class LimelightAligner extends SubsystemBase {
     // private final PhotonCamera camera = new PhotonCamera("limelight");
     private final CameraWrapper camera = RobotContainer.visionSubsystem.getCameras().get(4);
     private int tagId = -1;
@@ -61,7 +61,9 @@ public class LimelightAligner implements Subsystem {
 
     @Override
     public void periodic() {
-        if (!camera.isConnected()) return;
+        if (!camera.isConnected()) {
+            SmartDashboard.putBoolean("COULD NOT CONNECT", true);
+        }
 
 
         // List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -80,16 +82,14 @@ public class LimelightAligner implements Subsystem {
             }
         }
 
-        // SmartDashboard.putBoolean("Limelight is connected", camera.isConnected());
-        // SmartDashboard.putBoolean("latestResult is null", camera.getLatestResult() == null);
-        // SmartDashboard.putNumber("Limelight tag ID", tagId);
-        // SmartDashboard.putNumber("Limelight yaw", yaw);
-        // SmartDashboard.putNumber("Limelight distance X", distanceX);
-        // SmartDashboard.putNumber("Limelight distance Y", distanceY);
-        // SmartDashboard.putNumber("Limelight distance Z", distanceZ);
-        // SmartDashboard.putNumber("Rotation degrees", rotation.getDegrees());
-
-
+        SmartDashboard.putBoolean("Limelight is connected", camera.isConnected());
+        SmartDashboard.putBoolean("latestResult is null", camera.getLatestResult() == null);
+        SmartDashboard.putNumber("Limelight tag ID", tagId);
+        SmartDashboard.putNumber("Limelight yaw", yaw);
+        SmartDashboard.putNumber("Limelight distance X", distanceX);
+        SmartDashboard.putNumber("Limelight distance Y", distanceY);
+        SmartDashboard.putNumber("Limelight distance Z", distanceZ);
+        SmartDashboard.putNumber("Rotation degrees", rotation.getDegrees());
     }
 
     public void setTagToBestTag() {
@@ -121,8 +121,8 @@ public class LimelightAligner implements Subsystem {
 
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
-                .withVelocityX(0)//relativeXController.calculate(distanceX, 0))
-                .withVelocityY(relativeYController.calculate(distanceY, setpoint));
+                .withVelocityX(-relativeXController.calculate(distanceX, 0))
+                .withVelocityY(0.25*relativeYController.calculate(distanceY, setpoint));
         }
     }
     // TODO should LimelightAligner be added as a requirement?

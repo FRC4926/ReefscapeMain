@@ -37,6 +37,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
                 IntakeConstants.motorPidConstants.kI,
                 IntakeConstants.motorPidConstants.kD
             );
+        intakeMotorConf.smartCurrentLimit(IntakeConstants.currentLimit);
         motor.configure(intakeMotorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
@@ -69,16 +70,20 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     double getVelocity() {
         return motor.getEncoder().getVelocity();
     }
+    @Override
+    public double getCurrent() {
+        return motor.getOutputCurrent();
+    }
 
+    public void level()
+    {
+        setReferenceVelocity(IntakeConstants.lowerIntakeVelocity);
+    }
     public void intake() {
         ReefscapeState current = getState();
         double velocity = 0;
 
-        if ((RobotContainer.reefscape.pivot.getPosition()/32.0*360.0) > 30 && isCoralInInnerIntake())
-        {
-            velocity = IntakeConstants.intakeVelocity;
-        }
-        else if (isCoralInInnerIntake())
+       if (isCoralInInnerIntake())
         {
             velocity = 0;
         } else {
@@ -111,6 +116,10 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         setReferenceVelocity(0);
     }
 
+    public Command levelCommand()
+    {
+        return runOnce(this::level);
+    }
     public Command intakeCommand() {
         return run(this::intake);
     }

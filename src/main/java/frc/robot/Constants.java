@@ -47,12 +47,12 @@ public class Constants {
         public static final int climb1Id = 18;
         public static final int climb2Id = 19;
 
-        public static final int climbForwardCurrentLimit = 10;
-        public static final int climbBackCurrentLimit = 50;
+        public static final double climbForwardCurrentLimit = 20;
+        public static final double climbBackCurrentLimit = 60;
 
         public static final double climberRatio = 163.2;
 
-        public static final double climbVelocityForward = 0.125;
+        public static final double climbVelocityForward = 0.5;
         public static final double climbVelocityBack = -0.125;
     }
 
@@ -64,6 +64,7 @@ public class Constants {
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
         public static final int motorEncoderPWMChannel = 4;
+        public static final double currentLimit = 20;
 
 
         public static final double[] anglesDegrees = {
@@ -89,9 +90,11 @@ public class Constants {
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
         public static final double intakeVelocity  =  0.75;
-        public static final double outtakeVelocity = -0.5;
-        public static final double lowerIntakeVelocity  =  0.5;
+        public static final double outtakeVelocity = -0.75;
+        public static final double lowerIntakeVelocity  =  0.25;
         public static final double lowerOuttakeVelocity = -0.5;
+
+        public static final int currentLimit = 10;
 
         public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
@@ -127,6 +130,8 @@ public class Constants {
         public static final double motorRotationsPerShaftRotations = 9.0;
         public static final double inchesPerShaftRotation = 5.5;
         public static final double inchesPerMotorRotation = inchesPerShaftRotation / motorRotationsPerShaftRotations;
+
+        public static final double currentLimit = 10;
 
         public static final double[] levelsInches = {
             0.0,  // home
@@ -269,7 +274,7 @@ public class Constants {
 
         // The stator current at which the wheels start to slip;
         // This needs to be tuned to your individual robot
-        private static final Current kSlipCurrent = Amps.of(80);
+        private static final Current kSlipCurrent = Amps.of(20);
 
         // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
         // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.

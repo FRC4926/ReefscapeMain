@@ -148,6 +148,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configureAutoBuilder();
     }
 
+    public double getCurrent() {
+        double ret = 0.0;
+        for (var module : getModules()) {
+            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
+            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
+        }
+
+        return ret;
+    }
+
  private void configureAutoBuilder() {
         //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
         try {

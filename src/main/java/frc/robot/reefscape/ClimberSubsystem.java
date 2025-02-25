@@ -10,11 +10,13 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.StaticBrake;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
@@ -23,10 +25,11 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ElevatorConstants;
 
-public class ClimberSubsystem  implements Subsystem {
+public class ClimberSubsystem  extends SubsystemBase {
     public final TalonFX climbMotor1  = new TalonFX(ClimberConstants.climb1Id);
     public final TalonFX climbMotor2 = new TalonFX(ClimberConstants.climb2Id);
 
@@ -54,6 +57,8 @@ public class ClimberSubsystem  implements Subsystem {
         climbMotor1.getConfigurator().apply(currentLimitsConfigs);
         climbMotor2.getConfigurator().apply(currentLimitsConfigs);
 
+        climbMotor1.setNeutralMode(NeutralModeValue.Brake);
+        climbMotor2.setNeutralMode(NeutralModeValue.Brake);
 
 
         SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
@@ -143,6 +148,10 @@ public class ClimberSubsystem  implements Subsystem {
     public Command zeroClimbCommand(double set)
     {
         return runOnce(() -> zeroClimb());
+    }
+
+    public double getCurrent() {
+        return climbMotor1.getStatorCurrent().getValueAsDouble() + climbMotor2.getStatorCurrent().getValueAsDouble();
     }
 
     @Override

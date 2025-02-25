@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -72,6 +73,10 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         
         leftMotor.getConfigurator().apply(softLimitConf);
         rightMotor.getConfigurator().apply(softLimitConf);
+
+        CurrentLimitsConfigs currentLimitConf = new CurrentLimitsConfigs().withSupplyCurrentLimit(ElevatorConstants.currentLimit);
+        leftMotor.getConfigurator().apply(currentLimitConf);
+        rightMotor.getConfigurator().apply(currentLimitConf);
     }
 
     @Override
@@ -122,6 +127,10 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     public double getVelocity() {
         return inchesFromMotorRotations(averageMotors(motor -> motor.getVelocity().getValueAsDouble()));
     }
+    @Override
+    public double getCurrent() {
+        return sumMotors(motor -> motor.getStatorCurrent().getValueAsDouble());
+    }
 
     // Utility methods
 
@@ -129,8 +138,12 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         fn.accept(leftMotor);
         fn.accept(rightMotor);
     }
+
+    private double sumMotors(Function<TalonFX, Double> fn) {
+        return fn.apply(leftMotor) + fn.apply(rightMotor);
+    }
     private double averageMotors(Function<TalonFX, Double> fn) {
-        return 0.5*(fn.apply(leftMotor) + fn.apply(rightMotor));
+        return 0.5 * sumMotors(fn);
     }
 
     private double inchesFromMotorRotations(double rotations) {
