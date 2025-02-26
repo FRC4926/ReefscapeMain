@@ -101,26 +101,26 @@ public class Robot extends TimedRobot {
         // SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
 
         double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
-            c = RobotContainer.reefscape.pivot.getCurrent(), d = RobotContainer.reefscape.intake.getCurrent(),
-            e = RobotContainer.climberSystem.getCurrent();
+            c = RobotContainer.reefscape.pivot.getCurrent(), d = RobotContainer.reefscape.intake.getCurrent();
+            // e = RobotContainer.climberSystem.getCurrent();
 
         SmartDashboard.putNumber("CURRENT: Drivetrain", a);
         SmartDashboard.putNumber("CURRENT: Elevator", b);
         SmartDashboard.putNumber("CURRENT: Pivot", c);
         SmartDashboard.putNumber("CURRENT: Intake", d);
-        SmartDashboard.putNumber("CURRENT: Climber", e);
-        SmartDashboard.putNumber("CURRENT: Total", a + b + c + d + e);
+        // SmartDashboard.putNumber("CURRENT: Climber", e);
+        SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
 
 
         SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
         SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
         SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
         ;
-        SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
-        SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
-        SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
+        // SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
+        // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
+        // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
 
-        SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
+        // SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
         SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
         SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
 

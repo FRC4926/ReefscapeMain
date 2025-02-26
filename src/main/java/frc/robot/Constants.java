@@ -69,11 +69,11 @@ public class Constants {
 
         public static final double[] anglesDegrees = {
             10, // home
-            10, // coral station
+            15, // coral station
             10, // level 1
             10, // level 2
-            130, // level 3
-            130, // level 4
+            124, // level 3
+            124, // level 4
         };
     }
 
@@ -91,10 +91,10 @@ public class Constants {
 
         public static final double intakeVelocity  =  0.75;
         public static final double outtakeVelocity = -0.75;
-        public static final double lowerIntakeVelocity  =  0.25;
+        public static final double lowerIntakeVelocity  =  0.5;
         public static final double lowerOuttakeVelocity = -0.5;
 
-        public static final int currentLimit = 10;
+        public static final int currentLimit = 20;
 
         public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
@@ -135,7 +135,7 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            7.0,  // coral
+            7.5,  // coral
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
@@ -165,8 +165,8 @@ public class Constants {
         public static final double kalmanPositionStdDev = 0.8;
         public static final double kalmanRotationStdDev = 0.99;
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(2 /* 1.5 */);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(2 /* 1.5 */);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(4 /* 1.5 */);
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6 /* 1.5 */);
     }
 
     public class AutonConstants {
@@ -214,8 +214,8 @@ public class Constants {
                     Units.inchesToMeters(25.824),
                     Rotation2d.fromDegrees(144.011 - 90));
 
-            Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1, 0.0), Rotation2d.k180deg);
-            Transform2d coralStationTransform = new Transform2d(new Translation2d(-0.5, 0.0), Rotation2d.k180deg);
+            Transform2d reefFaceTransform = new Transform2d(new Translation2d(2, 0.0), Rotation2d.kZero);
+            Transform2d coralStationTransform = new Transform2d(new Translation2d(0.5, 0.0), Rotation2d.kZero);
             for (int i = 0; i < 6; i++) {
                 reefFaces[i] = reefFaces[i].transformBy(reefFaceTransform);
             }
@@ -225,7 +225,7 @@ public class Constants {
         }
 
         public static final double coralStationToRobotThreshold = 1.0;
-        public static final double reefDistanceBetween = Units.inchesToMeters(12.94);
+        public static final double reefDistanceBetween = Units.inchesToMeters(13);
 
         public static class CoralStation {
             public static final Pose2d leftCenterFace = new Pose2d(
@@ -386,7 +386,7 @@ public class Constants {
         private static final int kBackRightDriveMotorId = 4;
         private static final int kBackRightSteerMotorId = 8;
         private static final int kBackRightEncoderId = 12;
-        private static final Angle kBackRightEncoderOffset = Rotations.of(-0.455810546875);
+        private static final Angle kBackRightEncoderOffset = Rotations.of(0.101318359375);
         private static final boolean kBackRightSteerMotorInverted = false;
         private static final boolean kBackRightEncoderInverted = false;
 

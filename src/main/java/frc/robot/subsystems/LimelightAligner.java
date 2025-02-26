@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -41,10 +42,12 @@ public class LimelightAligner extends SubsystemBase {
     private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
     private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
 
+    // Timer timeSmall = new Timer();
+
     public LimelightAligner() {
         rotationController.setTolerance(0.1);
-        relativeXController.setTolerance(0.1);
-        relativeYController.setTolerance(0.1);
+        relativeXController.setTolerance(0.01);
+        relativeYController.setTolerance(0.01);
     }
 
     public int getTagId() {
@@ -92,6 +95,20 @@ public class LimelightAligner extends SubsystemBase {
         SmartDashboard.putNumber("Rotation degrees", rotation.getDegrees());
     }
 
+    public Command smallDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
+    {
+        // timeSmall.restart();
+        return drivetrain.applyRequest(() -> drive
+        .withRotationalRate(0)
+        .withVelocityX(0.75)
+        .withVelocityY(0)).withTimeout(.5);
+    }
+
+    // public boolean timeStop(double seconds)
+    // {
+    //     return timeSmall.get() >= seconds;
+    // }
+
     public void setTagToBestTag() {
         if (camera.getLatestResult() == null) return;
 
@@ -115,14 +132,14 @@ public class LimelightAligner extends SubsystemBase {
             return zeroDrive(drive);
         } else
         {
-            SmartDashboard.putNumber("DistanceX", distanceX);
-            double setpoint = FieldConstants.reefDistanceBetween / 2.0;
-            if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
+            //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
+            // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
+            // setpoint = setpoint - 1.75;
 
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
-                .withVelocityX(-relativeXController.calculate(distanceX, 0))
-                .withVelocityY(0.25*relativeYController.calculate(distanceY, setpoint));
+                .withVelocityX(-0.5*relativeXController.calculate(distanceX, 0))
+                .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(-6.5-1.75)));
         }
     }
     // TODO should LimelightAligner be added as a requirement?
@@ -133,7 +150,7 @@ public class LimelightAligner extends SubsystemBase {
     public boolean isFinishedAlign()
     {
         //(!latestResult.hasTargets() || latestResult == null)
-        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint());
+        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
     }
 
     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {

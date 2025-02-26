@@ -58,7 +58,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
-import frc.robot.reefscape.ClimberSubsystem;
+// import frc.robot.reefscape.ClimberSubsystem;
 import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.reefscape.Reefscape;
 
@@ -85,8 +85,7 @@ public class RobotContainer {
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final LimelightAligner limelightAligner = new LimelightAligner();
-    public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
-   // public final static IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    // public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
 
     public static final Reefscape reefscape = new Reefscape();
 
@@ -162,7 +161,9 @@ public class RobotContainer {
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         return limelightAligner.alignCommand(drivetrain, relativeDrive, direction)
-            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false));
+        .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+        .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
+            
     }
 
     private void configureBindings() { 
@@ -211,8 +212,8 @@ public class RobotContainer {
         // elevator.setDefaultCommand(elevator.moveWithVelocityCommand(() -> -operatorController.getY()));
         reefscape.elevatorIsManual().whileTrue(reefscape.elevatorMoveWithVelocityCommand(() -> -operatorController.getY()));
         operatorController.button(24).onTrue(reefscape.applyStateCommand(ReefscapeState.Level2, true, true, false));
-        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, true, true, false));
-        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false));
+        operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, false, false, false));
+        operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, false, false, false));
         operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false));
         // operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
@@ -226,9 +227,9 @@ public class RobotContainer {
         operatorController.button(16).onTrue(reefscape.levelCommand());
 
 
-        operatorController.button(11).onTrue(climberSystem.climbForward());
-        operatorController.button(12).onTrue(climberSystem.climbBack());
-        operatorController.button(13).onTrue(climberSystem.climbZero());
+        // operatorController.button(11).onTrue(climberSystem.climbForward());
+        // operatorController.button(12).onTrue(climberSystem.climbBack());
+        // operatorController.button(13).onTrue(climberSystem.climbZero());
         
         // operatorController.button(11).negate().and(operatorController.button(12).negate()
         // .onTrue(climberSystem.climbZero()));
