@@ -111,8 +111,8 @@ public class Reefscape {
         return intake.levelCommand();
     }
     
-    public Command intakeCommand() {
-        return intake.intakeCommand();
+    public Command intakeCommand(double velocity, boolean isLevel) {
+        return intake.intakeCommand(velocity, isLevel);
     }
     public Command outtakeCommand() {
         return intake.outtakeCommand();

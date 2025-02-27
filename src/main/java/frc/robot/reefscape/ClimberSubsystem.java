@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ElevatorConstants;
 
-public class ClimberSubsystem  extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase {
     public final TalonFX climbMotor1  = new TalonFX(ClimberConstants.climb1Id);
     public final TalonFX climbMotor2 = new TalonFX(ClimberConstants.climb2Id);
 
@@ -40,6 +40,7 @@ public class ClimberSubsystem  extends SubsystemBase {
     // private final MechanismRoot2d mechRoot = mech.getRoot("elevator", 0.0, 0.0);
 
     public ClimberSubsystem() {
+  
 
         // climbMotor1.getConfigurator().apply(
         //     new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
@@ -159,5 +160,17 @@ public class ClimberSubsystem  extends SubsystemBase {
 
     }
 
-    
+    // Utility methods
+
+    private void setToBothMotors(Consumer<TalonFX> fn) {
+        fn.accept(climbMotor1);
+        fn.accept(climbMotor2);
+    }
+    private double sumMotors(Function<TalonFX, Double> fn) {
+        return fn.apply(climbMotor1) + fn.apply(climbMotor2);
+    }
+    private double averageMotors(Function<TalonFX, Double> fn) {
+        return 0.5 * sumMotors(fn);
+    }
+
 }

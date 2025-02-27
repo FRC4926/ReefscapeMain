@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ReefscapeState;
@@ -80,15 +81,16 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         setReferenceVelocity(IntakeConstants.lowerIntakeVelocity);
     }
     public void intake() {
-        ReefscapeState current = getState();
-        double velocity = 0;
+    //     ReefscapeState current = getState();
+    //     double velocity = 0;
 
-       if (isCoralInInnerIntake())
-        {
-            velocity = 0;
-        } else {
-            velocity = IntakeConstants.intakeVelocity;
-        }
+    //    if (isCoralInInnerIntake())
+    //     {
+    //         velocity = 0;
+    //     } else {
+    //         velocity = IntakeConstants.intakeVelocity;
+    //     }
+        //bruh
         // }
         // if (current == ReefscapeState.Home)
         // {
@@ -104,31 +106,33 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         // {
         //     velocity = IntakeConstants.intakeVelocity;
         // }
-        setReferenceVelocity(velocity);
+        // setReferenceVelocity(velocity);
         //(IntakeConstants.intakeVelocity);
     }
     public void outtake() {
         setReferenceVelocity(IntakeConstants.outtakeVelocity);
     }
 
-    public void zero()
-    {
+    public void zero() {
         setReferenceVelocity(0);
     }
 
-    public Command levelCommand()
-    {
+    public Command levelCommand() {
         return runOnce(this::level);
     }
-    public Command intakeCommand() {
-        return run(this::intake);
+    public Command intakeCommand(double velocity, boolean isLevel) {
+        boolean coralInIntakeShouldBecome = isLevel ? false : true;
+        return runOnce(() -> setReferenceVelocity(velocity))
+            .andThen(
+                Commands.idle(this)
+                    .until(() -> isCoralInOuterIntake() == coralInIntakeShouldBecome)
+            );
     }
     public Command outtakeCommand() {
         return runOnce(this::outtake);
     }
 
-    public  Command zeroIntake()
-    {
+    public  Command zeroIntake() {
         return runOnce(this::zero);
     }
     

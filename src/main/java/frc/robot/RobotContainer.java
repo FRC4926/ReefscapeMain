@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -40,8 +41,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -56,10 +55,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
 import frc.robot.reefscape.ClimberSubsystem;
-import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.reefscape.Reefscape;
 
 public class RobotContainer {
@@ -135,8 +134,12 @@ public class RobotContainer {
 
     public RobotContainer() {
         //private final AutoChoosersd autoChooser = new AutoChooser();
-        NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left));
-        NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right));
+        // NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left));
+        // NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right));
+        NamedCommands.registerCommand("coral station intake", reefscape.intake.intakeCommand(IntakeConstants.intakeVelocity, false));
+        NamedCommands.registerCommand("limelight align left and outtake coral",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left,  reefscape.intake));
+        NamedCommands.registerCommand("limelight align right and outtake coral", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape.intake));
+
         configureBindings();
     }
 
@@ -168,13 +171,14 @@ public class RobotContainer {
     private void configureBindings() { 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
+
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ).alongWith(new RunCommand(() -> drivetrain.setInterupt(true))));
+            ).alongWith(new RunCommand(() -> drivetrain.setInterrupt(true))));
 
             visionSubsystem.setDefaultCommand(new RunCommand(() -> {
             EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
@@ -220,7 +224,7 @@ public class RobotContainer {
         // .and(operatorController.button(23).negate()
         // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
-        operatorController.button(15).onTrue(reefscape.intakeCommand());
+        operatorController.button(15).onTrue(reefscape.intakeCommand(IntakeConstants.intakeVelocity, false));
         operatorController.button(5).onTrue(reefscape.outtakeCommand());
         operatorController.button(14).onTrue(reefscape.zeroCommand());
         operatorController.button(16).onTrue(reefscape.levelCommand());
@@ -246,10 +250,13 @@ public class RobotContainer {
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // TODO I changed this to `InstantCommand` because this only runs it once, while `RunCommand` runs it every period.
         // Does this make it stutter less?
-        driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
+        // driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath().schedule(), drivetrain));
         driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
+        driverController.y().onTrue(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, getReefFaceIdx()));
+        driverController.rightBumper().onTrue(limelightAligner.coralStationAlign(drivetrain, relativeDrive, getReefFaceIdx(), driverController.getLeftX(), driverController.getLeftY(), MaxSpeed));
+
 
         new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
             .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
@@ -283,3 +290,4 @@ public class RobotContainer {
         return new PathPlannerAuto("AlignAuton");
     }
 }
+

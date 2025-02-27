@@ -1,3 +1,5 @@
+
+
 package frc.robot.subsystems;
 
 import java.util.List;
@@ -9,6 +11,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.hal.PWMJNI;
@@ -23,7 +26,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
@@ -125,9 +130,30 @@ public class LimelightAligner extends SubsystemBase {
                 .withVelocityY(0.25*relativeYController.calculate(distanceY, setpoint));
         }
     }
+
+    public Command autoRotateCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx)
+    {
+       double setpointRotation = FieldConstants.reefFaces[idx].getRotation().getDegrees();
+       double myRotation = drivetrain.getState().Pose.getRotation().getDegrees();
+       return drivetrain.applyRequest(() -> drive
+            .withRotationalRate(-Math.signum(myRotation)*rotationController.calculate(Math.abs(myRotation), setpointRotation))
+            .withVelocityX(0)
+            .withVelocityY(0));
+    }
+    public Command coralStationAlign(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx, double x, double y, double maxSpeed)
+    {
+       double setpointRotation = FieldConstants.reefFaces[idx].getRotation().getDegrees();
+       double myRotation = drivetrain.getState().Pose.getRotation().getDegrees();
+       return drivetrain.applyRequest(() -> drive
+            .withRotationalRate(-Math.signum(myRotation)*rotationController.calculate(Math.abs(myRotation), setpointRotation))
+            .withVelocityX(x* maxSpeed)
+            .withVelocityY(y*maxSpeed));
+    }
+
+
     // TODO should LimelightAligner be added as a requirement?
     public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
+        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign()); 
     }
 
     public boolean isFinishedAlign()
@@ -136,11 +162,14 @@ public class LimelightAligner extends SubsystemBase {
         return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint());
     }
 
-    public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return runOnce(() -> setTagToBestTag()).andThen(alignCommand(drivetrain, drive, direction));
+    public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, IntakeSubsystem intake) {
+        return runOnce(() -> setTagToBestTag())
+            .andThen(alignCommand(drivetrain, drive, direction))
+            .andThen(intake.intakeCommand(IntakeConstants.intakeVelocity, true));
     }
 
     private PIDController makePIDFromConstants(PIDConstants constants) {
         return new PIDController(constants.kP, constants.kI, constants.kD);
     }
 }
+

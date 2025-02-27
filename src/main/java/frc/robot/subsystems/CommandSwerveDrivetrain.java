@@ -148,16 +148,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configureAutoBuilder();
     }
 
-    public double getCurrent() {
-        double ret = 0.0;
-        for (var module : getModules()) {
-            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
-            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
-        }
-
-        return ret;
-    }
-
  private void configureAutoBuilder() {
         //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
         try {
@@ -325,7 +315,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         RobotContainer.targetPosePublisher.set(targetPose);
         
         PathConstraints constraints = new PathConstraints(
-                1, 1,
+                3, 2,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
         return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
 
@@ -372,7 +362,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // }
 
-    public void setInterupt(boolean value)
+    public void setInterrupt(boolean value)
     {
         interrupt = value;
     }
@@ -385,6 +375,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     //     return sheesh;
     // }
+
+    public double getCurrent() {
+        double current = 0;
+        for (var module : getModules()) {
+            current += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
+            current += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
+        }
+        return current;
+    }
 
     public Command generatedPath()
     {
