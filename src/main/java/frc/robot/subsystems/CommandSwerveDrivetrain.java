@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
@@ -34,6 +35,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
@@ -62,7 +66,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     Command generatedPath = null;
-   // Pose2d sheesh = null;
+    // Pose2d sheesh = null;
 
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
@@ -254,7 +258,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+        return run(() -> this.setControl(requestSupplier.get())).until(() -> interrupt);
     }
 
     /**
@@ -282,7 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     @Override
     public void periodic() {
 
-        SmartDashboard.putBoolean("Interuppt", interrupt);
+        SmartDashboard.putBoolean("Interrupt", interrupt);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -316,9 +320,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    public Command updatedPath() {
-        return updatedPath(FieldConstants.reefFaces[RobotContainer.getReefFaceIdx()]);
-    }
+    // public Command updatedPath() {
+    //     return updatedPath(FieldConstants.reefFaces[RobotContainer.getReefFaceIdx()]);
+    // }
 
     public Command updatedPath(Pose2d targetPose)
     {
@@ -327,8 +331,37 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         PathConstraints constraints = new PathConstraints(
                 1, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).until(() -> interrupt);
 
+    }
+
+    public Command updatedPathCommand(Supplier<Pose2d> targetPoseSupplier) {
+        // Pose2d targetPose = targetPoseSupplier.get();
+
+        // RobotContainer.targetPosePublisher.set(targetPose);
+        
+        PathConstraints constraints = new PathConstraints(
+                3, 2,
+                Units.degreesToRadians(540), Units.degreesToRadians(720));
+        // return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
+
+        // Commands.startRun()
+
+        // generatedPath = runOnce(() -> {
+        //     Command command = AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0)
+        //         .alongWith(onStart)
+        //         .andThen(onEnd);
+        //     command.asProxy();
+        //     command.addRequirements(this);
+        //     command.schedule();
+        // });
+        //     // .onlyWhile(() -> interrupt);
+        // return generatedPath;
+
+        generatedPath = defer(() -> AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0))
+            .onlyWhile(() -> interrupt);
+
+        return generatedPath;
     }
 
     // public Command limelightUpdate()
@@ -372,10 +405,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // }
 
-    public void setInterupt(boolean value)
+    public void setInterrupt(boolean value)
     {
         interrupt = value;
     }
+
     // public Pose2d targetChange() {
     //     if(RobotContainer.logitechController.getRawButton(1)) {
     //         sheesh = FieldConstants.reefFaces[5];

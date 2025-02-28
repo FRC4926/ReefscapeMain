@@ -12,6 +12,9 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import com.ctre.phoenix6.Utils;
+
 import org.photonvision.PhotonUtils;
 import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -27,6 +30,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -43,6 +47,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -214,12 +219,34 @@ public class VisionSubsystem extends SubsystemBase {
         return ret;
     }
 
+    public void addVisionMeasurements(CommandSwerveDrivetrain drivetrain) {
+        SmartDashboard.putNumber("Added vision measurement", SmartDashboard.getNumber("Added vision measurement", 0) + 1);
+        EstimatedRobotPose[] poses = getEstimatedGlobalPoses();
+        for (int i = 0; i < poses.length; i++) {
+            if (poses[i] != null)
+                drivetrain.addVisionMeasurement(
+                    poses[i].estimatedPose.toPose2d(),
+                    Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
+                    new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+                        VisionConstants.kalmanPositionStdDev, // x
+                        VisionConstants.kalmanPositionStdDev, // y
+                        VisionConstants.kalmanRotationStdDev  // rotation
+                    })
+                );
+        }
+    }
+
+    public Command addVisionMeasurementsOnceCommand(CommandSwerveDrivetrain drivetrain) {
+        return runOnce(() -> addVisionMeasurements(drivetrain));
+    }
+    public Command addVisionMeasurementsCommand(CommandSwerveDrivetrain drivetrain) {
+        return run(() -> addVisionMeasurements(drivetrain));
+    }
 
     @Override
     public void periodic() 
     {
-        for (CameraWrapper cam: camWrappers)
-        {
+        for (CameraWrapper cam : camWrappers) {
             cam.checkForResult();
         }
         SmartDashboard.putString("Alliance", DriverStation.getAlliance().get().toString());

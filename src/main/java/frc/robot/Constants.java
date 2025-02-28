@@ -48,12 +48,14 @@ public class Constants {
         public static final int climb2Id = 19;
 
         public static final double climbForwardCurrentLimit = 20;
-        public static final double climbBackCurrentLimit = 60;
+        public static final double climbBackCurrentLimit = 35;
 
-        public static final double climberRatio = 163.2;
+        public static final double climberRatio = 340;
 
         public static final double climbVelocityForward = 0.5;
         public static final double climbVelocityBack = -0.125;
+
+        public static final double climbThres = -0.125;
     }
 
     public class PivotConstants {
@@ -64,16 +66,16 @@ public class Constants {
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
         public static final int motorEncoderPWMChannel = 4;
-        public static final double currentLimit = 20;
+        public static final double currentLimit = 10;
 
 
         public static final double[] anglesDegrees = {
             10, // home
-            15, // coral station
+            18, // coral station
             10, // level 1
             10, // level 2
-            124, // level 3
-            124, // level 4
+            123, // level 3
+            123, // level 4
         };
     }
 
@@ -89,9 +91,9 @@ public class Constants {
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  0.75;
+        public static final double intakeVelocity  =  0.85;
         public static final double outtakeVelocity = -0.75;
-        public static final double lowerIntakeVelocity  =  0.5;
+        public static final double lowerIntakeVelocity  =  0.75;
         public static final double lowerOuttakeVelocity = -0.5;
 
         public static final int currentLimit = 20;
@@ -135,7 +137,7 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            7.5,  // coral
+            7.68,  // coral
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
@@ -170,8 +172,11 @@ public class Constants {
     }
 
     public class AutonConstants {
-        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(20, 0, 0);
+        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(15, 0, 0);
         public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(9, 0, 0);
+
+        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
+        public static final PIDConstants flyplannerRotationPIDConstants    = new PIDConstants(9, 0, 0);
     }
 
     public class FieldConstants {
@@ -214,12 +219,14 @@ public class Constants {
                     Units.inchesToMeters(25.824),
                     Rotation2d.fromDegrees(144.011 - 90));
 
-            Transform2d reefFaceTransform = new Transform2d(new Translation2d(2, 0.0), Rotation2d.kZero);
-            Transform2d coralStationTransform = new Transform2d(new Translation2d(0.5, 0.0), Rotation2d.kZero);
+            Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1.75, 0.0), Rotation2d.kZero);
+            Transform2d coralStationTransform = new Transform2d(new Translation2d(-1, 0.0), Rotation2d.kZero);
             for (int i = 0; i < 6; i++) {
+                reefFaces[i] = new Pose2d(reefFaces[i].getX(), reefFaces[i].getY(), reefFaces[i].getRotation().plus(Rotation2d.k180deg));
                 reefFaces[i] = reefFaces[i].transformBy(reefFaceTransform);
             }
             for (int i = 6; i < reefFaces.length; i++) {
+                reefFaces[i] = new Pose2d(reefFaces[i].getX(), reefFaces[i].getY(), reefFaces[i].getRotation().plus(Rotation2d.k180deg));
                 reefFaces[i] = reefFaces[i].transformBy(coralStationTransform);
             }
         }

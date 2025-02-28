@@ -1,6 +1,10 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
@@ -39,6 +43,7 @@ public class LimelightAligner extends SubsystemBase {
     private double distanceZ = 0.0;
     private Rotation2d rotation = Rotation2d.kZero;
     private final PIDController rotationController  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
+    private final PIDController rotationController2  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
     private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
     private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
 
@@ -46,8 +51,11 @@ public class LimelightAligner extends SubsystemBase {
 
     public LimelightAligner() {
         rotationController.setTolerance(0.1);
+        rotationController2.setTolerance(5);
         relativeXController.setTolerance(0.01);
         relativeYController.setTolerance(0.01);
+
+        rotationController2.enableContinuousInput(-180, 180);
     }
 
     public int getTagId() {
@@ -64,6 +72,7 @@ public class LimelightAligner extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("Is fin", isFinishedRot());
         if (!camera.isConnected()) {
             SmartDashboard.putBoolean("COULD NOT CONNECT", true);
         }
@@ -132,6 +141,12 @@ public class LimelightAligner extends SubsystemBase {
             return zeroDrive(drive);
         } else
         {
+            double setpoint = 0;
+            if (direction == LimelightAlignerDirection.Left)
+                setpoint = -6.5 - 1.75;
+            else
+                setpoint = 6.5 - 1.75;
+
             //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
             // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
             // setpoint = setpoint - 1.75;
@@ -139,12 +154,44 @@ public class LimelightAligner extends SubsystemBase {
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
                 .withVelocityX(-0.5*relativeXController.calculate(distanceX, 0))
-                .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(-6.5-1.75)));
+                .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(setpoint)));
         }
     }
     // TODO should LimelightAligner be added as a requirement?
     public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
         return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
+    }
+
+    public RobotCentric autoRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx) {
+        double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
+        double setpoint    = FieldConstants.reefFaces[idx].getRotation().getDegrees();
+        double calculation = rotationController2.calculate(measurement, setpoint);
+        return drive
+            .withRotationalRate(calculation);
+    }
+
+    public Command autoRotateCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, IntSupplier idxSupplier)
+    {
+        return drivetrain.applyRequest(() -> autoRotate(drivetrain, drive, idxSupplier.getAsInt())).until(this::isFinishedRot);
+    }
+    public Command coralStationAlignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, IntSupplier idxSupplier, DoubleSupplier x, DoubleSupplier y, double maxSpeed)
+    {
+        return drivetrain.applyRequest(() -> coralRotate(drivetrain, drive, idxSupplier.getAsInt(), x.getAsDouble(), y.getAsDouble(), maxSpeed));
+    }
+
+    public RobotCentric coralRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx, double x, double y, double maxSpeed) {
+        double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
+        double setpoint    = FieldConstants.reefFaces[idx].getRotation().plus(Rotation2d.k180deg).getDegrees();
+        double calculation = rotationController2.calculate(measurement, setpoint);
+        return drive
+            .withRotationalRate(calculation)
+            .withVelocityX(-x*maxSpeed)
+            .withVelocityY(-y*maxSpeed);
+    }
+
+    public boolean isFinishedRot()
+    {
+        return rotationController2.atSetpoint();
     }
 
     public boolean isFinishedAlign()

@@ -40,12 +40,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -88,11 +88,18 @@ public class Robot extends TimedRobot {
         //PathfindingCommand.warmupCommand().schedule();
         m_robotContainer = new RobotContainer();
 
+        // makeMech();
+
         // PWMJNI.getPWMPosition(0)
         // myInput.setAverageBits(16);
     }
 
     boolean hasResults = false;
+
+    // public void makeMech() {
+    //     MechanismRoot2d myRoot = myMech.getRoot("myRoot", 5.0, 0.0);
+    //     MechanismLigament2d myElevator = myRoot.append(new MechanismLigament2d("myElevator", 5.0, 90.0, 10.0, new Color8Bit(Color.kGreen)));
+    // }
 
  
     @Override
@@ -100,29 +107,32 @@ public class Robot extends TimedRobot {
         // SmartDashboard.putNumber("Relative Position", encoder.getRelativePosition());
         // SmartDashboard.putNumber("Absolute Position", encoder.getAbsolutePosition());
 
-        double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
-            c = RobotContainer.reefscape.pivot.getCurrent(), d = RobotContainer.reefscape.intake.getCurrent();
-            // e = RobotContainer.climberSystem.getCurrent();
-
-        SmartDashboard.putNumber("CURRENT: Drivetrain", a);
-        SmartDashboard.putNumber("CURRENT: Elevator", b);
-        SmartDashboard.putNumber("CURRENT: Pivot", c);
-        SmartDashboard.putNumber("CURRENT: Intake", d);
-        // SmartDashboard.putNumber("CURRENT: Climber", e);
-        SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
+        // SmartDashboard.putData("myMech", myMech);
 
 
-        SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
-        SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
-        SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
-        ;
-        // SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
+        // double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
+        //     c = RobotContainer.reefscape.pivot.getCurrent(), d = RobotContainer.reefscape.intake.getCurrent();
+        //     // e = RobotContainer.climberSystem.getCurrent();
+
+        // SmartDashboard.putNumber("CURRENT: Drivetrain", a);
+        // SmartDashboard.putNumber("CURRENT: Elevator", b);
+        // SmartDashboard.putNumber("CURRENT: Pivot", c);
+        // SmartDashboard.putNumber("CURRENT: Intake", d);
+        // // SmartDashboard.putNumber("CURRENT: Climber", e);
+        // SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
+
+
+        // SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
+        // SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
+        // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
+        // ;
+         // SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
         // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
         // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
 
         // SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
         SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
-        SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
+        // SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
 
         // SmartDashboard.putBoolean("is finished lime", RobotContainer.limelightAligner.isFinishedAlign());
 
@@ -212,15 +222,18 @@ public class Robot extends TimedRobot {
         // }
 
 
-        SmartDashboard.putNumber("loop time", timer.get());
-        timer.reset();
+        // SmartDashboard.putNumber("loop time", timer.get());
+        // timer.reset();
 
-        timer2.reset();
+        // timer2.reset();
 
         // posePublisher.set(RobotContainer.drivetrain.getState().Pose);
         CommandScheduler.getInstance().run();
 
-        SmartDashboard.putNumber("period time", timer2.get());
+        // SmartDashboard.putNumber("period time", timer2.get());
+
+        SmartDashboard.putBoolean("teleop", DriverStation.isTeleop());
+        SmartDashboard.putBoolean("teleop enabled", DriverStation.isTeleopEnabled());
     }
 
     @Override
@@ -237,6 +250,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
@@ -246,6 +260,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousPeriodic() {
+
     }
 
     @Override
@@ -254,10 +269,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        m_robotContainer.reefscape.applyState(ReefscapeState.Home);
+        // RobotContainer.reefscape.applyState(ReefscapeState.Home);
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
     }
 
     @Override
