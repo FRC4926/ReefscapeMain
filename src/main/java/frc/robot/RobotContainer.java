@@ -116,19 +116,28 @@ public class RobotContainer {
         return reefFaceIdx;
     }
 
-    public static final boolean[] allowAddVisionMeasurements = new boolean[VisionConstants.camConstants.length];
-    static {
-        for (int i = 0; i < allowAddVisionMeasurements.length; i++) {
-            allowAddVisionMeasurements[i] = true;
-            SmartDashboard.putBoolean(VisionConstants.camConstants[i].name() + " is adding vision measurement",
-                allowAddVisionMeasurements[i]);
-        }
+    // public static final boolean[] allowAddVisionMeasurements = new boolean[VisionConstants.camConstants.length];
+    // static {
+    //     for (int i = 0; i < allowAddVisionMeasurements.length; i++) {
+    //         allowAddVisionMeasurements[i] = false;
+    //         SmartDashboard.putBoolean(VisionConstants.camConstants[i].name() + " is adding vision measurement",
+    //             allowAddVisionMeasurements[i]);
+    //     }
+    // }
+    // public static void toggleAllowAddVisionMeasurement(int idx) {
+    //     allowAddVisionMeasurements[idx] = !allowAddVisionMeasurements[idx];
+    //     SmartDashboard.putBoolean(VisionConstants.camConstants[idx].name() + " is adding vision measurement",
+    //         allowAddVisionMeasurements[idx]);
+    // }
+    // public static void setAllowAddVisionMeasurements(boolean value) {
+    //     for (int i = 0; i < allowAddVisionMeasurements.length; i++)
+    //         allowAddVisionMeasurements[i] = value;
+    // }
+    private static boolean allowAddVisionMeasurements = false;
+    public static void setAllowAddVisionMeasurements(boolean val) {
+        allowAddVisionMeasurements = val;
     }
-    public static void toggleAllowAddVisionMeasurement(int idx) {
-        allowAddVisionMeasurements[idx] = !allowAddVisionMeasurements[idx];
-        SmartDashboard.putBoolean(VisionConstants.camConstants[idx].name() + " is adding vision measurement",
-            allowAddVisionMeasurements[idx]);
-    }
+
     //public Trigger logitechButtonTrigger = new Trigger(() -> logitechController.getRawButton(1));
     //public Pose2d targetPose2d;
 
@@ -136,6 +145,7 @@ public class RobotContainer {
         //private final AutoChoosersd autoChooser = new AutoChooser();
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape));
+        NamedCommands.registerCommand("AddVisionMeasurements", visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain));
         configureBindings();
     }
 
@@ -178,20 +188,24 @@ public class RobotContainer {
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));//.alongWith(new RunCommand(() -> drivetrain.setInterrupt(false))));
 
-            visionSubsystem.setDefaultCommand(new RunCommand(() -> {
-                EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
-                for (int i = 0; i < poses.length; i++) {
-                    if ((poses[i] != null) && allowAddVisionMeasurements[i])
-                        drivetrain.addVisionMeasurement( 
-                            poses[i].estimatedPose.toPose2d(),
-                            Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
-                            new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
-                                VisionConstants.kalmanPositionStdDev, VisionConstants.kalmanPositionStdDev,
-                                VisionConstants.kalmanRotationStdDev
-                            })
-                        );
-                }
-            }, visionSubsystem));
+        // visionSubsystem.setDefaultCommand(new RunCommand(() -> {
+        //     EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
+        //     for (int i = 0; i < poses.length; i++) {
+        //         if ((poses[i] != null) && allowAddVisionMeasurements[i])
+        //             drivetrain.addVisionMeasurement( 
+        //                 poses[i].estimatedPose.toPose2d(),
+        //                 Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
+        //                 new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
+        //                     VisionConstants.kalmanPositionStdDev, VisionConstants.kalmanPositionStdDev,
+        //                     VisionConstants.kalmanRotationStdDev
+        //                 })
+        //             );
+        //     }
+        // }, visionSubsystem));
+        visionSubsystem.setDefaultCommand(new RunCommand(() -> {
+            if (allowAddVisionMeasurements)
+                visionSubsystem.addVisionMeasurements(drivetrain);
+        }, visionSubsystem));
 
         
        // new Trigger(DriverStation::isTeleopEnabled).whileTrue(visionSubsystem.addVisionMeasurementsCommand(drivetrain));

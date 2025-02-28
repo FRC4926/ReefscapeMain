@@ -250,6 +250,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        RobotContainer.setAllowAddVisionMeasurements(false);
+        RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
+
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
@@ -268,6 +271,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        RobotContainer.setAllowAddVisionMeasurements(true);
+
         RobotContainer.reefscape.applyState(ReefscapeState.Home);
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
