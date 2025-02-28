@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ReefscapeState;
@@ -79,6 +80,16 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     {
         setReferenceVelocity(IntakeConstants.lowerIntakeVelocity);
     }
+
+    public Command autonIntakeCommand(double velocity, boolean isLevel) {
+        boolean coralInIntakeShouldBecome = isLevel ? false : true;
+        return runOnce(() -> setReferenceVelocity(velocity))
+            .andThen(
+                Commands.idle(this)
+                    .until(() -> isCoralInInnerIntake() == coralInIntakeShouldBecome)
+            )
+            .andThen(runOnce(() -> setReferenceVelocity(0)));
+    }
     public void intake() {
         ReefscapeState current = getState();
         double velocity = 0;
@@ -136,9 +147,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     public boolean isCoralInInnerIntake() {
         return innerProximitySensor.getAverageVoltage() > 2.0;
     }
-    public boolean isCoralInOuterIntake() {
-       return motor.getOutputCurrent() > 25.0;
-    }
+
 
 
     // Utility methods

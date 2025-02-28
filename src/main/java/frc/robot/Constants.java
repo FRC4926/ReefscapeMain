@@ -73,7 +73,7 @@ public class Constants {
             10, // home
             18, // coral station
             10, // level 1
-            10, // level 2
+            117, // level 2
             123, // level 3
             123, // level 4
         };
@@ -139,7 +139,7 @@ public class Constants {
             0.0,  // home
             7.68,  // coral
             0.0,  // level 1
-            0.0,  // level 2
+            0,  // level 2
             7.0,  // level 3
             20.0, // level 4
         };

@@ -124,12 +124,21 @@ public class ClimberSubsystem  extends SubsystemBase {
     }
 
     public Command climbBack()
+    {   
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(ClimberConstants.climbBackCurrentLimit);
+        climbMotor1.getConfigurator().apply(currentLimitsConfigs);
+        climbMotor2.getConfigurator().apply(currentLimitsConfigs);
+        // if (getClimb1Position() < ClimberConstants.climbThres)
+        //     climbZero();
+        // else
+            // setVelocity(ClimberConstants.climbVelocityBack);
+
+        return runOnce(() -> setVelocity(ClimberConstants.climbVelocityBack));
+    }
+
+    public Command climbBackCommand()
     {
-            CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(ClimberConstants.climbBackCurrentLimit);
-            climbMotor1.getConfigurator().apply(currentLimitsConfigs);
-            climbMotor2.getConfigurator().apply(currentLimitsConfigs);
-            return runOnce(() -> setVelocity(ClimberConstants.climbVelocityBack));
-      
+        return run(this::climbBack);
     }
     
     public Command climbZero()

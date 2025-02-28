@@ -126,9 +126,9 @@ public class Robot extends TimedRobot {
         // SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
         // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
         // ;
-         // SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
-        // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
-        // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
+         SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
+        SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
+        SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
 
         // SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
         SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
@@ -250,7 +250,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         if (m_autonomousCommand != null) {
@@ -269,12 +268,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        // RobotContainer.reefscape.applyState(ReefscapeState.Home);
+        RobotContainer.reefscape.applyState(ReefscapeState.Home);
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
 
-        RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
     }
 
     @Override

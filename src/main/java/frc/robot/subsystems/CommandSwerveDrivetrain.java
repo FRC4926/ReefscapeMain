@@ -59,7 +59,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
-    private boolean interrupt = true;
+    // private boolean interrupt = true;
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -258,7 +258,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get())).until(() -> interrupt);
+        return run(() -> this.setControl(requestSupplier.get()));
     }
 
     /**
@@ -286,7 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     @Override
     public void periodic() {
 
-        SmartDashboard.putBoolean("Interrupt", interrupt);
+        // SmartDashboard.putBoolean("Interrupt", interrupt);
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -331,7 +331,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         PathConstraints constraints = new PathConstraints(
                 1, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).until(() -> interrupt);
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);//.until(() -> interrupt);
 
     }
 
@@ -358,8 +358,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         //     // .onlyWhile(() -> interrupt);
         // return generatedPath;
 
-        generatedPath = defer(() -> AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0))
-            .onlyWhile(() -> interrupt);
+        generatedPath = defer(() -> AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0));
+            //.onlyWhile(() -> interrupt);
 
         return generatedPath;
     }
@@ -405,10 +405,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // }
 
-    public void setInterrupt(boolean value)
-    {
-        interrupt = value;
-    }
+    // public void setInterrupt(boolean value)
+    // {
+    //     interrupt = value;
+    // }
 
     // public Pose2d targetChange() {
     //     if(RobotContainer.logitechController.getRawButton(1)) {

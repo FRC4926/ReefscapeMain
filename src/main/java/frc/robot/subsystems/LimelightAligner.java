@@ -28,8 +28,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.reefscape.IntakeSubsystem;
+import frc.robot.reefscape.Reefscape;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
+import frc.robot.Constants.ReefscapeState;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 
@@ -113,6 +117,15 @@ public class LimelightAligner extends SubsystemBase {
         .withVelocityY(0)).withTimeout(.5);
     }
 
+    public Command smallRDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
+    {
+        // timeSmall.restart();
+        return drivetrain.applyRequest(() -> drive
+        .withRotationalRate(0)
+        .withVelocityX(-0.75)
+        .withVelocityY(0)).withTimeout(.5);
+    }
+
     // public boolean timeStop(double seconds)
     // {
     //     return timeSmall.get() >= seconds;
@@ -162,6 +175,8 @@ public class LimelightAligner extends SubsystemBase {
         return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
     }
 
+
+
     public RobotCentric autoRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
         double setpoint    = FieldConstants.reefFaces[idx].getRotation().getDegrees();
@@ -200,8 +215,15 @@ public class LimelightAligner extends SubsystemBase {
         return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
     }
 
-    public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return runOnce(() -> setTagToBestTag()).andThen(alignCommand(drivetrain, drive, direction));
+     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
+        return runOnce(() -> setTagToBestTag())
+            .andThen(alignCommand(drivetrain, drive, direction))
+            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            .andThen(smallDriveCommand(drivetrain, drive))
+            .andThen(reefscape.intake.autonIntakeCommand(IntakeConstants.intakeVelocity, true))
+            .andThen(smallRDriveCommand(drivetrain, drive))
+            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+
     }
 
     private PIDController makePIDFromConstants(PIDConstants constants) {
