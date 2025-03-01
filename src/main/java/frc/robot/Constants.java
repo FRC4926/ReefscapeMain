@@ -33,8 +33,11 @@ public class Constants {
         public boolean isLevel() {
             switch (this) {
                 case Level1:
+                    return true;
                 case Level2:
+                    return true;
                 case Level3:
+                    return true;
                 case Level4:
                     return true;
                 default:
@@ -93,7 +96,7 @@ public class Constants {
 
         public static final double intakeVelocity  =  0.85;
         public static final double outtakeVelocity = -0.75;
-        public static final double lowerIntakeVelocity  =  0.75;
+        public static final double lowerIntakeVelocity  =  1;
         public static final double lowerOuttakeVelocity = -0.5;
 
         public static final int currentLimit = 20;
@@ -172,11 +175,11 @@ public class Constants {
     }
 
     public class AutonConstants {
-        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(15, 0, 0);
+        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(20, 0, 0);
         public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(9, 0, 0);
 
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
-        public static final PIDConstants flyplannerRotationPIDConstants    = new PIDConstants(9, 0, 0);
+        public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(9, 0, 0);
     }
 
     public class FieldConstants {

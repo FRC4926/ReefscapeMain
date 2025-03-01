@@ -122,8 +122,8 @@ public class Robot extends TimedRobot {
         // SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
 
 
-        // SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
-        // SmartDashboard.putNumber("Pivot POsition", RobotContainer.reefscape.pivot.getPosition());
+        SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
+        SmartDashboard.putNumber("Pivot Position", RobotContainer.reefscape.pivot.getPosition());
         // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
         // ;
          SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
@@ -132,6 +132,7 @@ public class Robot extends TimedRobot {
 
         // SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
         SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
+        SmartDashboard.putBoolean(" Vision Measurement added", RobotContainer.allowAddVisionMeasurements);
         // SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
 
         // SmartDashboard.putBoolean("is finished lime", RobotContainer.limelightAligner.isFinishedAlign());
@@ -234,6 +235,8 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putBoolean("teleop", DriverStation.isTeleop());
         SmartDashboard.putBoolean("teleop enabled", DriverStation.isTeleopEnabled());
+        SmartDashboard.putString("state", RobotContainer.reefscape.getLastLevel().toString());
+        SmartDashboard.putString("state fr", RobotContainer.reefscape.getState().toString());
     }
 
     @Override
@@ -251,7 +254,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         RobotContainer.setAllowAddVisionMeasurements(false);
-        RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
+        // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
+        // RobotContainer.setAllowAddVisionMeasurements(false);
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

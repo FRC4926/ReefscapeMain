@@ -3,7 +3,9 @@ package frc.robot.reefscape;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -40,21 +42,29 @@ public class Reefscape {
         return applyStateCommand(stateSupplier, true, true, true);
     }
     public Command applyStateCommand(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        currentState = state;
-        if (state.isLevel())
-            lastLevel = state;
-
         ParallelCommandGroup command = new ParallelCommandGroup();
+        command.addCommands(new InstantCommand(() -> {
+            currentState = state;
+            if (state.isLevel())
+                lastLevel = state;
+        }));
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(state));
         if (applyToPivot)   
             command.addCommands(pivot.setStateCommand(state));
+
         // if (applyToIntake)
         //     command.addCommands(intake.setStateCommand(state));
         return command;
     }
     public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
         ParallelCommandGroup command = new ParallelCommandGroup();
+        command.addCommands(new InstantCommand(() -> {
+            ReefscapeState state = stateSupplier.get();
+            currentState = state;
+            if (state.isLevel())
+                lastLevel = state;
+        }));
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(stateSupplier));
         if (applyToPivot)

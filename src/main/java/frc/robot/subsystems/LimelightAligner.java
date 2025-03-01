@@ -196,7 +196,7 @@ public class LimelightAligner extends SubsystemBase {
 
     public RobotCentric coralRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx, double x, double y, double maxSpeed) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
-        double setpoint    = FieldConstants.reefFaces[idx].getRotation().plus(Rotation2d.k180deg).getDegrees();
+        double setpoint    = FieldConstants.reefFaces[idx].getRotation().plus(Rotation2d.kZero).getDegrees();
         double calculation = rotationController2.calculate(measurement, setpoint);
         return drive
             .withRotationalRate(calculation)

@@ -21,30 +21,6 @@
           "data": {
             "name": "AlignLeft"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PermaVision"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AlignLeft"
-          }
         }
       ]
     }

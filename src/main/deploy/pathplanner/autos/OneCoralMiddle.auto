@@ -5,9 +5,15 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "AddVisionMeasurements"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "ThreeCoralRight1"
+            "pathName": "OneCoralMiddle"
           }
         },
         {

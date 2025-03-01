@@ -133,7 +133,7 @@ public class RobotContainer {
     //     for (int i = 0; i < allowAddVisionMeasurements.length; i++)
     //         allowAddVisionMeasurements[i] = value;
     // }
-    private static boolean allowAddVisionMeasurements = false;
+    public static boolean allowAddVisionMeasurements = false;
     public static void setAllowAddVisionMeasurements(boolean val) {
         allowAddVisionMeasurements = val;
     }
@@ -145,7 +145,10 @@ public class RobotContainer {
         //private final AutoChoosersd autoChooser = new AutoChooser();
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape));
-        NamedCommands.registerCommand("AddVisionMeasurements", visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain));
+        NamedCommands.registerCommand("AddVisionMeasurements", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
+        .andThen(new InstantCommand(() -> setAllowAddVisionMeasurements(false))));
+        NamedCommands.registerCommand("PermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)));
+        NamedCommands.registerCommand("UnPermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(false)));
         configureBindings();
     }
 
@@ -252,11 +255,11 @@ public class RobotContainer {
         operatorController.button(13).onTrue(climberSystem.climbZero());
 
 
-        new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
+        // new Trigger(DriverStation::isEnabled).onFalse(reefscape.applyStateCommand(ReefscapeState.Home));
 
         // new Trigger(() -> shouldSetStateToCoralStation()).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation));
-        new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation) && reefscape.isCoralInInnerIntake())
-            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+        // new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation) && reefscape.isCoralInInnerIntake())
+        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
 
         // new Trigger(() -> (reefscape.getState() == ReefscapeState.CoralStation && reefscape.coralInOuterIntake()));
 
@@ -277,8 +280,8 @@ public class RobotContainer {
         driverController.rightBumper().whileTrue(limelightAligner.coralStationAlignCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx, driverController::getLeftY, driverController::getLeftX, MaxSpeed));
 
 
-        new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
-            .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
+        // new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
+        //     .onTrue(reefscape.applyStateCommand(ReefscapeState.Home));
 
         // driverController.b().whileTrue(new RunCommand(()-> drivetrain.setInterupt(false)));
         // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -306,6 +309,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("OneCoral");
+        return new PathPlannerAuto("OneCoralRight");
     }
 }
