@@ -67,6 +67,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     Command generatedPath = null;
     // Pose2d sheesh = null;
+    private boolean inverted = false;
+
+    public double getInvertMultiplier() {
+        return inverted ? -1.0 : 1.0;
+    }
 
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
@@ -146,10 +151,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
+
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
         configureAutoBuilder();
+
+        if (alliance == Alliance.Blue)
+            inverted = true;
     }
 
     public double getCurrent() {
@@ -335,7 +346,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     }
 
-    public Command updatedPathCommand(Supplier<Pose2d> targetPoseSupplier) {
+    public Command updatedPathCommand(Supplier<Integer> targetPoseSupplier) {
         // Pose2d targetPose = targetPoseSupplier.get();
 
         // RobotContainer.targetPosePublisher.set(targetPose);
@@ -357,8 +368,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // });
         //     // .onlyWhile(() -> interrupt);
         // return generatedPath;
-
-        generatedPath = defer(() -> AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0));
+        Pose2d setpointP = null;
+        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
+            setpointP = FieldConstants.reefFacesRed[targetPoseSupplier.get()];
+        else
+            setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
+        final Pose2d setpointPF = setpointP;
+        
+        generatedPath = defer(() -> AutoBuilder.pathfindToPose(setpointPF, constraints, 0.0));
             //.onlyWhile(() -> interrupt);
 
         return generatedPath;

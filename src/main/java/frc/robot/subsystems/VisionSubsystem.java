@@ -46,6 +46,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -132,18 +133,19 @@ public class VisionSubsystem extends SubsystemBase {
         //poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
 
-    public void updateOrigin()
-    {
-        if (DriverStation.getAlliance().get().toString().equals("Red"))
-        {
+    public void updateOrigin() {
+        // Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+
+        // if (alliance == Alliance.Red)
+        // {
             fieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-        } else if (DriverStation.getAlliance().get().toString().equals("Blue"))
-        {
-            fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-        } else
-        {
-            System.out.println("Bro actually errored");
-        }
+        // } else if (alliance == Alliance.Blue)
+        // {
+        //     fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
+        // } else
+        // {
+        //     System.out.println("Bro actually errored");
+        // }
     }
 
     public void addCamera(String camName, Transform3d robotToCam) {

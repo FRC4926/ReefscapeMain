@@ -5,15 +5,33 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "ThreeCoral1"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "AddVisionMeasurements"
+            "name": "AlignRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ThreeCoralRight1"
+            "pathName": "ThreeCoral2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CoralPickup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ThreeCoral3"
           }
         },
         {
@@ -23,27 +41,27 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "PermaVision"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "ThreeCoralRight2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight3"
+            "pathName": "ThreeCoral4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "CoralPickup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ThreeCoral5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignRight"
           }
         }
       ]

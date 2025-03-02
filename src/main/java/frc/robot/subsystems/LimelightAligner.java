@@ -23,6 +23,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -51,9 +53,11 @@ public class LimelightAligner extends SubsystemBase {
     private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
     private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
 
+    Alliance side = null;
     // Timer timeSmall = new Timer();
 
     public LimelightAligner() {
+        side = DriverStation.getAlliance().orElse(Alliance.Red);
         rotationController.setTolerance(0.1);
         rotationController2.setTolerance(5);
         relativeXController.setTolerance(0.01);
@@ -114,7 +118,7 @@ public class LimelightAligner extends SubsystemBase {
         return drivetrain.applyRequest(() -> drive
         .withRotationalRate(0)
         .withVelocityX(0.75)
-        .withVelocityY(0)).withTimeout(.5);
+        .withVelocityY(0)).withTimeout(2);
     }
 
     public Command smallRDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
@@ -132,6 +136,7 @@ public class LimelightAligner extends SubsystemBase {
     // }
 
     public void setTagToBestTag() {
+        // System.out.println("SSSSSSSSSSSSSSSSSSSSSS");
         if (camera.getLatestResult() == null) return;
 
         if (camera.getLatestResult().hasTargets()) {
@@ -148,6 +153,7 @@ public class LimelightAligner extends SubsystemBase {
     }
 
     public RobotCentric align(RobotCentric drive, LimelightAlignerDirection direction) {
+        // System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             SmartDashboard.putBoolean("Zerod", true);
@@ -175,11 +181,19 @@ public class LimelightAligner extends SubsystemBase {
         return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
     }
 
+    public Command autonAlignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
+        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlignAuton());
+    }
 
 
     public RobotCentric autoRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
-        double setpoint    = FieldConstants.reefFaces[idx].getRotation().getDegrees();
+        double setpoint = 0;
+        if (side == Alliance.Red)
+            setpoint = FieldConstants.reefFacesRed[idx].getRotation().getDegrees();
+        else
+            setpoint = FieldConstants.reefFacesBlue[idx].getRotation().getDegrees();
+
         double calculation = rotationController2.calculate(measurement, setpoint);
         return drive
             .withRotationalRate(calculation);
@@ -196,8 +210,13 @@ public class LimelightAligner extends SubsystemBase {
 
     public RobotCentric coralRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx, double x, double y, double maxSpeed) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
-        double setpoint    = FieldConstants.reefFaces[idx].getRotation().plus(Rotation2d.kZero).getDegrees();
+        double setpoint = 0;
+        if (side == Alliance.Red)
+            setpoint = FieldConstants.reefFacesRed[idx].getRotation().getDegrees();
+        else
+            setpoint = FieldConstants.reefFacesBlue[idx].getRotation().getDegrees();
         double calculation = rotationController2.calculate(measurement, setpoint);
+
         return drive
             .withRotationalRate(calculation)
             .withVelocityX(-x*maxSpeed)
@@ -211,16 +230,28 @@ public class LimelightAligner extends SubsystemBase {
 
     public boolean isFinishedAlign()
     {
-        //(!latestResult.hasTargets() || latestResult == null)
+        // (!latestResult.hasTargets() || latestResult == null)
         return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        //return relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
+    }
+
+    public boolean isFinishedAlignAuton()
+    {
+        boolean atSetpoint = relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
+        // (!latestResult.hasTargets() || latestResult == null)
+        if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
+            return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        else
+            return atSetpoint;
     }
 
      public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
         return runOnce(() -> setTagToBestTag())
-            .andThen(alignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            .andThen(autonAlignCommand(drivetrain, drive, direction))
+            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(smallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.intake.autonIntakeCommand(IntakeConstants.intakeVelocity, true))
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
+            .andThen(reefscape.zeroCommand())
             .andThen(smallRDriveCommand(drivetrain, drive))
             .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 

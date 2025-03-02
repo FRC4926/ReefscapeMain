@@ -23,6 +23,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
@@ -35,9 +36,12 @@ import edu.wpi.first.math.numbers.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RuntimeType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -56,6 +60,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
 import frc.robot.reefscape.ClimberSubsystem;
@@ -82,6 +87,7 @@ public class RobotContainer {
     public static final CommandJoystick operatorController = new CommandJoystick(1);
 
     public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public static SendableChooser<Command> autonChooser;
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final LimelightAligner limelightAligner = new LimelightAligner();
@@ -110,7 +116,11 @@ public class RobotContainer {
     public static void setReefFaceIdx(int idx) {
         reefFaceIdx = idx;
         SmartDashboard.putNumber("reefFaceIdx", reefFaceIdx);
-        reefFacePublisher.set(FieldConstants.reefFaces[reefFaceIdx]);
+
+        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
+            reefFacePublisher.set(FieldConstants.reefFacesRed[reefFaceIdx]);
+        else
+            reefFacePublisher.set(FieldConstants.reefFacesBlue[reefFaceIdx]);
     }
     public static int getReefFaceIdx() {
         return reefFaceIdx;
@@ -142,13 +152,17 @@ public class RobotContainer {
     //public Pose2d targetPose2d;
 
     public RobotContainer() {
-        //private final AutoChoosersd autoChooser = new AutoChooser();
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape));
-        NamedCommands.registerCommand("AddVisionMeasurements", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
-        .andThen(new InstantCommand(() -> setAllowAddVisionMeasurements(false))));
-        NamedCommands.registerCommand("PermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)));
-        NamedCommands.registerCommand("UnPermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(false)));
+        NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
+            .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.intakeVelocity, false)));
+        
+        autonChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Our Autonomous", autonChooser);
+        // NamedCommands.registerCommand("AddVisionMeasurements", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
+        // .andThen(new InstantCommand(() -> setAllowAddVisionMeasurements(false))));
+        // NamedCommands.registerCommand("PermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)));
+        // NamedCommands.registerCommand("UnPermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(false)));
         configureBindings();
     }
 
@@ -159,22 +173,22 @@ public class RobotContainer {
         return distSquared <= threshold*threshold;
     }
     // returns -1 if not near coral station, and reef face index otherwise
-    private int nearCoralStation() {
-        Pose2d pose = drivetrain.getState().Pose;
-        if (posesClose(pose, FieldConstants.reefFaces[6], FieldConstants.coralStationToRobotThreshold))
-            return 6;
-        if (posesClose(pose, FieldConstants.reefFaces[7], FieldConstants.coralStationToRobotThreshold))
-            return 7;
-        return -1;
-    }
-    private boolean shouldSetStateToCoralStation() {
-        int idx = nearCoralStation();
-        return (idx != -1) && (reefFaceIdx == idx);
-    }
+    // private int nearCoralStation() {
+    //     Pose2d pose = drivetrain.getState().Pose;
+    //     if (posesClose(pose, FieldConstants.reefFacesRed[6], FieldConstants.coralStationToRobotThreshold))
+    //         return 6;
+    //     if (posesClose(pose, FieldConstants.reefFacesRed[7], FieldConstants.coralStationToRobotThreshold))
+    //         return 7;
+    //     return -1;
+    // }
+    // private boolean shouldSetStateToCoralStation() {
+    //     int idx = nearCoralStation();
+    //     return (idx != -1) && (reefFaceIdx == idx);
+    // }
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
-        Command cmd = limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx)
-            .andThen(limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
+        Command cmd = //limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
+            (limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
             .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
@@ -244,10 +258,16 @@ public class RobotContainer {
         // .and(operatorController.button(23).negate()
         // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
-        operatorController.button(15).onTrue(reefscape.intakeCommand());
-        operatorController.button(5).onTrue(reefscape.outtakeCommand());
-        operatorController.button(14).onTrue(reefscape.zeroCommand());
-        operatorController.button(16).onTrue(reefscape.levelCommand());
+        // operatorController.button(15).onTrue(reefscape.intakeCommand());
+        // operatorController.button(5).onTrue(reefscape.outtakeCommand());
+        // operatorController.button(14).onTrue(reefscape.zeroCommand());
+        // operatorController.button(16).onTrue(reefscape.levelCommand());
+
+        driverController.rightTrigger(0.2).onTrue(reefscape.intake.intakeCommand());
+        driverController.leftTrigger(0.2).onTrue(reefscape.intake.levelCommand());
+
+        driverController.rightTrigger(0.2).negate().and(driverController.leftTrigger(0.2).negate())
+            .whileTrue(reefscape.zeroCommand());
 
 
         operatorController.button(11).onTrue(climberSystem.climbForward());
@@ -269,7 +289,7 @@ public class RobotContainer {
         // driverController.a().onTrue(new InstantCommand(() -> drivetrain.setInterrupt(true)));
         driverController.y().onTrue(
             visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)
-                .alongWith(drivetrain.updatedPathCommand(() -> FieldConstants.reefFaces[getReefFaceIdx()]))
+                .alongWith(drivetrain.updatedPathCommand(() -> getReefFaceIdx()))
                 .andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
         );
         // driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath(FieldConstants.reefFaces[getReefFaceIdx()]).schedule(), drivetrain));
@@ -309,6 +329,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("OneCoralRight");
+        return new PathPlannerAuto("ThreeCoralRight");
+        // return new PathPlannerAuto(autonChooser.getSelected());
     }
 }

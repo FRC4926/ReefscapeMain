@@ -120,6 +120,12 @@ public class Reefscape {
     {
         return intake.levelCommand();
     }
+
+    
+    public Command autonLevelCommand()
+    {
+        return intake.autonLevelCommand();
+    }
     
     public Command intakeCommand() {
         return intake.intakeCommand();

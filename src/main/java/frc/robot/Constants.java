@@ -50,15 +50,15 @@ public class Constants {
         public static final int climb1Id = 18;
         public static final int climb2Id = 19;
 
-        public static final double climbForwardCurrentLimit = 20;
-        public static final double climbBackCurrentLimit = 35;
+        public static final double climbForwardCurrentLimit = 10;
+        public static final double climbBackCurrentLimit = 40;
 
         public static final double climberRatio = 340;
 
         public static final double climbVelocityForward = 0.5;
-        public static final double climbVelocityBack = -0.125;
+        public static final double climbVelocityBack = -0.35;
 
-        public static final double climbThres = -0.125;
+        public static final double climbThres = 105;
     }
 
     public class PivotConstants {
@@ -74,11 +74,11 @@ public class Constants {
 
         public static final double[] anglesDegrees = {
             10, // home
-            18, // coral station
+            30, // coral station //18
             10, // level 1
             117, // level 2
             123, // level 3
-            123, // level 4
+            122, // level 4
         };
     }
 
@@ -94,12 +94,12 @@ public class Constants {
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  0.85;
-        public static final double outtakeVelocity = -0.75;
-        public static final double lowerIntakeVelocity  =  1;
+        public static final double intakeVelocity  =  0.8;
+        public static final double outtakeVelocity = -1;
+        public static final double lowerIntakeVelocity  =  0.75;
         public static final double lowerOuttakeVelocity = -0.5;
 
-        public static final int currentLimit = 20;
+        public static final int currentLimit = 30;
 
         public static final double[] velocitiesInchesPerSecond = {
             0.0,             // home
@@ -140,9 +140,9 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            7.68,  // coral
+            6.45,  // coral //7.55
             0.0,  // level 1
-            0,  // level 2
+            0.0,  // level 2
             7.0,  // level 3
             20.0, // level 4
         };
@@ -172,6 +172,7 @@ public class Constants {
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(4 /* 1.5 */);
         public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6 /* 1.5 */);
+        public static final double limelightMaxDistance = 0.5;
     }
 
     public class AutonConstants {
@@ -183,41 +184,44 @@ public class Constants {
     }
 
     public class FieldConstants {
-        public static final Pose2d[] reefFaces = new Pose2d[8]; // Starting facing the driver station in clockwise order
+        public static final double fieldWidth = Units.inchesToMeters(26*12 + 5);
+        public static final double fieldHeight = Units.inchesToMeters(57*12 + 6 + 7.0/8.0);
+        public static final Pose2d[] reefFacesRed = new Pose2d[8]; // Starting facing the driver station in clockwise order
+        public static final Pose2d[] reefFacesBlue = new Pose2d[8]; // Starting facing the driver station in clockwise order
 
         static {
             // Initialize faces
-            reefFaces[0] = new Pose2d(
+            reefFacesRed[0] = new Pose2d(
                     Units.inchesToMeters(144.003),
                     Units.inchesToMeters(158.500),
                     Rotation2d.fromDegrees(180));
-            reefFaces[1] = new Pose2d(
+            reefFacesRed[1] = new Pose2d(
                     Units.inchesToMeters(160.373),
                     Units.inchesToMeters(186.857),
                     // Rotation2d.fromDegrees(180+60));
                     Rotation2d.fromDegrees(120));
-            reefFaces[2] = new Pose2d(
+            reefFacesRed[2] = new Pose2d(
                     Units.inchesToMeters(193.116),
                     Units.inchesToMeters(186.858),
                     Rotation2d.fromDegrees(60));
             // Rotation2d.fromDegrees(180+120));
-            reefFaces[3] = new Pose2d(
+            reefFacesRed[3] = new Pose2d(
                     Units.inchesToMeters(209.489),
                     Units.inchesToMeters(158.502),
                     Rotation2d.fromDegrees(0));
-            reefFaces[4] = new Pose2d(
+            reefFacesRed[4] = new Pose2d(
                     Units.inchesToMeters(193.118),
                     Units.inchesToMeters(130.145),
                     Rotation2d.fromDegrees(-60));
-            reefFaces[5] = new Pose2d(
+            reefFacesRed[5] = new Pose2d(
                     Units.inchesToMeters(160.375),
                     Units.inchesToMeters(130.144),
                     Rotation2d.fromDegrees(-120));
-            reefFaces[6] = new Pose2d(
+            reefFacesRed[6] = new Pose2d(
                     Units.inchesToMeters(33.526),
                     Units.inchesToMeters(291.176),
                     Rotation2d.fromDegrees(90 - 144.011));
-            reefFaces[7] = new Pose2d(
+            reefFacesRed[7] = new Pose2d(
                     Units.inchesToMeters(33.526),
                     Units.inchesToMeters(25.824),
                     Rotation2d.fromDegrees(144.011 - 90));
@@ -225,12 +229,16 @@ public class Constants {
             Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1.75, 0.0), Rotation2d.kZero);
             Transform2d coralStationTransform = new Transform2d(new Translation2d(-1, 0.0), Rotation2d.kZero);
             for (int i = 0; i < 6; i++) {
-                reefFaces[i] = new Pose2d(reefFaces[i].getX(), reefFaces[i].getY(), reefFaces[i].getRotation().plus(Rotation2d.k180deg));
-                reefFaces[i] = reefFaces[i].transformBy(reefFaceTransform);
+                reefFacesRed[i] = new Pose2d(reefFacesRed[i].getX(), reefFacesRed[i].getY(), reefFacesRed[i].getRotation().plus(Rotation2d.k180deg));
+                reefFacesRed[i] = reefFacesRed[i].transformBy(reefFaceTransform);
             }
-            for (int i = 6; i < reefFaces.length; i++) {
-                reefFaces[i] = new Pose2d(reefFaces[i].getX(), reefFaces[i].getY(), reefFaces[i].getRotation().plus(Rotation2d.k180deg));
-                reefFaces[i] = reefFaces[i].transformBy(coralStationTransform);
+            for (int i = 6; i < reefFacesRed.length; i++) {
+                reefFacesRed[i] = new Pose2d(reefFacesRed[i].getX(), reefFacesRed[i].getY(), reefFacesRed[i].getRotation().plus(Rotation2d.k180deg));
+                reefFacesRed[i] = reefFacesRed[i].transformBy(coralStationTransform);
+            }
+
+            for (int i = 0; i < reefFacesBlue.length; i++) {
+                reefFacesBlue[i] = new Pose2d(fieldHeight - reefFacesRed[i].getX(), fieldWidth - reefFacesRed[i].getY(), reefFacesRed[i].getRotation().rotateBy(Rotation2d.k180deg));
             }
         }
 

@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "AlignLeft"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ThreeCoralRight2"
@@ -23,15 +29,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "ThreeCoralRight4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight3"
+            "name": "AlignLeft"
           }
         }
       ]

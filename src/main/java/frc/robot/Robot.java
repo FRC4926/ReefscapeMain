@@ -41,6 +41,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
@@ -71,6 +72,8 @@ public class Robot extends TimedRobot {
 
     Timer timer = new Timer();
     Timer timer2 = new Timer();
+
+    // static Alliance alliance = null;
 
     // AnalogInput myInput = new AnalogInput(1);
     // DutyCycle dc = new DutyCycle(new DigitalInput(9));
@@ -123,16 +126,16 @@ public class Robot extends TimedRobot {
 
 
         SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
-        SmartDashboard.putNumber("Pivot Position", RobotContainer.reefscape.pivot.getPosition());
+        SmartDashboard.putNumber("Pivot Position", RobotContainer.reefscape.pivot.getConvertedPosition());
         // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
         // ;
          SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
-        SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
-        SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
+        // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
+        // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
 
         // SmartDashboard.putNumber("Climber 1 Current", RobotContainer.climberSystem.getCurrent1());
         SmartDashboard.putNumber("IntakeSensor Value", RobotContainer.reefscape.intake.innerProximitySensor.getAverageVoltage());
-        SmartDashboard.putBoolean(" Vision Measurement added", RobotContainer.allowAddVisionMeasurements);
+        // SmartDashboard.putBoolean(" Vision Measurement added", RobotContainer.allowAddVisionMeasurements);
         // SmartDashboard.putBoolean("Is Coral in?", RobotContainer.reefscape.intake.isCoralInInnerIntake());
 
         // SmartDashboard.putBoolean("is finished lime", RobotContainer.limelightAligner.isFinishedAlign());
@@ -253,7 +256,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        RobotContainer.setAllowAddVisionMeasurements(false);
+        RobotContainer.setAllowAddVisionMeasurements(true);
         // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
         // RobotContainer.setAllowAddVisionMeasurements(false);
 

@@ -93,6 +93,10 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
     // {
     //     motor.
     // }
+
+    public double getConvertedPosition() {
+        return motor.getPosition().getValueAsDouble()/32.0*360.0;
+    }
     
     @Override
     public double getPosition() {

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ReefscapeState;
@@ -78,7 +79,18 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
 
     public void level()
     {
-        setReferenceVelocity(IntakeConstants.lowerIntakeVelocity);
+        setReferenceVelocity(IntakeConstants.intakeVelocity);
+    }
+
+    public Command actualIntakeCommand()
+    {
+        boolean coralInIntakeShouldBecome = getState().isLevel() ? false : true;
+        return runOnce(() -> setReferenceVelocity(Constants.IntakeConstants.intakeVelocity))
+            .andThen(
+                Commands.idle(this)
+                    .until(() -> isCoralInInnerIntake() == coralInIntakeShouldBecome)
+            )
+            .andThen(runOnce(() -> setReferenceVelocity(0)));
     }
 
     public Command autonIntakeCommand(double velocity, boolean isLevel) {
@@ -130,6 +142,11 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     public Command levelCommand()
     {
         return runOnce(this::level);
+    }
+
+    public Command autonLevelCommand()
+    {
+        return run(this::level);
     }
     public Command intakeCommand() {
         return run(this::intake);
