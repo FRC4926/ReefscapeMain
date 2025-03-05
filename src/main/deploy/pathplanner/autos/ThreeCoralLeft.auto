@@ -37,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "AlignLeft2"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight"
+            "name": "AlignRight2"
           }
         }
       ]

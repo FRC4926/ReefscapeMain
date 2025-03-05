@@ -25,6 +25,12 @@
         {
           "type": "named",
           "data": {
+            "name": "SmallDrive"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "CoralPickup"
           }
         },
@@ -37,7 +43,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "AlignLeft6"
           }
         },
         {
@@ -49,6 +55,12 @@
         {
           "type": "named",
           "data": {
+            "name": "SmallDrive"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "CoralPickup"
           }
         },
@@ -61,7 +73,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight"
+            "name": "AlignRight6"
           }
         }
       ]

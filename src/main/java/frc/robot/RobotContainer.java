@@ -6,56 +6,25 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.photonvision.EstimatedRobotPose;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.*;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.InternalButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
 import frc.robot.Constants.TunerConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
@@ -64,7 +33,6 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
 import frc.robot.reefscape.ClimberSubsystem;
-import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.reefscape.Reefscape;
 
 public class RobotContainer {
@@ -78,8 +46,8 @@ public class RobotContainer {
     public static final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -152,10 +120,29 @@ public class RobotContainer {
     //public Pose2d targetPose2d;
 
     public RobotContainer() {
+
+        //aligning with rotation
+        for (int i = 0; i < 6; i++)
+        {
+            NamedCommands.registerCommand("AlignLeft" + (i+1),  limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape, i));
+            NamedCommands.registerCommand("AlignRight" + (i+1), limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape, i));
+        }
+
+        //aligning without rotation
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
-        NamedCommands.registerCommand("AlignRight", limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape));
+        NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
+
         NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
             .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.intakeVelocity, false)));
+
+        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, 0.75));
+        NamedCommands.registerCommand("SmallRDrive", limelightAligner.smallRDriveCommand(drivetrain, relativeDrive));
+
+        NamedCommands.registerCommand("MyWait", (drivetrain.applyRequest(() ->
+        drive.withVelocityX(0) // Drive forward with negative Y (forward)
+            .withVelocityY(0) // Drive left with negative X (left)
+            .withRotationalRate(0) // Drive counterclockwise with negative X (left)
+    )).withDeadline(Commands.waitSeconds(1.0)));
         
         autonChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Our Autonomous", autonChooser);
@@ -166,12 +153,12 @@ public class RobotContainer {
         configureBindings();
     }
 
-    private boolean posesClose(Pose2d a, Pose2d b, double threshold) {
-        Translation2d between = a.getTranslation().minus(b.getTranslation());
-        double distSquared = Math.pow(between.getX(), 2) + Math.pow(between.getY(), 2);
+    // private boolean posesClose(Pose2d a, Pose2d b, double threshold) {
+    //     Translation2d between = a.getTranslation().minus(b.getTranslation());
+    //     double distSquared = Math.pow(between.getX(), 2) + Math.pow(between.getY(), 2);
 
-        return distSquared <= threshold*threshold;
-    }
+    //     return distSquared <= threshold*threshold;
+    // }
     // returns -1 if not near coral station, and reef face index otherwise
     // private int nearCoralStation() {
     //     Pose2d pose = drivetrain.getState().Pose;
@@ -259,7 +246,7 @@ public class RobotContainer {
         // .and(operatorController.button(23).negate().onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false))));
 
         // operatorController.button(15).onTrue(reefscape.intakeCommand());
-        // operatorController.button(5).onTrue(reefscape.outtakeCommand());
+        operatorController.button(5).onTrue(reefscape.outtakeCommand());
         // operatorController.button(14).onTrue(reefscape.zeroCommand());
         // operatorController.button(16).onTrue(reefscape.levelCommand());
 
@@ -329,7 +316,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("ThreeCoralRight");
-        // return new PathPlannerAuto(autonChooser.getSelected());
+        // return new PathPlannerAuto("ThreeCoralRight");
+        return new PathPlannerAuto(autonChooser.getSelected());
     }
 }

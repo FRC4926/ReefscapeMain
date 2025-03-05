@@ -51,14 +51,14 @@ public class Constants {
         public static final int climb2Id = 19;
 
         public static final double climbForwardCurrentLimit = 10;
-        public static final double climbBackCurrentLimit = 40;
+        public static final double climbBackCurrentLimit = 45;
 
         public static final double climberRatio = 340;
 
         public static final double climbVelocityForward = 0.5;
         public static final double climbVelocityBack = -0.35;
 
-        public static final double climbThres = 105;
+        public static final double climbThres = 117;
     }
 
     public class PivotConstants {
@@ -94,7 +94,7 @@ public class Constants {
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  0.8;
+        public static final double intakeVelocity  =  0.7;
         public static final double outtakeVelocity = -1;
         public static final double lowerIntakeVelocity  =  0.75;
         public static final double lowerOuttakeVelocity = -0.5;
@@ -181,6 +181,13 @@ public class Constants {
 
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
         public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(9, 0, 0);
+
+        public static final double smallDriveVelocity = 0.75;
+        public static final double smallReverseDriveVelocity = -0.75;
+
+        public static final double autonSmallDriveTimeoutSeconds = 1.5;
+        public static final double smallDriveTimeoutSeconds = 0.5;
+        public static final double smallReverseDriveTimeoutSeconds = 0.25;
     }
 
     public class FieldConstants {
@@ -292,7 +299,7 @@ public class Constants {
 
         // The stator current at which the wheels start to slip;
         // This needs to be tuned to your individual robot
-        private static final Current kSlipCurrent = Amps.of(20);
+        private static final Current kSlipCurrent = Amps.of(30);
 
         // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
         // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -302,7 +309,7 @@ public class Constants {
                 new CurrentLimitsConfigs()
                     // Swerve azimuth does not require much torque output, so we can set a relatively low
                     // stator current limit to help avoid brownouts without impacting performance.
-                    .withStatorCurrentLimit(Amps.of(20))
+                    .withStatorCurrentLimit(Amps.of(30))
                     .withStatorCurrentLimitEnable(true)
             );
         private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();

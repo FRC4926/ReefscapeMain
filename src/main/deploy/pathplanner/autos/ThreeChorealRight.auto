@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ThreeCoral1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AlignLeft"
+            "pathName": "ThreeChorealRight"
           }
         }
       ]
@@ -21,5 +15,5 @@
   },
   "resetOdom": true,
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }
