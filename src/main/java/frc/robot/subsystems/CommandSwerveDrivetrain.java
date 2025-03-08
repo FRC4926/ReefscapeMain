@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -13,8 +15,6 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
-import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.FieldConstants;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,8 +28,10 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.RobotContainer;
+import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.RobotContainer;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -323,16 +325,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //     return updatedPath(FieldConstants.reefFaces[RobotContainer.getReefFaceIdx()]);
     // }
 
-    public Command updatedPath(Pose2d targetPose)
-    {
-        RobotContainer.targetPosePublisher.set(targetPose);
+    // public Command updatedPath(Pose2d targetPose)
+    // {
+    //     RobotContainer.targetPosePublisher.set(targetPose);
         
-        PathConstraints constraints = new PathConstraints(
-                1, 1,
-                Units.degreesToRadians(540), Units.degreesToRadians(720));
-        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);//.until(() -> interrupt);
+    //     PathConstraints constraints = new PathConstraints(
+    //             1, 1,
+    //             Units.degreesToRadians(540), Units.degreesToRadians(720));
+    //     return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);//.until(() -> interrupt);
 
-    }
+    // }
 
     public Command updatedPathCommand(Supplier<Integer> targetPoseSupplier) {
         // Pose2d targetPose = targetPoseSupplier.get();
@@ -367,6 +369,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             //.onlyWhile(() -> interrupt);
 
         return generatedPath;
+    }
+
+    public Command updatedPath(Supplier<Integer> targetPoseSupplier) {
+        Pose2d setpointP;
+        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
+            setpointP = FieldConstants.reefFacesRed[targetPoseSupplier.get()];
+        else
+            setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
+        return updatedPath(setpointP);
+    }
+
+    public Command updatedPath(Pose2d targetPose)
+    {
+        RobotContainer.targetPosePublisher.set(targetPose);
+        
+        PathConstraints constraints = new PathConstraints(
+                3, 1,
+                Units.degreesToRadians(540), Units.degreesToRadians(720));
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
+
     }
 
     // public Command limelightUpdate()

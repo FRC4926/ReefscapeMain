@@ -80,7 +80,7 @@ public class VisionSubsystem extends SubsystemBase {
         updateOrigin();
 
         for (CameraWrapperConstants camConstant : VisionConstants.camConstants) {
-            addCamera(camConstant.name(), camConstant.robotToCamera());
+            addCamera(camConstant.name(), camConstant.robotToCamera(), camConstant.trustFactor());
         }
 
         if (Robot.isSimulation()) {
@@ -127,8 +127,8 @@ public class VisionSubsystem extends SubsystemBase {
         // }
     }
 
-    public void addCamera(String camName, Transform3d robotToCam) {
-        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, false));
+    public void addCamera(String camName, Transform3d robotToCam, double trustFactor) {
+        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, true, trustFactor));
     }
 
     public List<CameraWrapper> getCameras()
@@ -200,23 +200,36 @@ public class VisionSubsystem extends SubsystemBase {
         return ret;
     }
 
+    public double[] getStandardDeviations()
+    {
+        double[] ret = new double[camWrappers.size()];
+        for (int i = 0; i < camWrappers.size(); i++) {
+            ret[i] = camWrappers.get(i).getStandardDeviation();
+        }
+
+        return ret;
+    }
+
+
     public void addVisionMeasurements(CommandSwerveDrivetrain drivetrain) {
         SmartDashboard.putNumber("Added vision measurement", SmartDashboard.getNumber("Added vision measurement", 0) + 1);
         EstimatedRobotPose[] poses = getEstimatedGlobalPoses();
+        double[] standardDeviations = getStandardDeviations();
+
         for (int i = 0; i < poses.length; i++) {
             if (poses[i] != null)
                 drivetrain.addVisionMeasurement(
                     poses[i].estimatedPose.toPose2d(),
                     Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
                     new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
-                        VisionConstants.kalmanPositionStdDev, // x
-                        VisionConstants.kalmanPositionStdDev, // y
+                        standardDeviations[i], // x
+                        standardDeviations[i], // y
                         VisionConstants.kalmanRotationStdDev  // rotation
                     })
                 );
         }
     }
-
+    
     public Command addVisionMeasurementsOnceCommand(CommandSwerveDrivetrain drivetrain) {
         return runOnce(() -> addVisionMeasurements(drivetrain));
     }

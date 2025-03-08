@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+// import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
@@ -60,6 +62,8 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final LimelightAligner limelightAligner = new LimelightAligner();
     public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
+
+    // public static final LEDSubsystem led = new LEDSubsystem();
 
     public static final Reefscape reefscape = new Reefscape();
 
@@ -120,6 +124,7 @@ public class RobotContainer {
     //public Pose2d targetPose2d;
 
     public RobotContainer() {
+        // led.setColor(Color.kPurple);
 
         //aligning with rotation
         for (int i = 0; i < 6; i++)
@@ -176,7 +181,7 @@ public class RobotContainer {
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         Command cmd = //limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
             (limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
-            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            //.alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
     }
@@ -277,7 +282,6 @@ public class RobotContainer {
         driverController.y().onTrue(
             visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)
                 .alongWith(drivetrain.updatedPathCommand(() -> getReefFaceIdx()))
-                .andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
         );
         // driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath(FieldConstants.reefFaces[getReefFaceIdx()]).schedule(), drivetrain));
         // driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));

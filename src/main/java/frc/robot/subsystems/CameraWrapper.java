@@ -14,10 +14,13 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import frc.robot.Robot;
+import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,9 +33,11 @@ public class CameraWrapper {
     private Transform3d robotToCam;
     private PhotonPipelineResult latestResult;
     private boolean publishPose;
+    private double trustFactor;
 
-    public CameraWrapper(String camName, Transform3d _robotToCam, AprilTagFieldLayout fieldLayout, boolean _publishPose) {
+    public CameraWrapper(String camName, Transform3d _robotToCam, AprilTagFieldLayout fieldLayout, boolean _publishPose, double _trustFactor) {
         camera = new PhotonCamera(camName);
+        trustFactor = _trustFactor;
 
         robotToCam = _robotToCam;
         poseEstimator = new PhotonPoseEstimator(fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam.inverse());
@@ -77,6 +82,11 @@ public class CameraWrapper {
         return camera.isConnected();
     }
 
+    public double getTrustFactor()
+    {
+        return trustFactor;
+    }
+
     public void checkForResult() {
         if (!camera.isConnected())
             return;
@@ -102,7 +112,7 @@ public class CameraWrapper {
         List<PhotonTrackedTarget> betterTargets = new ArrayList<>();
         for (PhotonTrackedTarget target : latestResult.targets)
         {
-            if (target.getPoseAmbiguity() <= 0.2)
+            if (target.getPoseAmbiguity() <= VisionConstants.maximumAmbiguity)
             {
                 betterTargets.add(target);
             }
@@ -149,5 +159,27 @@ public class CameraWrapper {
     public PhotonCamera getCamera()
     {
         return camera;
+    }
+
+    public double getStandardDeviation()
+    {
+        double totalDistance = 0;
+        double totalTags = 0;
+        for (var tag : latestResult.getTargets()) {
+            if (tag.getPoseAmbiguity() > VisionConstants.maximumAmbiguity)
+                continue;
+            // TODO please check that getBestCameraToTarget() is relative to camera
+            totalDistance += tag.getBestCameraToTarget().getTranslation().getDistance(new Translation3d());
+            totalTags++;
+        }
+
+        double avgDistance = totalDistance/totalTags;
+        double stdDev = VisionConstants.kalmanPositionStdDevCoeefficient
+            * Math.pow(avgDistance, 2.0)
+            / totalTags
+            * trustFactor;
+        SmartDashboard.putNumber(camera.getName() + " stddev", stdDev);
+
+        return stdDev;
     }
 }

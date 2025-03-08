@@ -26,8 +26,10 @@ import frc.robot.Constants.VisionConstants;
 
 public class LimelightAligner extends SubsystemBase {
     // private final PhotonCamera camera = new PhotonCamera("limelight");
-    private final CameraWrapper camera = RobotContainer.visionSubsystem.getCameras().get(4);
+    private CameraWrapper camera = null;
+
     private int tagId = -1;
+
     private double yaw = 0.0;
     private double distanceX = 0.0;
     private double distanceY = 0.0;
@@ -42,6 +44,13 @@ public class LimelightAligner extends SubsystemBase {
     // Timer timeSmall = new Timer();
 
     public LimelightAligner() {
+        for (var cam : RobotContainer.visionSubsystem.getCameras()) {
+            if (cam.getCamera().getName().equals("limelight")) {
+                camera = cam;
+                break;
+            }
+        }
+
         side = DriverStation.getAlliance().orElse(Alliance.Red);
         rotationController.setTolerance(0.1);
         rotationController2.setTolerance(5);
@@ -66,8 +75,9 @@ public class LimelightAligner extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("Is fin", isFinishedRot());
-        if (!camera.isConnected()) {
+        if ((camera == null) || !camera.isConnected()) {
             SmartDashboard.putBoolean("COULD NOT CONNECT", true);
+            return;
         }
 
 
@@ -241,33 +251,35 @@ public class LimelightAligner extends SubsystemBase {
     {
         boolean atSetpoint = relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
         // (!latestResult.hasTargets() || latestResult == null)
-        if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
-            return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
-        else
-            return atSetpoint;
+        // if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
+        //     return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        // else
+        // return atSetpoint;
+        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+
     }
 
      public Command autonRCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape, int idx) {
         return autoRotateCommand(drivetrain, drive, idx)
             .andThen(runOnce(() -> setTagToBestTag()))
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
+            // .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
-            .andThen(reefscape.zeroCommand())
-            .andThen(smallRDriveCommand(drivetrain, drive))
-            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+            // .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
+            // .andThen(reefscape.zeroCommand())
+            .andThen(smallRDriveCommand(drivetrain, drive));
+            // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
     }
 
     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
         return runOnce(() -> setTagToBestTag())
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
+            // .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
-            .andThen(reefscape.zeroCommand())
-            .andThen(smallRDriveCommand(drivetrain, drive))
-            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+            // .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
+            // .andThen(reefscape.zeroCommand())
+            .andThen(smallRDriveCommand(drivetrain, drive));
+            // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 
     }
 
