@@ -263,23 +263,23 @@ public class LimelightAligner extends SubsystemBase {
         return autoRotateCommand(drivetrain, drive, idx)
             .andThen(runOnce(() -> setTagToBestTag()))
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            // .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
+            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            // .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
-            // .andThen(reefscape.zeroCommand())
-            .andThen(smallRDriveCommand(drivetrain, drive));
-            // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
+            .andThen(reefscape.zeroCommand())
+            .andThen(smallRDriveCommand(drivetrain, drive))
+            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
     }
 
     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
         return runOnce(() -> setTagToBestTag())
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            // .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
+            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            // .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
-            // .andThen(reefscape.zeroCommand())
-            .andThen(smallRDriveCommand(drivetrain, drive));
-            // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
+            .andThen(reefscape.zeroCommand())
+            .andThen(smallRDriveCommand(drivetrain, drive))
+            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 
     }
 

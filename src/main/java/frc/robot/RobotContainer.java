@@ -151,8 +151,7 @@ public class RobotContainer {
         
         autonChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Our Autonomous", autonChooser);
-        // NamedCommands.registerCommand("AddVisionMeasurements", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain))
-        // .andThen(new InstantCommand(() -> setAllowAddVisionMeasurements(false))));
+        NamedCommands.registerCommand("AddVisionMeasurements", visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain));
         // NamedCommands.registerCommand("PermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)));
         // NamedCommands.registerCommand("UnPermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(false)));
         configureBindings();
@@ -179,9 +178,9 @@ public class RobotContainer {
     // }
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
-        Command cmd = //limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
+        Command cmd = limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
             (limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
-            //.alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
     }

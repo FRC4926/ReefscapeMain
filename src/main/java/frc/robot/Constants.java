@@ -58,7 +58,7 @@ public class Constants {
         public static final double climbVelocityForward = 0.5;
         public static final double climbVelocityBack = -0.35;
 
-        public static final double climbThres = 117;
+        public static final double climbThres = 120;
     }
 
     public class PivotConstants {
@@ -74,7 +74,7 @@ public class Constants {
 
         public static final double[] anglesDegrees = {
             10, // home
-            30, // coral station //18
+            25, // coral station //18
             10, // level 1
             117, // level 2
             123, // level 3
@@ -140,7 +140,7 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            6.45,  // coral //7.55
+            6.8,  // coral //7.55
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
@@ -170,7 +170,7 @@ public class Constants {
             new CameraWrapperConstants("ArducamRight",
                 new Transform3d(new Translation3d(-11.804*0.0254, -4.828*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,-Math.PI/3)), 1),
             new CameraWrapperConstants("limelight",
-                 new Transform3d(new Translation3d(-7.5*0.0254, 12.5*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)), 1.25)
+                 new Transform3d(new Translation3d(-1.75*0.0254, 12.5*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)), 1.25)
         };
         public static final double kalmanPositionStdDevCoeefficient = 0.15; //0.8 for comp
         public static final double kalmanRotationStdDev = 0.99;
@@ -184,8 +184,8 @@ public class Constants {
     }
 
     public class AutonConstants {
-        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(20, 0, 0);
-        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(9, 0, 0);
+        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(2, 0, 0);
+        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(1.2, 0, 0);
 
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
         public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(9, 0, 0);

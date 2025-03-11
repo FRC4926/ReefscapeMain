@@ -70,7 +70,7 @@ public class VisionSubsystem extends SubsystemBase {
        // visionSim.addVisionTargets(targetSim);
         try
         {
-            fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+            fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
             //visionSim.addAprilTags(fieldLayout);
 
         } catch (Exception e)

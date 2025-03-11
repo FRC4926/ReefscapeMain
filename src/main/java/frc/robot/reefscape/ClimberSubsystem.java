@@ -33,11 +33,17 @@ public class ClimberSubsystem  extends SubsystemBase {
         //     new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
         // );
 
+        // SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
+        // .withReverseSoftLimitEnable(true)
+        // .withReverseSoftLimitThreshold(0)
+        // .withForwardSoftLimitEnable(true)
+        // .withForwardSoftLimitThreshold(ClimberConstants.climbThres);
+
         SoftwareLimitSwitchConfigs softLimitConf = new SoftwareLimitSwitchConfigs()
-        .withReverseSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(0)
-        .withForwardSoftLimitEnable(true)
-        .withForwardSoftLimitThreshold(ClimberConstants.climbThres);
+        .withReverseSoftLimitEnable(false)
+        // .withReverseSoftLimitThreshold(0)
+        .withForwardSoftLimitEnable(false);
+        // .withForwardSoftLimitThreshold(ClimberConstants.climbThres)
 
         
 
