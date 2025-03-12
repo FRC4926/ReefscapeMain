@@ -13,31 +13,84 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "AlignLeft5"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "ThreeCoralRight2"
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "ThreeCoralRight2"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SmallDrive"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CoralPickup"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "SmallDrive"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CoralPickup"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight3"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ThreeCoralRight3"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.15
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Home"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -47,27 +100,80 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "ThreeCoralRight4"
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "ThreeCoralRight4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SmallDrive"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.3
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CoralPickup"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "SmallDrive"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "CoralPickup"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ThreeCoralRight3"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ThreeCoralRight3"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.15
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Home"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {

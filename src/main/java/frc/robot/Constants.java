@@ -56,9 +56,9 @@ public class Constants {
         public static final double climberRatio = 340;
 
         public static final double climbVelocityForward = 0.5;
-        public static final double climbVelocityBack = -0.35;
+        public static final double climbVelocityBack = -0.6;
 
-        public static final double climbThres = 120;
+        public static final double climbThres = 129;
     }
 
     public class PivotConstants {
@@ -78,7 +78,7 @@ public class Constants {
             10, // level 1
             117, // level 2
             123, // level 3
-            122, // level 4
+            130, // level 4 //122
         };
     }
 
@@ -96,6 +96,9 @@ public class Constants {
 
         public static final double intakeVelocity  =  0.7;
         public static final double outtakeVelocity = -1;
+
+        public static final double autonIntakeVelocity  =  0.8;
+
         public static final double lowerIntakeVelocity  =  0.75;
         public static final double lowerOuttakeVelocity = -0.5;
 
@@ -185,7 +188,7 @@ public class Constants {
 
     public class AutonConstants {
         public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(2, 0, 0);
-        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(1.2, 0, 0);
+        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(1.4, 0, 0);
 
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
         public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(9, 0, 0);
@@ -193,9 +196,11 @@ public class Constants {
         public static final double smallDriveVelocity = 0.75;
         public static final double smallReverseDriveVelocity = -0.75;
 
-        public static final double autonSmallDriveTimeoutSeconds = 1.5;
-        public static final double smallDriveTimeoutSeconds = 0.5;
-        public static final double smallReverseDriveTimeoutSeconds = 0.25;
+        public static final double autonSmallDriveTimeoutSeconds = 0.7;  //1.5 works
+        public static final double autonSmallReverseDriveTimeoutSeconds = 0.35;
+        
+        public static final double smallDriveTimeoutSeconds = 0.7;
+
     }
 
     public class FieldConstants {

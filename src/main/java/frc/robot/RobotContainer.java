@@ -138,20 +138,23 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
 
         NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
-            .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.intakeVelocity, false)));
+            .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.autonIntakeVelocity, false))
+            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false)));
 
-        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, 0.75));
-        NamedCommands.registerCommand("SmallRDrive", limelightAligner.smallRDriveCommand(drivetrain, relativeDrive));
+        NamedCommands.registerCommand("Home", reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 
-        NamedCommands.registerCommand("MyWait", (drivetrain.applyRequest(() ->
-        drive.withVelocityX(0) // Drive forward with negative Y (forward)
-            .withVelocityY(0) // Drive left with negative X (left)
-            .withRotationalRate(0) // Drive counterclockwise with negative X (left)
-    )).withDeadline(Commands.waitSeconds(1.0)));
+        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, Constants.AutonConstants.autonSmallDriveTimeoutSeconds));
+        NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
+
+    //     NamedCommands.registerCommand("MyWait", (drivetrain.applyRequest(() ->
+    //     drive.withVelocityX(0) // Drive forward with negative Y (forward)
+    //         .withVelocityY(0) // Drive left with negative X (left)
+    //         .withRotationalRate(0) // Drive counterclockwise with negative X (left)
+    // )).withDeadline(Commands.waitSeconds(1.0)));
         
         autonChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Our Autonomous", autonChooser);
-        NamedCommands.registerCommand("AddVisionMeasurements", visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain));
+        // NamedCommands.registerCommand("AddVisionMeasurements", visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain));
         // NamedCommands.registerCommand("PermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(true)).andThen(visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)));
         // NamedCommands.registerCommand("UnPermaVision", new InstantCommand(() -> setAllowAddVisionMeasurements(false)));
         configureBindings();
@@ -194,34 +197,15 @@ public class RobotContainer {
                 drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ));//.alongWith(new RunCommand(() -> drivetrain.setInterrupt(false))));
+            ).alongWith(new RunCommand(() -> limelightAligner.setInterupt(true))));
 
-        // visionSubsystem.setDefaultCommand(new RunCommand(() -> {
-        //     EstimatedRobotPose[] poses = visionSubsystem.getEstimatedGlobalPoses();
-        //     for (int i = 0; i < poses.length; i++) {
-        //         if ((poses[i] != null) && allowAddVisionMeasurements[i])
-        //             drivetrain.addVisionMeasurement( 
-        //                 poses[i].estimatedPose.toPose2d(),
-        //                 Utils.fpgaToCurrentTime(poses[i].timestampSeconds),
-        //                 new Matrix<N3, N1>(Nat.N3(), Nat.N1(), new double[] {
-        //                     VisionConstants.kalmanPositionStdDev, VisionConstants.kalmanPositionStdDev,
-        //                     VisionConstants.kalmanRotationStdDev
-        //                 })
-        //             );
-        //     }
-        // }, visionSubsystem));
         visionSubsystem.setDefaultCommand(new RunCommand(() -> {
             if (allowAddVisionMeasurements)
                 visionSubsystem.addVisionMeasurements(drivetrain);
         }, visionSubsystem));
 
-        
-       // new Trigger(DriverStation::isTeleopEnabled).whileTrue(visionSubsystem.addVisionMeasurementsCommand(drivetrain));
-        // new Trigger(DriverStation::isTeleopEnabled).onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("PLEEEZ", true)));
+    
 
-        //align command
-
-        // operatorController.button(4).onTrue(new RunCommand(() -> SmartDashboard.putBoolean("PLEASE JUST WORK OKAY???", true)));
         SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
 
         for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
@@ -281,13 +265,16 @@ public class RobotContainer {
         driverController.y().onTrue(
             visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)
                 .alongWith(drivetrain.updatedPathCommand(() -> getReefFaceIdx()))
-        );
-        // driverController.y().onTrue(new InstantCommand(() -> drivetrain.updatedPath(FieldConstants.reefFaces[getReefFaceIdx()]).schedule(), drivetrain));
-        // driverController.a().whileTrue(new RunCommand(() -> limelightAligner.setTagToBestTag()));
-        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left));
-        driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right));
-        // driverController.y().onTrue(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx));
-        driverController.rightBumper().whileTrue(limelightAligner.coralStationAlignCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx, driverController::getLeftY, driverController::getLeftX, MaxSpeed));
+                .onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.a().onTrue(new InstantCommand(() -> limelightAligner.setInterupt(false)));
+        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left).onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftY, driverController::getLeftX, MaxSpeed).onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
+            drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
+                .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)
+                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
+    ));
 
 
         // new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
@@ -314,7 +301,7 @@ public class RobotContainer {
         // driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         drivetrain.registerTelemetry(logger::telemeterize);
     }
 

@@ -59,10 +59,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // Pose2d sheesh = null;
     private boolean inverted = false;
 
-    public double getInvertMultiplier() {
-        return inverted ? -1.0 : 1.0;
-    }
-
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
