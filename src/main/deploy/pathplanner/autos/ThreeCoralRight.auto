@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "StartTime"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ThreeCoralRight1"
@@ -180,6 +186,12 @@
           "type": "named",
           "data": {
             "name": "AlignRight6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EndTime"
           }
         }
       ]

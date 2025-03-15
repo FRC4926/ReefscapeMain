@@ -1,39 +1,47 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.hal.PWMJNI;
+import edu.wpi.first.hal.simulation.PWMDataJNI;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.reefscape.IntakeSubsystem;
 import frc.robot.reefscape.Reefscape;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
 import frc.robot.Constants.ReefscapeState;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 
-public class LimelightAligner extends SubsystemBase {
+public class LimelightAlignercopy extends SubsystemBase {
     // private final PhotonCamera camera = new PhotonCamera("limelight");
-    private CameraWrapper camera = null;
-
+    private final CameraWrapper camera = RobotContainer.visionSubsystem.getCameras().get(4);
     private int tagId = -1;
     private double yaw = 0.0;
     private double distanceX = 0.0;
@@ -48,16 +56,7 @@ public class LimelightAligner extends SubsystemBase {
     Alliance side = null;
     // Timer timeSmall = new Timer();
 
-    private boolean interupt = true;
-
-    public LimelightAligner() {
-        for (var cam : RobotContainer.visionSubsystem.getCameras()) {
-            if (cam.getCamera().getName().equals("limelight")) {
-                camera = cam;
-                break;
-            }
-        }
-
+    public LimelightAlignercopy() {
         side = DriverStation.getAlliance().orElse(Alliance.Red);
         rotationController.setTolerance(0.1);
         rotationController2.setTolerance(5);
@@ -65,16 +64,6 @@ public class LimelightAligner extends SubsystemBase {
         relativeYController.setTolerance(0.01);
 
         rotationController2.enableContinuousInput(-180, 180);
-    }
-
-    public boolean getInterupt()
-    {
-        return interupt;
-    }
-
-    public void setInterupt(boolean val)
-    {
-        interupt = val;
     }
 
     public int getTagId() {
@@ -92,9 +81,8 @@ public class LimelightAligner extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("Is fin", isFinishedRot());
-        if ((camera == null) || !camera.isConnected()) {
+        if (!camera.isConnected()) {
             SmartDashboard.putBoolean("COULD NOT CONNECT", true);
-            return;
         }
 
 
@@ -105,7 +93,6 @@ public class LimelightAligner extends SubsystemBase {
                     yaw = target.getYaw();
                     target.getBestCameraToTarget();
                     Transform3d camToTag = target.getBestCameraToTarget();
-                    // camToTagPose = camToTag;
                     distanceX = camToTag.getX();
                     distanceY = camToTag.getY();
                     distanceZ = camToTag.getZ();
@@ -125,35 +112,22 @@ public class LimelightAligner extends SubsystemBase {
         SmartDashboard.putNumber("Rotation degrees", rotation.getDegrees());
     }
 
-    public Command smallDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive) {
-        return smallDriveCommand(drivetrain, drive, AutonConstants.smallDriveTimeoutSeconds);
-    }
-
-    public Command smallDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, double timeoutSeconds)
+    public Command smallDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
     {
         // timeSmall.restart();
         return drivetrain.applyRequest(() -> drive
-            .withRotationalRate(0)
-            .withVelocityX(AutonConstants.smallDriveVelocity)
-            .withVelocityY(0)).withTimeout(timeoutSeconds);
+        .withRotationalRate(0)
+        .withVelocityX(0.75)
+        .withVelocityY(0)).withTimeout(2);
     }
 
-    public Command autonSmallDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
+    public Command smallRDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
     {
         // timeSmall.restart();
         return drivetrain.applyRequest(() -> drive
-            .withRotationalRate(0)
-            .withVelocityX(AutonConstants.smallDriveVelocity)
-            .withVelocityY(0)).withTimeout(AutonConstants.autonSmallDriveTimeoutSeconds);
-    }
-
-    public Command autonSmallRDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
-    {
-        // timeSmall.restart();
-        return drivetrain.applyRequest(() -> drive
-            .withRotationalRate(0)
-            .withVelocityX(AutonConstants.smallReverseDriveVelocity)
-            .withVelocityY(0)).withTimeout(AutonConstants.autonSmallReverseDriveTimeoutSeconds);
+        .withRotationalRate(0)
+        .withVelocityX(-0.75)
+        .withVelocityY(0)).withTimeout(.5);
     }
 
     // public boolean timeStop(double seconds)
@@ -182,7 +156,7 @@ public class LimelightAligner extends SubsystemBase {
         // System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
-            // SmartDashboard.putBoolean("Zerod", true);
+            SmartDashboard.putBoolean("Zerod", true);
             return zeroDrive(drive);
         } else
         {
@@ -204,15 +178,11 @@ public class LimelightAligner extends SubsystemBase {
     }
     // TODO should LimelightAligner be added as a requirement?
     public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.limelightCurrent))
-        .andThen(drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign()))
-        .andThen(runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.driveCurrent)));
+        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign());
     }
 
     public Command autonAlignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.limelightCurrent)).andThen(
-        drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlignAuton()))
-        .andThen(runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.driveCurrent)));
+        return drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlignAuton());
     }
 
 
@@ -233,16 +203,12 @@ public class LimelightAligner extends SubsystemBase {
     {
         return drivetrain.applyRequest(() -> autoRotate(drivetrain, drive, idxSupplier.getAsInt())).until(this::isFinishedRot);
     }
-    public Command autoRotateCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx)
+    public Command coralStationAlignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, IntSupplier idxSupplier, DoubleSupplier x, DoubleSupplier y, double maxSpeed)
     {
-        return drivetrain.applyRequest(() -> autoRotate(drivetrain, drive, idx)).until(this::isFinishedRot);
-    }
-    public Command autoRotateTeleopCommand(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric drive, IntSupplier idxSupplier, DoubleSupplier x, DoubleSupplier y, double maxSpeed)
-    {
-        return drivetrain.applyRequest(() -> autoRotateTeleop(drivetrain, drive, idxSupplier.getAsInt(), x.getAsDouble(), y.getAsDouble(), maxSpeed)).until(this::isFinishedRot);
+        return drivetrain.applyRequest(() -> coralRotate(drivetrain, drive, idxSupplier.getAsInt(), x.getAsDouble(), y.getAsDouble(), maxSpeed));
     }
 
-    public SwerveRequest.FieldCentric autoRotateTeleop(CommandSwerveDrivetrain drivetrain, SwerveRequest.FieldCentric drive, int idx, double x, double y, double maxSpeed) {
+    public RobotCentric coralRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx, double x, double y, double maxSpeed) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
         double setpoint = 0;
         if (side == Alliance.Red)
@@ -273,34 +239,20 @@ public class LimelightAligner extends SubsystemBase {
     {
         boolean atSetpoint = relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
         // (!latestResult.hasTargets() || latestResult == null)
-        // if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
-        //     return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
-        // else
-        // return atSetpoint;
-        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
-
+        if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
+            return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        else
+            return atSetpoint;
     }
 
-     public Command autonRCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape, int idx) {
-        return autoRotateCommand(drivetrain, drive, idx)
-            .andThen(runOnce(() -> setTagToBestTag()))
-            .andThen(autonAlignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
-            .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(1))
-            .andThen(reefscape.zeroCommand())
-            .andThen(autonSmallRDriveCommand(drivetrain, drive))
-            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
-    }
-
-    public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
+     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
         return runOnce(() -> setTagToBestTag())
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))  //.unless(() -> distanceX > 0.7)
-            .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(1))
+            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
+            .andThen(smallDriveCommand(drivetrain, drive))
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.3))
             .andThen(reefscape.zeroCommand())
-            .andThen(autonSmallRDriveCommand(drivetrain, drive))
+            .andThen(smallRDriveCommand(drivetrain, drive))
             .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 
     }

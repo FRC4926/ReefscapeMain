@@ -223,6 +223,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        // timer.reset();
+        // timer.start();
         RobotContainer.setAllowAddVisionMeasurements(true);
         // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
         // RobotContainer.setAllowAddVisionMeasurements(false);

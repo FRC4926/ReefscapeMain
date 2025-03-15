@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.RobotContainer;
@@ -149,7 +151,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             inverted = true;
     }
 
-    public double getCurrent() {
+    public double getTotalCurrent() {
         double ret = 0.0;
         for (var module : getModules()) {
             ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
@@ -159,7 +161,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return ret;
     }
 
- private void configureAutoBuilder() {
+
+    public void setCurrentLimit(double current)
+    {
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
+            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
+    }
+
+
+
+    private void configureAutoBuilder() {
         //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
         try {
             var config = RobotConfig.fromGUISettings();

@@ -74,11 +74,11 @@ public class Constants {
 
         public static final double[] anglesDegrees = {
             10, // home
-            25, // coral station //18
+            25, // coral station //18   //25 is actual
             10, // level 1
             117, // level 2
             123, // level 3
-            130, // level 4 //122
+            103, // level 4 //122
         };
     }
 
@@ -143,11 +143,11 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            6.8,  // coral //7.55
+            6.8,  // coral //7.55  //6.8 works use this
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
-            20.0, // level 4
+            21.5, // level 4
         };
     }
 
@@ -181,8 +181,8 @@ public class Constants {
         public static final double maximumAmbiguity = 0.25;
 
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(3.5 /* 1.5 */);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6 /* 1.5 */);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(4 /* 1.5 */);
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8 /* 1.5 */);
         public static final double limelightMaxDistance = 0.5;
     }
 
@@ -282,6 +282,8 @@ public class Constants {
     public class TunerConstants {
         // Both sets of gains need to be tuned to your individual robot.
 
+        public static final double limelightCurrent = 20;
+        public static final double driveCurrent = 40;
         // The steer motor uses any SwerveModule.SteerRequestType control request with the
         // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
         private static final Slot0Configs steerGains = new Slot0Configs()
@@ -312,7 +314,7 @@ public class Constants {
 
         // The stator current at which the wheels start to slip;
         // This needs to be tuned to your individual robot
-        private static final Current kSlipCurrent = Amps.of(30);
+        private static final Current kSlipCurrent = Amps.of(40);
 
         // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
         // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -322,7 +324,7 @@ public class Constants {
                 new CurrentLimitsConfigs()
                     // Swerve azimuth does not require much torque output, so we can set a relatively low
                     // stator current limit to help avoid brownouts without impacting performance.
-                    .withStatorCurrentLimit(Amps.of(30))
+                    .withStatorCurrentLimit(Amps.of(40))
                     .withStatorCurrentLimitEnable(true)
             );
         private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();

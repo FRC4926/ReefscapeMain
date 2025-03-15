@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -29,6 +30,7 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightAligner;
+import frc.robot.subsystems.Recorder;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -52,6 +54,7 @@ public class RobotContainer {
     // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
+    Timer timer = new Timer();
 
     public static final CommandXboxController driverController = new CommandXboxController(0);
     public static final CommandJoystick operatorController = new CommandJoystick(1);
@@ -62,6 +65,8 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final LimelightAligner limelightAligner = new LimelightAligner();
     public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
+
+    public static final Recorder recorder = new Recorder();
 
     // public static final LEDSubsystem led = new LEDSubsystem();
 
@@ -133,19 +138,22 @@ public class RobotContainer {
             NamedCommands.registerCommand("AlignRight" + (i+1), limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape, i));
         }
 
+        NamedCommands.registerCommand("StartTime", new InstantCommand(() -> timer.restart()));
+
         //aligning without rotation
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
 
         NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
-            .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.autonIntakeVelocity, false))
-            .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false)));
+            .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.autonIntakeVelocity, false)));
+            // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false)));
 
         NamedCommands.registerCommand("Home", reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
 
         NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, Constants.AutonConstants.autonSmallDriveTimeoutSeconds));
         NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
 
+        NamedCommands.registerCommand("EndTime", new InstantCommand(() -> SmartDashboard.putNumber("Auton End Time", timer.get())));
     //     NamedCommands.registerCommand("MyWait", (drivetrain.applyRequest(() ->
     //     drive.withVelocityX(0) // Drive forward with negative Y (forward)
     //         .withVelocityY(0) // Drive left with negative X (left)
@@ -243,6 +251,8 @@ public class RobotContainer {
 
         driverController.rightTrigger(0.2).negate().and(driverController.leftTrigger(0.2).negate())
             .whileTrue(reefscape.zeroCommand());
+
+        // driverController.povUp().onTrue(Record)
 
 
         operatorController.button(11).onTrue(climberSystem.climbForward());
