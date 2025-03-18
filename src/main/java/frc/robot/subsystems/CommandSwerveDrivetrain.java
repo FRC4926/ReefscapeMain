@@ -139,71 +139,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
-
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
-
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
-        configureAutoBuilder();
-
-        if (alliance == Alliance.Blue)
-            inverted = true;
+        init();
     }
-
-    public double getTotalCurrent() {
-        double ret = 0.0;
-        for (var module : getModules()) {
-            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
-            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
-        }
-
-        return ret;
-    }
-
-
-    public void setCurrentLimit(double current)
-    {
-        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
-        for (var module : getModules()) {
-            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
-            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
-        }
-    }
-
-
-
-    private void configureAutoBuilder() {
-        //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
-        try {
-            var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(
-                () -> getState().Pose,   // Supplier of current robot pose
-                this::resetPose,         // Consumer for seeding pose against auto
-                () -> getState().Speeds, // Supplier of current robot speeds
-                // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(
-                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    AutonConstants.pathplannerTranslationPIDConstants,
-                    // PID constants for rotation
-                    AutonConstants.pathplannerRotationPIDConstants
-                ),
-                config,
-                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue,
-                this // Subsystem for requirements
-            );
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
-    }
-
-    
+       
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
@@ -226,7 +164,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        init();
     }
 
     /**
@@ -259,8 +197,72 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        init();
     }
+
+    // Called across all `CommandSwerveDrivetrain` constructors
+    public void init() {
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+
+        if (Utils.isSimulation()) {
+            startSimThread();
+        }
+        configureAutoBuilder();
+
+        if (alliance == Alliance.Blue)
+            inverted = true;
+    }
+
+    public double getTotalCurrent() {
+        double ret = 0.0;
+        for (var module : getModules()) {
+            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
+            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
+        }
+
+        return ret;
+    }
+
+
+    public void setCurrentLimit(double current)
+    {
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
+            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
+    }
+
+    private void configureAutoBuilder() {
+        //System.out.println("CONFIGUREAUTOBUILDER CALLED!!!!!!!!!!");
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                () -> getState().Pose,   // Supplier of current robot pose
+                this::resetPose,         // Consumer for seeding pose against auto
+                () -> getState().Speeds, // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                (speeds, feedforwards) -> setControl(
+                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+                new PPHolonomicDriveController(
+                    // PID constants for translation
+                    AutonConstants.pathplannerTranslationPIDConstants,
+                    // PID constants for rotation
+                    AutonConstants.pathplannerRotationPIDConstants
+                ),
+                config,
+                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                () -> DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue,
+                this // Subsystem for requirements
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+    }
+
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.

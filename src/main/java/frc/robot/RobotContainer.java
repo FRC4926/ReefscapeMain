@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightAligner;
@@ -191,7 +193,11 @@ public class RobotContainer {
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         Command cmd = limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
             (limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
-            .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            .alongWith(
+                Commands.idle().until(() -> limelightAligner.distanceX <= VisionConstants.limelightElevatorDistance)
+                    .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+            )
+            // .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false).unless(() -> (limelightAligner.distanceX > Units.inchesToMeters(Constants.VisionConstants.limelightElevatorDistanceInches))))
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
     }
@@ -252,11 +258,13 @@ public class RobotContainer {
         driverController.rightTrigger(0.2).negate().and(driverController.leftTrigger(0.2).negate())
             .whileTrue(reefscape.zeroCommand());
 
-        // driverController.povUp().onTrue(Record)
 
 
         operatorController.button(11).onTrue(climberSystem.climbForward());
         operatorController.button(12).onTrue(climberSystem.climbBack());
+
+        operatorController.button(11).negate().and(operatorController.button(12).negate())
+         .whileTrue(climberSystem.climbZero());
         operatorController.button(13).onTrue(climberSystem.climbZero());
 
 
@@ -279,7 +287,7 @@ public class RobotContainer {
         driverController.a().onTrue(new InstantCommand(() -> limelightAligner.setInterupt(false)));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left).onlyWhile(() -> limelightAligner.getInterupt()));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterupt()));
-        driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftY, driverController::getLeftX, MaxSpeed).onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftX, driverController::getLeftY, MaxSpeed).onlyWhile(() -> limelightAligner.getInterupt()));
         driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
             drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
                 .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)

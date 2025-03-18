@@ -64,7 +64,7 @@ public class Constants {
     public class PivotConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId  = 17;
-        public static final PIDConstants motorPidConstants  = new PIDConstants(1.6, 0.0, 0.0);
+        public static final PIDConstants motorPidConstants  = new PIDConstants(1.8, 0.0, 0.0);
         public static final double motorkG = 1.0;
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
@@ -184,6 +184,7 @@ public class Constants {
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(4 /* 1.5 */);
         public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8 /* 1.5 */);
         public static final double limelightMaxDistance = 0.5;
+        public static final double limelightElevatorDistance = Units.inchesToMeters(37);
     }
 
     public class AutonConstants {

@@ -36,8 +36,8 @@ public class LimelightAligner extends SubsystemBase {
 
     private int tagId = -1;
     private double yaw = 0.0;
-    private double distanceX = 0.0;
-    private double distanceY = 0.0;
+    public double distanceX = 0.0;
+    public double distanceY = 0.0;
     private double distanceZ = 0.0;
     private Rotation2d rotation = Rotation2d.kZero;
     private final PIDController rotationController  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
@@ -91,7 +91,7 @@ public class LimelightAligner extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Is fin", isFinishedRot());
+        // SmartDashboard.putBoolean("Is fin", isFinishedRot());
         if ((camera == null) || !camera.isConnected()) {
             SmartDashboard.putBoolean("COULD NOT CONNECT", true);
             return;
@@ -287,7 +287,7 @@ public class LimelightAligner extends SubsystemBase {
             .andThen(autonAlignCommand(drivetrain, drive, direction))
             .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(1))
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.5))
             .andThen(reefscape.zeroCommand())
             .andThen(autonSmallRDriveCommand(drivetrain, drive))
             .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
@@ -296,9 +296,9 @@ public class LimelightAligner extends SubsystemBase {
     public Command autonCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction, Reefscape reefscape) {
         return runOnce(() -> setTagToBestTag())
             .andThen(autonAlignCommand(drivetrain, drive, direction))
-            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))  //.unless(() -> distanceX > 0.7)
+            .alongWith(reefscape.applyStateCommand(ReefscapeState.Level4, true, true, false))
             .andThen(autonSmallDriveCommand(drivetrain, drive))
-            .andThen(reefscape.autonLevelCommand().withTimeout(1))
+            .andThen(reefscape.autonLevelCommand().withTimeout(0.5))
             .andThen(reefscape.zeroCommand())
             .andThen(autonSmallRDriveCommand(drivetrain, drive))
             .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
