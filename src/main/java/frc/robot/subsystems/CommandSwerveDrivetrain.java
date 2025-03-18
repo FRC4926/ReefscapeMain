@@ -370,14 +370,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // });
         //     // .onlyWhile(() -> interrupt);
         // return generatedPath;
-        Pose2d setpointP = null;
-        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
-            setpointP = FieldConstants.reefFacesRed[targetPoseSupplier.get()];
-        else
-            setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
-        final Pose2d setpointPF = setpointP;
-        
-        generatedPath = defer(() -> AutoBuilder.pathfindToPose(setpointPF, constraints, 0.0));
+
+        generatedPath = defer(() -> {
+            Pose2d setpointP;
+            if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
+                setpointP = FieldConstants.reefFacesRed[targetPoseSupplier.get()];
+            else
+                setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
+
+            return AutoBuilder.pathfindToPose(setpointP, constraints, 0.0);
+        });
             //.onlyWhile(() -> interrupt);
 
         return generatedPath;
