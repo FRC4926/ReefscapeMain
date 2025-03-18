@@ -204,7 +204,10 @@ public class VisionSubsystem extends SubsystemBase {
     {
         double[] ret = new double[camWrappers.size()];
         for (int i = 0; i < camWrappers.size(); i++) {
-            ret[i] = camWrappers.get(i).getStandardDeviation();
+            if (camWrappers.get(i).isConnected())
+                ret[i] = camWrappers.get(i).getStandardDeviation();
+            else
+                ret[i] = 9999999.0;
         }
 
         return ret;
