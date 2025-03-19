@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.Units;
 
@@ -56,6 +57,9 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         leftMotor.getConfigurator().apply(currentLimitsConfigs);
         rightMotor.getConfigurator().apply(currentLimitsConfigs);
 
+
+        leftMotor.setNeutralMode(NeutralModeValue.Brake);
+        rightMotor.setNeutralMode(NeutralModeValue.Brake);
 
         leftMotor.getConfigurator().apply(slot0Conf);
         rightMotor.getConfigurator().apply(slot0Conf);

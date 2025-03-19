@@ -64,7 +64,7 @@ public class Constants {
     public class PivotConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId  = 17;
-        public static final PIDConstants motorPidConstants  = new PIDConstants(1.8, 0.0, 0.0);
+        public static final PIDConstants motorPidConstants  = new PIDConstants(2.2, 0.0, 0.0);
         public static final double motorkG = 1.0;
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
@@ -78,7 +78,7 @@ public class Constants {
             10, // level 1
             117, // level 2
             123, // level 3
-            103, // level 4 //122
+            105, // level 4 //122
         };
     }
 
@@ -185,19 +185,20 @@ public class Constants {
         public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8 /* 1.5 */);
         public static final double limelightMaxDistance = 0.5;
         public static final double limelightElevatorDistance = Units.inchesToMeters(37);
+        public static final double autonLimelightElevatorDistance = Units.inchesToMeters(30);
     }
 
     public class AutonConstants {
-        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(2, 0, 0);
-        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(1.4, 0, 0);
+        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
+        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(5, 0, 0);
 
-        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(15, 0, 0);
-        public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(9, 0, 0);
+        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(0, 0, 0);
+        public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(0, 0, 0);
 
-        public static final double smallDriveVelocity = 0.75;
-        public static final double smallReverseDriveVelocity = -0.75;
+        public static final double smallDriveVelocity = 1;
+        public static final double smallReverseDriveVelocity = -1.5;
 
-        public static final double autonSmallDriveTimeoutSeconds = 0.7;  //1.5 works
+        public static final double autonSmallDriveTimeoutSeconds = 0.5;  //1.5 works
         public static final double autonSmallReverseDriveTimeoutSeconds = 0.35;
         
         public static final double smallDriveTimeoutSeconds = 0.7;
@@ -207,6 +208,7 @@ public class Constants {
     public class FieldConstants {
         public static final double fieldWidth = Units.inchesToMeters(26*12 + 5);
         public static final double fieldHeight = Units.inchesToMeters(57*12 + 6 + 7.0/8.0);
+        public static final Rectangle2d fieldRect = new Rectangle2d(new Translation2d(), new Translation2d(fieldHeight, fieldWidth));
         public static final Pose2d[] reefFacesRed = new Pose2d[8]; // Starting facing the driver station in clockwise order
         public static final Pose2d[] reefFacesBlue = new Pose2d[8]; // Starting facing the driver station in clockwise order
 
@@ -283,7 +285,9 @@ public class Constants {
     public class TunerConstants {
         // Both sets of gains need to be tuned to your individual robot.
 
-        public static final double limelightCurrent = 20;
+        public static final double limelightCurrent = 30;
+        public static final double autonLimelightCurrent = 40;
+        public static final double autonLimelightCurrentSlow = 20;
         public static final double driveCurrent = 40;
         // The steer motor uses any SwerveModule.SteerRequestType control request with the
         // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput

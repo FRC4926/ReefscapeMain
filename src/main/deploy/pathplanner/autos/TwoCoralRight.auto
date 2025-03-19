@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft5"
+            "name": "AlignLeft5Slow"
           }
         },
         {
@@ -102,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft6"
+            "name": "AlignLeft6Slow"
           }
         },
         {

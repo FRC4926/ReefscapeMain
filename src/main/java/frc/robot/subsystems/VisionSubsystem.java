@@ -9,6 +9,7 @@ import com.ctre.phoenix6.Utils;
 import org.photonvision.simulation.VisionSystemSim;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.CameraWrapperConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -213,6 +214,9 @@ public class VisionSubsystem extends SubsystemBase {
         return ret;
     }
 
+    public boolean poseIsValid(EstimatedRobotPose pose) {
+        return FieldConstants.fieldRect.contains(pose.estimatedPose.getTranslation().toTranslation2d());
+    }
 
     public void addVisionMeasurements(CommandSwerveDrivetrain drivetrain) {
         SmartDashboard.putNumber("Added vision measurement", SmartDashboard.getNumber("Added vision measurement", 0) + 1);
@@ -220,7 +224,7 @@ public class VisionSubsystem extends SubsystemBase {
         double[] standardDeviations = getStandardDeviations();
 
         for (int i = 0; i < poses.length; i++) {
-            if (poses[i] != null)
+            if (poses[i] != null && poseIsValid(poses[i]))
                 drivetrain.addVisionMeasurement(
                     poses[i].estimatedPose.toPose2d(),
                     Utils.fpgaToCurrentTime(poses[i].timestampSeconds),

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants.PivotConstants;
@@ -41,6 +42,9 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
             .withKP(PivotConstants.motorPidConstants.kP)
             .withKI(PivotConstants.motorPidConstants.kI)
             .withKD(PivotConstants.motorPidConstants.kD);
+
+        motor.setNeutralMode(NeutralModeValue.Brake);
+
 
         motor.getConfigurator().apply(motorConf0);
         motor.getConfigurator().apply(motorConf1);

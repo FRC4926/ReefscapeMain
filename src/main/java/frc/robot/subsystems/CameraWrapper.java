@@ -14,6 +14,7 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import frc.robot.Robot;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -100,6 +101,13 @@ public class CameraWrapper {
         return latestResult;
     }
 
+    public boolean targetIsValid(PhotonTrackedTarget target) {
+        if (target.getPoseAmbiguity() > VisionConstants.maximumAmbiguity)
+            return false;
+
+        return true;
+    }
+
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
         if (!camera.isConnected() || latestResult == null || !latestResult.hasTargets())
         {
@@ -112,7 +120,7 @@ public class CameraWrapper {
         List<PhotonTrackedTarget> betterTargets = new ArrayList<>();
         for (PhotonTrackedTarget target : latestResult.targets)
         {
-            if (target.getPoseAmbiguity() <= VisionConstants.maximumAmbiguity)
+            if (targetIsValid(target))
             {
                 betterTargets.add(target);
             }

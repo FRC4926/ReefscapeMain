@@ -140,11 +140,21 @@ public class RobotContainer {
             NamedCommands.registerCommand("AlignRight" + (i+1), limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape, i));
         }
 
+        for (int i = 0; i < 6; i++)
+        {
+            NamedCommands.registerCommand("AlignLeft" + (i+1) + "Slow",  limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape, i, true));
+            NamedCommands.registerCommand("AlignRight" + (i+1) + "Slow", limelightAligner.autonRCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape, i, true));
+        }
+
         NamedCommands.registerCommand("StartTime", new InstantCommand(() -> timer.restart()));
 
         //aligning without rotation
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
+
+        // NamedCommands.registerCommand("AlignLeftSlow",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape, true));
+        // NamedCommands.registerCommand("AlignRightSlow",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, true));
+
 
         NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
             .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.autonIntakeVelocity, false)));
@@ -324,7 +334,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        // return new PathPlannerAuto("ThreeCoralRight");
         return new PathPlannerAuto(autonChooser.getSelected());
     }
 }

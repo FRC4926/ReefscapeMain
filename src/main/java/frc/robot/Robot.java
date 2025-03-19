@@ -6,7 +6,6 @@ package frc.robot;
 
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
@@ -317,7 +316,7 @@ public class Robot extends TimedRobot {
         // PathPlannerPath(PathPlannerPath.waypointsFromPoses(RobotContainer.drivetrain.getState().Pose,
         // new Pose2d(16.02, 0.76, Rotation2d.fromDegrees(127))), conts, null, new
         // GoalEndState(0.0, Rotation2d.fromDegrees(127)));
-        // AutoBuilder.followPath(shees).schedule();
+        // this.followPath(shees).schedule();
 
         Pose2d targetPose = new Pose2d(12.63, 5.60, Rotation2d.fromDegrees(-62.77));
         // Pose2d targetPose = new Pose2d(12.88, 6.17, new
@@ -330,8 +329,8 @@ public class Robot extends TimedRobot {
                 1, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
 
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
+        // Since this is configured, we can use it to build pathfinding commands
+        Command pathfindingCommand = Pathplanner.fly.pathfindToPose(
                 targetPose,
                 constraints,
                 0.0);
