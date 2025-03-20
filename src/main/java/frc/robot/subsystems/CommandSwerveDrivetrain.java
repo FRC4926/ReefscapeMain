@@ -33,7 +33,6 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.Pathplanner;
 import frc.robot.RobotContainer;
 
 /**
@@ -49,7 +48,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
-    public final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
     // private boolean interrupt = true;
@@ -208,11 +207,30 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-
-        //Pathplanner.configure(this);
         configureAutoBuilder();
+
         if (alliance == Alliance.Blue)
             inverted = true;
+    }
+
+    public double getTotalCurrent() {
+        double ret = 0.0;
+        for (var module : getModules()) {
+            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
+            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
+        }
+
+        return ret;
+    }
+
+
+    public void setCurrentLimit(double current)
+    {
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
+            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
     }
 
     private void configureAutoBuilder() {
@@ -245,26 +263,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-
-    public double getTotalCurrent() {
-        double ret = 0.0;
-        for (var module : getModules()) {
-            ret += module.getDriveMotor().getStatorCurrent().getValueAsDouble();
-            ret += module.getSteerMotor().getStatorCurrent().getValueAsDouble();
-        }
-
-        return ret;
-    }
-
-
-    public void setCurrentLimit(double current)
-    {
-        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
-        for (var module : getModules()) {
-            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
-            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
-        }
-    }
 
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
@@ -346,7 +344,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //     PathConstraints constraints = new PathConstraints(
     //             1, 1,
     //             Units.degreesToRadians(540), Units.degreesToRadians(720));
-    //     return generatedPath = this.pathfindToPose(targetPose, constraints, 0.0);//.until(() -> interrupt);
+    //     return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);//.until(() -> interrupt);
 
     // }
 
@@ -358,12 +356,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         PathConstraints constraints = new PathConstraints(
                 3, 2,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-        // return generatedPath = this.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
+        // return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
 
         // Commands.startRun()
 
         // generatedPath = runOnce(() -> {
-        //     Command command = this.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0)
+        //     Command command = AutoBuilder.pathfindToPose(targetPoseSupplier.get(), constraints, 0.0)
         //         .alongWith(onStart)
         //         .andThen(onEnd);
         //     command.asProxy();
@@ -380,7 +378,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             else
                 setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
 
-            return Pathplanner.fly.pathfindToPose(setpointP, constraints, 0.0);
+            return AutoBuilder.pathfindToPose(setpointP, constraints, 0.0);
         });
             //.onlyWhile(() -> interrupt);
 
@@ -403,7 +401,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         PathConstraints constraints = new PathConstraints(
                 3, 1,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
-        return generatedPath = Pathplanner.fly.pathfindToPose(targetPose, constraints, 0.0);
+        return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0);
 
     }
 
@@ -441,7 +439,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //         config,
     //         this);
     //     } catch (Exception ex) {
-    //         DriverStation.reportError("Failed to load PathPlanner config and configure this", ex.getStackTrace());
+    //         DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
     //     }
 
     //     return limePath;

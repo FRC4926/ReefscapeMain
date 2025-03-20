@@ -28,6 +28,8 @@ public class Constants {
         Level2,
         Level3,
         Level4,
+        AlgaeL3,
+        AlgaeL2,
         Manual;
 
         public boolean isLevel() {
@@ -74,11 +76,13 @@ public class Constants {
 
         public static final double[] anglesDegrees = {
             10, // home
-            25, // coral station //18   //25 is actual
+            25, // coral station
             10, // level 1
             117, // level 2
             123, // level 3
             105, // level 4 //122
+            51, // algae L3
+            51 //algae L2
         };
     }
 
@@ -95,7 +99,7 @@ public class Constants {
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
         public static final double intakeVelocity  =  0.7;
-        public static final double outtakeVelocity = -1;
+        public static final double outtakeVelocity = -0.4;
 
         public static final double autonIntakeVelocity  =  0.8;
 
@@ -111,6 +115,8 @@ public class Constants {
             outtakeVelocity, // level 2
             outtakeVelocity, // level 3
             intakeVelocity,  // level 4 (for level 4 we just intake in the other direction to outtake)
+            0.0,             // algae L3
+            0.0              //  algae L2
         };
 
         // public static enum Velocity {
@@ -143,11 +149,13 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            6.8,  // coral //7.55  //6.8 works use this
+            6.8,  // coral //6.8
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
             21.5, // level 4
+            10.8,  // algae L3
+            4   // algae L2
         };
     }
 
@@ -192,8 +200,8 @@ public class Constants {
         public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
         public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(5, 0, 0);
 
-        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(0, 0, 0);
-        public static final PIDConstants flyRotationPIDConstants    = new PIDConstants(0, 0, 0);
+        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(3, 0, 0);
+        public static final PIDConstants flyRotationPIDConstants = new PIDConstants(5, 0, 0);
 
         public static final double smallDriveVelocity = 1;
         public static final double smallReverseDriveVelocity = -1.5;

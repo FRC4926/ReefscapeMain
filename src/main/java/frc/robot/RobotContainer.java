@@ -251,6 +251,8 @@ public class RobotContainer {
         operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, false, false, false));
         operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false));
         operatorController.button(20).onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+        operatorController.button(17).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL3, true, true, false));
+        operatorController.button(18).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL2, true, true, false));
         // operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
 
         // operatorController.button(24).negate()
@@ -334,6 +336,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        //return new PathPlannerAuto("ThreeCoralAuto");
         return new PathPlannerAuto(autonChooser.getSelected());
     }
 }
