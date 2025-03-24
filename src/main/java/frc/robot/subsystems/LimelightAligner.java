@@ -260,7 +260,9 @@ public class LimelightAligner extends SubsystemBase {
     public RobotCentric autoRotate(CommandSwerveDrivetrain drivetrain, RobotCentric drive, int idx) {
         double measurement = drivetrain.getState().Pose.getRotation().getDegrees();
         double setpoint = 0;
-        if (side == Alliance.Red)
+
+        Alliance mySide = DriverStation.getAlliance().orElse(Alliance.Red);
+        if (mySide == Alliance.Red)
             setpoint = FieldConstants.reefFacesRed[idx].getRotation().getDegrees();
         else
             setpoint = FieldConstants.reefFacesBlue[idx].getRotation().getDegrees();

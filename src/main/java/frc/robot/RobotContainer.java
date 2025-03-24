@@ -96,6 +96,12 @@ public class RobotContainer {
         reefFaceIdx = idx;
         SmartDashboard.putNumber("reefFaceIdx", reefFaceIdx);
 
+        if (DriverStation.getAlliance().isPresent())
+            SmartDashboard.putString("My SIDE!!!", DriverStation.getAlliance().get().toString());
+
+        // targetPosePublisher.set(FieldConstants.reefFacesRed[reefFaceIdx]);
+        SmartDashboard.putNumber("MY RED X COORDINATE", FieldConstants.reefFacesRed[reefFaceIdx].getX());
+
         if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
             reefFacePublisher.set(FieldConstants.reefFacesRed[reefFaceIdx]);
         else
