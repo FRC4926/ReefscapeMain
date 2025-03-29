@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ReefscapeState;
+import frc.robot.reefscape.Reefscape;
 import frc.robot.subsystems.ThroughboreEncoder;
 
 public class Robot extends TimedRobot {
@@ -81,12 +82,12 @@ public class Robot extends TimedRobot {
 
 
         // double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
-        //     c = RobotContainer.reefscape.pivot.getCurrent(), d = RobotContainer.reefscape.intake.getCurrent();
+         double c = RobotContainer.reefscape.pivot.getCurrent(); //, d = RobotContainer.reefscape.intake.getCurrent();
         //     // e = RobotContainer.climberSystem.getCurrent();
 
         // SmartDashboard.putNumber("CURRENT: Drivetrain", a);
         // SmartDashboard.putNumber("CURRENT: Elevator", b);
-        // SmartDashboard.putNumber("CURRENT: Pivot", c);
+        SmartDashboard.putNumber("CURRENT: Pivot", c);
         // SmartDashboard.putNumber("CURRENT: Intake", d);
         // // SmartDashboard.putNumber("CURRENT: Climber", e);
         // SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
@@ -228,6 +229,7 @@ public class Robot extends TimedRobot {
         RobotContainer.setAllowAddVisionMeasurements(true);
         // RobotContainer.visionSubsystem.addVisionMeasurements(RobotContainer.drivetrain);
         // RobotContainer.setAllowAddVisionMeasurements(false);
+        RobotContainer.reefscape.applyState(ReefscapeState.Home, true, true, false);
 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 

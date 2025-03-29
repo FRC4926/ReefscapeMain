@@ -33,6 +33,7 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Pathplanner;
 import frc.robot.RobotContainer;
 
 /**
@@ -207,7 +208,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        // configureAutoBuilder();
+        Pathplanner.configure(this);
 
         if (alliance == Alliance.Blue)
             inverted = true;
@@ -378,7 +380,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             else
                 setpointP = FieldConstants.reefFacesBlue[targetPoseSupplier.get()];
 
-            return AutoBuilder.pathfindToPose(setpointP, constraints, 0.0);
+            // return AutoBuilder.pathfindToPose(setpointP, constraints, 0.0);
+            return Pathplanner.pathfindToPose(setpointP, constraints, 0.0);
         });
             //.onlyWhile(() -> interrupt);
 

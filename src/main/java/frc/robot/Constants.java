@@ -65,13 +65,13 @@ public class Constants {
 
     public class PivotConstants {
         // TODO CHANGE THESE!!!
-        public static final int motorId  = 17;
-        public static final PIDConstants motorPidConstants  = new PIDConstants(2.2, 0.0, 0.0);
+        public static final int motorId = 17;
+        public static final PIDConstants motorPidConstants  = new PIDConstants(1.8, 0.0, 0.0);
         public static final double motorkG = 1.0;
         public static final int motorEncoderAChannel   = 2;
         public static final int motorEncoderBChannel   = 3;
         public static final int motorEncoderPWMChannel = 4;
-        public static final double currentLimit = 10;
+        public static final double currentLimit = 20;
 
 
         public static final double[] anglesDegrees = {
@@ -183,16 +183,16 @@ public class Constants {
             new CameraWrapperConstants("limelight",
                  new Transform3d(new Translation3d(-1.75*0.0254, 12.5*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)), 1.25)
         };
-        public static final double kalmanPositionStdDevCoeefficient = 0.15; //0.8 for comp
+        public static final double kalmanPositionStdDevCoeefficient = 0.15;
         public static final double kalmanRotationStdDev = 0.99;
 
         public static final double maximumAmbiguity = 0.25;
 
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
-        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(4 /* 1.5 */);
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8 /* 1.5 */);
-        public static final double limelightMaxDistance = 0.5;
-        public static final double limelightElevatorDistance = Units.inchesToMeters(37);
+        public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(6); // 6, 0, 0
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8, 0, 0.75); // 8, 0, 0.75
+        // public static final double limelightMaxDistance = 0.5;
+        public static final double limelightElevatorDistance = Units.inchesToMeters(20);
         public static final double autonLimelightElevatorDistance = Units.inchesToMeters(30);
     }
 
@@ -200,8 +200,8 @@ public class Constants {
         public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
         public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(5, 0, 0);
 
-        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(3, 0, 0);
-        public static final PIDConstants flyRotationPIDConstants = new PIDConstants(5, 0, 0);
+        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(0, 0, 0);
+        public static final PIDConstants flyRotationPIDConstants = new PIDConstants(0, 0, 0);
 
         public static final double smallDriveVelocity = 1;
         public static final double smallReverseDriveVelocity = -1.5;
@@ -406,7 +406,7 @@ public class Constants {
         private static final int kFrontLeftDriveMotorId = 1;
         private static final int kFrontLeftSteerMotorId = 5;
         private static final int kFrontLeftEncoderId = 9;
-        private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.28955078125);
+        private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.28271484375);
         private static final boolean kFrontLeftSteerMotorInverted = false;
         private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -417,7 +417,7 @@ public class Constants {
         private static final int kFrontRightDriveMotorId = 3;
         private static final int kFrontRightSteerMotorId = 7;
         private static final int kFrontRightEncoderId = 11;
-        private static final Angle kFrontRightEncoderOffset = Rotations.of(0.271728515625);
+        private static final Angle kFrontRightEncoderOffset = Rotations.of(0.27001953125);
         private static final boolean kFrontRightSteerMotorInverted = false;
         private static final boolean kFrontRightEncoderInverted = false;
 
@@ -428,7 +428,7 @@ public class Constants {
         private static final int kBackLeftDriveMotorId = 2;
         private static final int kBackLeftSteerMotorId = 6;
         private static final int kBackLeftEncoderId = 10;
-        private static final Angle kBackLeftEncoderOffset = Rotations.of(0.063232421875);
+        private static final Angle kBackLeftEncoderOffset = Rotations.of(0.05078125);
         private static final boolean kBackLeftSteerMotorInverted = false;
         private static final boolean kBackLeftEncoderInverted = false;
 
@@ -439,7 +439,7 @@ public class Constants {
         private static final int kBackRightDriveMotorId = 4;
         private static final int kBackRightSteerMotorId = 8;
         private static final int kBackRightEncoderId = 12;
-        private static final Angle kBackRightEncoderOffset = Rotations.of(0.109619140625);
+        private static final Angle kBackRightEncoderOffset = Rotations.of(0.1005859375);
         private static final boolean kBackRightSteerMotorInverted = false;
         private static final boolean kBackRightEncoderInverted = false;
 

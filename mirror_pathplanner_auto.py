@@ -18,7 +18,7 @@
 #     }
 #     return original_to_flipped[position]
 # def flip_align_command_name(name: str) -> str:
-#     align_fmt = r'^Align(Left|Right)([1-6])$'
+#     align_fmt = r'^Align(Left|Right)([1-6])(Slow)?$'
 #     align_match = re.match(align_fmt, name)
 #     direction = align_match.group(1)
 #     position  = int(align_match.group(2))
@@ -28,14 +28,24 @@
 #     return f'Align{flipped_direction}{flipped_position}'
 
 # def name_is_directional(name: str) -> bool:
-#     return ('Left' in name) or ('Right') in name
+#     return ('Left' in name) or ('Right' in name)
 
 # def flip_name(name: str) -> str:
 #     if 'Left' in name:
-#         a, b = 'Left', 'Right'
+#         return name.replace('Left', 'Right')
+#     elif 'Right' in name:
+#         return name.replace('Right', 'Left')
 #     else:
-#         a, b = 'Right', 'Left'
-#     return name.replace(a, b)
+#         return f'{name}.flipped'
+
+# def flip_prev_y(prev_y: float, curr_y: float):
+#     dy = curr_y - prev_y
+#     new_dy = -dy
+#     return curr_y - new_dy
+# def flip_next_y(next_y: float, curr_y: float):
+#     dy = next_y - curr_y
+#     new_dy = -dy
+#     return curr_y + new_dy
 
 # def mirror_path(path: dict):
 #     for waypoint in path['waypoints']:
@@ -53,7 +63,7 @@
 # def read_mirror_and_write_path(path_name: str) -> str:
 #     with open(f'{PATHPLANNER_PATHS}/{path_name}.path', 'r') as f:
 #         path = json.loads(f.read())
-    
+
 #     mirror_path(path)
 #     flipped_name = flip_name(path_name)
 
@@ -61,9 +71,9 @@
 #         f.write(json.dumps(path))
 #     return flipped_name
 
-# def process_comand(command: dict):
+# def process_command(command: dict):
 #     if command['type'] == 'named':
-#         if command['data']['name'].startsWith('Align'):
+#         if command['data']['name'].startswith('Align'):
 #             command['data']['name'] = flip_align_command_name(command['data']['name'])
 #     if command['type'] == 'path':
 #         if name_is_directional(command['data']['pathName']):
@@ -71,7 +81,7 @@
 #             command['data']['pathName'] = flipped_name
 #     if (command['type'] == 'sequential') or (command['type'] == 'parallel'):
 #         for child_command in command['data']['commands']:
-#             process_comand(child_command)
+#             process_command(child_command)
 
 # def read_mirror_and_write_auto(auto_name: str, new_name: str = '') -> str:
 #     if new_name == '':
@@ -81,9 +91,11 @@
 #         auto = json.loads(f.read())
     
 #     for command in auto['command']['data']['commands']:
-#         process_comand(commasnd)
+#         process_command(command)
     
 #     with open(f'{PATHPLANNER_AUTOS}/{new_name}.auto', 'w') as f:
 #         f.write(json.dumps(auto))
 
-# read_mirror_and_write_auto('ThreeCoralRight', 'MyThreeCoralLeft')
+# read_mirror_and_write_auto('ThreeCoralRight', 'ThreeCoralLeft')
+# read_mirror_and_write_auto('TwoCoralRight',   'TwoCoralLeft')
+

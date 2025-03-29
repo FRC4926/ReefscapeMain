@@ -68,7 +68,7 @@ public class LimelightAligner extends SubsystemBase {
         rotationController2.enableContinuousInput(-180, 180);
     }
 
-    public boolean getInterupt()
+    public boolean getInterrupt()
     {
         return interupt;
     }
@@ -198,9 +198,9 @@ public class LimelightAligner extends SubsystemBase {
         {
             double setpoint = 0;
             if (direction == LimelightAlignerDirection.Left)
-                setpoint = -6.5 - 1.75;
+                setpoint = -6.5 - 1.75; //.21
             else
-                setpoint = 6.5 - 1.75;
+                setpoint = 6.5 - 1.75; //.121
 
             //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
             // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;

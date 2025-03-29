@@ -25,8 +25,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -44,13 +46,13 @@ import frc.robot.reefscape.Reefscape;
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
         public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-            
+        public final static double deadband = 0.1;
         /* Setting up bindings for necessary control of the swerve drive platform */
     public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDeadband(MaxSpeed * deadband).withRotationalDeadband(MaxAngularRate * deadband) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     public static final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
-        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+        .withDeadband(MaxSpeed * deadband).withRotationalDeadband(MaxAngularRate * deadband) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -207,13 +209,14 @@ public class RobotContainer {
     // }
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
-        Command cmd = limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx).andThen
-            (limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
+        Command cmd = new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive))
+            .andThen(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx))
+            .andThen(limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
+            .alongWith(reefscape.applyStateCommandManual(() -> ReefscapeState.Level3, false, true, false))
             .alongWith(
                 Commands.idle().until(() -> limelightAligner.distanceX <= VisionConstants.limelightElevatorDistance)
-                    .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false))
+                    .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, false, false))
             )
-            // .alongWith(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, true, false).unless(() -> (limelightAligner.distanceX > Units.inchesToMeters(Constants.VisionConstants.limelightElevatorDistanceInches))))
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
     }
@@ -236,6 +239,8 @@ public class RobotContainer {
 
     
 
+        //Liam was here
+
         SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
 
         for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
@@ -256,7 +261,11 @@ public class RobotContainer {
         operatorController.button(23).onTrue(reefscape.applyStateCommand(ReefscapeState.Level3, false, false, false));
         operatorController.button(22).onTrue(reefscape.applyStateCommand(ReefscapeState.Level4, false, false, false));
         operatorController.button(21).onTrue(reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false));
-        operatorController.button(20).onTrue(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false));
+        operatorController.button(20).onTrue(
+            reefscape.applyStateCommand(ReefscapeState.Home, true, false, false)
+                .alongWith(new WaitCommand(0.25))
+                .andThen(reefscape.applyStateCommand(ReefscapeState.Home, false, true, false))
+        );
         operatorController.button(17).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL3, true, true, false));
         operatorController.button(18).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL2, true, true, false));
         // operatorController.button(21).onTrue(reefscape.toggleElevatorManualCommand());
@@ -271,7 +280,10 @@ public class RobotContainer {
         // operatorController.button(16).onTrue(reefscape.levelCommand());
 
         driverController.rightTrigger(0.2).onTrue(reefscape.intake.intakeCommand());
-        driverController.leftTrigger(0.2).onTrue(reefscape.intake.levelCommand());
+        // When left trigger pressed, pivot moved to last known level
+        driverController.leftTrigger(0.2).onTrue(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), false, true, false)
+            .andThen(reefscape.intake.levelCommand()));
+        driverController.leftTrigger(0.2).onFalse(reefscape.applyStateCommandManual(ReefscapeState.Level3, false, true, false));
 
         driverController.rightTrigger(0.2).negate().and(driverController.leftTrigger(0.2).negate())
             .whileTrue(reefscape.zeroCommand());
@@ -298,19 +310,23 @@ public class RobotContainer {
         // reefscapeSubsystem.setDefaultCommand(coralStationCommand);
         // Command addVisionMeasurementsOnceCommand = visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain);
         // driverController.a().onTrue(new InstantCommand(() -> drivetrain.setInterrupt(true)));
+
+        //TODO: uncomment
         driverController.y().onTrue(
             visionSubsystem.addVisionMeasurementsOnceCommand(drivetrain)
                 .alongWith(drivetrain.updatedPathCommand(() -> getReefFaceIdx()))
-                .onlyWhile(() -> limelightAligner.getInterupt()));
+                .onlyWhile(() -> limelightAligner.getInterrupt()));
         driverController.a().onTrue(new InstantCommand(() -> limelightAligner.setInterupt(false)));
-        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left).onlyWhile(() -> limelightAligner.getInterupt()));
-        driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterupt()));
-        driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftX, driverController::getLeftY, MaxSpeed).onlyWhile(() -> limelightAligner.getInterupt()));
+        driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left).onlyWhile(() -> limelightAligner.getInterrupt()));
+        driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterrupt()));
+        driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftX, driverController::getLeftY, MaxSpeed).onlyWhile(() -> limelightAligner.getInterrupt()));
         driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
             drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
                 .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)
                 .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
     ));
+
+    //till here
 
 
         // new Trigger(() -> reefscape.getState().isLevel() && !reefscape.isCoralInInnerIntake())
@@ -331,10 +347,10 @@ public class RobotContainer {
         //Trigger.whileTrue(logitechController.getRawButton(1));
         // joystick.x().onTrue(RobotContainer.drivetrain.updatedPath());
 
-        // driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        // driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        // driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        // driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // driverController.y().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // driverController.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // driverController.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // driverController.b().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
         // driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));

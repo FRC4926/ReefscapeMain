@@ -69,6 +69,35 @@ public class Reefscape {
         //     command.addCommands(intake.setStateCommand(stateSupplier));
         return command;
     }
+
+    public Command applyStateCommandManual(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+        ParallelCommandGroup command = new ParallelCommandGroup();
+        command.addCommands(new InstantCommand(() -> {
+            ReefscapeState state = stateSupplier.get();
+            currentState = state;
+        }));
+        if (applyToElevator)
+            command.addCommands(elevator.setStateCommand(stateSupplier));
+        if (applyToPivot)
+            command.addCommands(pivot.setStateCommand(stateSupplier));
+        // if (applyToIntake)
+        //     command.addCommands(intake.setStateCommand(stateSupplier));
+        return command;
+    }
+
+    public Command applyStateCommandManual(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+        ParallelCommandGroup command = new ParallelCommandGroup();
+        command.addCommands(new InstantCommand(() -> currentState = state));
+        if (applyToElevator)
+            command.addCommands(elevator.setStateCommand(state));
+        if (applyToPivot)
+            command.addCommands(pivot.setStateCommand(state));
+        // if (applyToIntake)
+        //     command.addCommands(intake.setStateCommand(stateSupplier));
+        return command;
+    }
+
+
     public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
         return applyStateCommand(currentState, applyToElevator, applyToPivot, applyToIntake);
     }
