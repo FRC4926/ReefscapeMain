@@ -84,13 +84,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.15
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "Home"
+                        "name": "Clear"
                       }
                     }
                   ]
@@ -167,13 +167,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.15
+                        "waitTime": 0.25
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "Home"
+                        "name": "Clear"
                       }
                     }
                   ]

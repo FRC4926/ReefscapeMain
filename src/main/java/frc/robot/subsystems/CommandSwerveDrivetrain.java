@@ -356,7 +356,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // RobotContainer.targetPosePublisher.set(targetPose);
         
         PathConstraints constraints = new PathConstraints(
-                3, 2,
+                4,5,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));
         // return generatedPath = AutoBuilder.pathfindToPose(targetPose, constraints, 0.0).onlyWhile(() -> interrupt);
 

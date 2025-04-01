@@ -151,12 +151,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "EndTime"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -186,6 +180,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EndTime"
           }
         }
       ]

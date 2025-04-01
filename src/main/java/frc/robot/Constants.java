@@ -30,6 +30,7 @@ public class Constants {
         Level4,
         AlgaeL3,
         AlgaeL2,
+        Clear,
         Manual;
 
         public boolean isLevel() {
@@ -82,7 +83,8 @@ public class Constants {
             123, // level 3
             103, // level 4 //122
             51, // algae L3
-            51 //algae L2
+            51, //algae L2
+            135 //clear
         };
     }
 
@@ -116,7 +118,8 @@ public class Constants {
             outtakeVelocity, // level 3
             intakeVelocity,  // level 4 (for level 4 we just intake in the other direction to outtake)
             0.0,             // algae L3
-            0.0              //  algae L2
+            0.0,              //  algae L2
+            0.0
         };
 
         // public static enum Velocity {
@@ -155,7 +158,8 @@ public class Constants {
             7.0,  // level 3
             21.5, // level 4
             10.8,  // algae L3
-            4   // algae L2
+            4,   // algae L2
+            0
         };
     }
 
@@ -192,21 +196,23 @@ public class Constants {
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(6); // 6, 0, 0
         public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8, 0, 0.75); // 8, 0, 0.75
         // public static final double limelightMaxDistance = 0.5;
-        public static final double limelightElevatorDistance = Units.inchesToMeters(20);
-        public static final double autonLimelightElevatorDistance = Units.inchesToMeters(30);
+        public static final double limelightElevatorDistance = Units.inchesToMeters(25);
+        public static final double autonLimelightElevatorDistance = Units.inchesToMeters(27);
+
+        public static final double dunkingTime = 0.3;
     }
 
     public class AutonConstants {
         public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
         public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(5, 0, 0);
 
-        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(0, 0, 0);
-        public static final PIDConstants flyRotationPIDConstants = new PIDConstants(0, 0, 0);
+        public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(18, 0, 0);
+        public static final PIDConstants flyRotationPIDConstants = new PIDConstants(10, 0, 0);
 
         public static final double smallDriveVelocity = 1;
         public static final double smallReverseDriveVelocity = -1.5;
 
-        public static final double autonSmallDriveTimeoutSeconds = 0.5;  //1.5 works
+        public static final double autonSmallDriveTimeoutSeconds = 0.7;  //1.5 works
         public static final double autonSmallReverseDriveTimeoutSeconds = 0.35;
         
         public static final double smallDriveTimeoutSeconds = 0.7;
@@ -257,7 +263,7 @@ public class Constants {
                     Units.inchesToMeters(25.824),
                     Rotation2d.fromDegrees(144.011 - 90));
 
-            Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1.75, 0.0), Rotation2d.kZero);
+            Transform2d reefFaceTransform = new Transform2d(new Translation2d(-1.25, 0.0), Rotation2d.kZero);
             Transform2d coralStationTransform = new Transform2d(new Translation2d(-1, 0.0), Rotation2d.kZero);
             for (int i = 0; i < 6; i++) {
                 reefFacesRed[i] = new Pose2d(reefFacesRed[i].getX(), reefFacesRed[i].getY(), reefFacesRed[i].getRotation().plus(Rotation2d.k180deg));
@@ -295,8 +301,8 @@ public class Constants {
 
         public static final double limelightCurrent = 30;
         public static final double autonLimelightCurrent = 40;
-        public static final double autonLimelightCurrentSlow = 20;
-        public static final double driveCurrent = 40;
+        public static final double autonLimelightCurrentSlow = 40;
+         public static final double driveCurrent = 40;
         // The steer motor uses any SwerveModule.SteerRequestType control request with the
         // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
         private static final Slot0Configs steerGains = new Slot0Configs()
@@ -428,7 +434,7 @@ public class Constants {
         private static final int kBackLeftDriveMotorId = 2;
         private static final int kBackLeftSteerMotorId = 6;
         private static final int kBackLeftEncoderId = 10;
-        private static final Angle kBackLeftEncoderOffset = Rotations.of(0.05078125);
+        private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.262939453125);
         private static final boolean kBackLeftSteerMotorInverted = false;
         private static final boolean kBackLeftEncoderInverted = false;
 
