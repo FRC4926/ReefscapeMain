@@ -150,14 +150,6 @@ public class LimelightAligner extends SubsystemBase {
             .withVelocityY(0)).withTimeout(AutonConstants.autonSmallDriveTimeoutSeconds);
     }
 
-    public Command autonSmallDriveCommandSlow(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
-    {
-        // timeSmall.restart();
-        return drivetrain.applyRequest(() -> drive
-            .withRotationalRate(0)
-            .withVelocityX(0.75)
-            .withVelocityY(0)).withTimeout(0.7);
-    }
 
     public Command autonSmallRDriveCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive)
     {
@@ -200,9 +192,9 @@ public class LimelightAligner extends SubsystemBase {
         {
             double setpoint = 0;
             if (direction == LimelightAlignerDirection.Left)
-                setpoint = -6.5 - 1.75; //.21
+                setpoint = -6.5;
             else
-                setpoint = 6.5 - 1.75; //.121
+                setpoint = 6.5;
 
             //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
             // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
@@ -210,13 +202,12 @@ public class LimelightAligner extends SubsystemBase {
 
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
-                .withVelocityX(-0.5*relativeXController.calculate(distanceX, 0))
+                .withVelocityX(-0.5*relativeXController.calculate(distanceX, AutonConstants.limelightXSetpoint))
                 .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(setpoint)));
         }
     }
 
     public RobotCentric autonAlign(RobotCentric drive, LimelightAlignerDirection direction) {
-        // System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             // SmartDashboard.putBoolean("Zerod", true);
@@ -225,17 +216,13 @@ public class LimelightAligner extends SubsystemBase {
         {
             double setpoint = 0;
             if (direction == LimelightAlignerDirection.Left)
-                setpoint = -6.5 - 1.75;
+                setpoint = -6.5;
             else
-                setpoint = 6.5 - 1.75;
-
-            //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
-            // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
-            // setpoint = setpoint - 1.75;
+                setpoint = 6.5;
 
             return drive
                 .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
-                .withVelocityX(-0.5*relativeXController.calculate(distanceX, 0))
+                .withVelocityX(-0.5*relativeXController.calculate(distanceX, AutonConstants.limelightXSetpoint))
                 .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(setpoint)));
         }
     }
@@ -386,7 +373,7 @@ public class LimelightAligner extends SubsystemBase {
     public Command autonDunkingCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, Reefscape reefscape)
     {
         return reefscape.applyStateCommand(ReefscapeState.Level4, false, true, false)
-        .andThen(reefscape.autonLevelCommand().withTimeout(VisionConstants.dunkingTime))
+        .andThen(reefscape.autonLevelCommand().withTimeout(VisionConstants.autonDunkingTime))
         .andThen(reefscape.applyStateCommandManual(ReefscapeState.Clear, false, true, false))
         .andThen(reefscape.zeroCommand());
     }

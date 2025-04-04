@@ -22,10 +22,11 @@
 #     align_match = re.match(align_fmt, name)
 #     direction = align_match.group(1)
 #     position  = int(align_match.group(2))
+#     slow = 'Slow' if align_match.group(3) == 'Slow' else ''
 
 #     flipped_direction = 'Right' if (direction == 'Left') else 'Left'
 #     flipped_position  = flip_align_position(position)
-#     return f'Align{flipped_direction}{flipped_position}'
+#     return f'Align{flipped_direction}{flipped_position}{slow}'
 
 # def name_is_directional(name: str) -> bool:
 #     return ('Left' in name) or ('Right' in name)

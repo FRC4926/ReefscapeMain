@@ -39,7 +39,7 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
         Slot1Configs motorConf1 = new Slot1Configs()
             .withGravityType(GravityTypeValue.Arm_Cosine)
             .withKG(PivotConstants.motorkG)
-            .withKP(PivotConstants.motorPidConstants.kP)
+            .withKP(PivotConstants.motorPidConstants.kP) //TODO: change
             .withKI(PivotConstants.motorPidConstants.kI)
             .withKD(PivotConstants.motorPidConstants.kD);
 

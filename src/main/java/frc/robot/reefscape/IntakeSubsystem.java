@@ -156,7 +156,7 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
     
 
     public boolean isCoralInInnerIntake() {
-        return innerProximitySensor.getAverageVoltage() > 2.0;
+        return innerProximitySensor.getAverageVoltage() > IntakeConstants.cliffSensorThreshold;
     }
 
 

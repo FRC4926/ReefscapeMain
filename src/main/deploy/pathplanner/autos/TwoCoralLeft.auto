@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight3"
+            "name": "AlignRight3Slow"
           }
         },
         {
@@ -90,7 +90,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Home"
+                        "name": "Clear"
                       }
                     }
                   ]
@@ -102,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight2"
+            "name": "AlignRight2Slow"
           }
         },
         {
@@ -151,12 +151,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "EndTime"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -179,13 +173,25 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Home"
+                        "name": "Clear"
                       }
                     }
                   ]
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignLeft2Slow"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EndTime"
           }
         }
       ]

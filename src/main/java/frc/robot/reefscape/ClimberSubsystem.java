@@ -114,7 +114,7 @@ public class ClimberSubsystem  extends SubsystemBase {
             climbMotor1.getConfigurator().apply(currentLimitsConfigs);
             climbMotor2.getConfigurator().apply(currentLimitsConfigs);
     
-            return runOnce(() -> setVoltage(ClimberConstants.climbVelocityForward));
+            return runOnce(() -> setVoltage(ClimberConstants.climbVoltageForward));
         // }
     }
 
@@ -140,7 +140,7 @@ public class ClimberSubsystem  extends SubsystemBase {
         // else
             // setVelocity(ClimberConstants.climbVelocityBack);
 
-        return runOnce(() -> setVoltage(ClimberConstants.climbVelocityBack));
+        return runOnce(() -> setVoltage(ClimberConstants.climbVoltageBack));
     }
 
     public Command climbBackCommand()

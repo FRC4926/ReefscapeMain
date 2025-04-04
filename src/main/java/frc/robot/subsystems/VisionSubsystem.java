@@ -59,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
     double yawFront = 0;
     double pitchFront = 0;
     double areaFront = 0;
-    AprilTagFieldLayout fieldLayout = null;
+    // AprilTagFieldLayout fieldLayout = null;
     // Transform3d robotToFrontCam = new Transform3d(new Translation3d(0*0.0254, -10.5*0.0254, 12.5*0.0254), new Rotation3d(0,0,Math.PI));
     // Transform3d robotToBackCam = new Transform3d(new Translation3d(9.5*0.0254, -10*0.0254, 18*0.0254), new Rotation3d(0,0,Math.PI/2));
 
@@ -69,15 +69,15 @@ public class VisionSubsystem extends SubsystemBase {
     private Matrix<N3, N1> curStdDevs;
     public VisionSubsystem() {
        // visionSim.addVisionTargets(targetSim);
-        try
-        {
-            fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-            //visionSim.addAprilTags(fieldLayout);
+        // try
+        // {
+        //     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        //     //visionSim.addAprilTags(fieldLayout);
 
-        } catch (Exception e)
-        {
-            SmartDashboard.putString("bro actually errored....", e.toString());
-        }
+        // } catch (Exception e)
+        // {
+        //     SmartDashboard.putString("bro actually errored....", e.toString());
+        // }
         updateOrigin();
 
         for (CameraWrapperConstants camConstant : VisionConstants.camConstants) {
@@ -86,7 +86,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("main");
-            visionSim.addAprilTags(fieldLayout);
+            visionSim.addAprilTags(FieldConstants.tagLayout);
             for (CameraWrapper cam : camWrappers) {
                 cam.addToSimulator(visionSim);
             }
@@ -118,7 +118,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // if (alliance == Alliance.Red)
         // {
-            fieldLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+            FieldConstants.tagLayout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
         // } else if (alliance == Alliance.Blue)
         // {
         //     fieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
@@ -129,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void addCamera(String camName, Transform3d robotToCam, double trustFactor) {
-        camWrappers.add(new CameraWrapper(camName, robotToCam, fieldLayout, true, trustFactor));
+        camWrappers.add(new CameraWrapper(camName, robotToCam, FieldConstants.tagLayout, true, trustFactor));
     }
 
     public List<CameraWrapper> getCameras()

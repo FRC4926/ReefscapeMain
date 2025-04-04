@@ -11,6 +11,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -150,8 +153,6 @@ public class RobotContainer {
             NamedCommands.registerCommand("AlignRight" + (i+1) + "Slow", limelightAligner.autonRCommandSlow(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape, i));
         }
 
-        NamedCommands.registerCommand("StartTime", new InstantCommand(() -> timer.restart()));
-
         //aligning without rotation
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
         NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
@@ -165,11 +166,13 @@ public class RobotContainer {
             // .andThen(reefscape.applyStateCommand(ReefscapeState.Home, true, true, false)));
 
         NamedCommands.registerCommand("Home", limelightAligner.autonHomeSequence(drivetrain, relativeDrive, reefscape));
-        NamedCommands.registerCommand("Home", limelightAligner.autonClearSequence(drivetrain, relativeDrive, reefscape));
+        NamedCommands.registerCommand("Clear", limelightAligner.autonClearSequence(drivetrain, relativeDrive, reefscape));
 
         NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, Constants.AutonConstants.autonSmallDriveTimeoutSeconds));
         NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
+        NamedCommands.registerCommand("ZeroDrive", new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive)));
 
+        NamedCommands.registerCommand("StartTime", new InstantCommand(() -> timer.restart()));
         NamedCommands.registerCommand("EndTime", new InstantCommand(() -> SmartDashboard.putNumber("Auton End Time", timer.get())));
         
         autonChooser = AutoBuilder.buildAutoChooser();
@@ -295,6 +298,10 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         //return new PathPlannerAuto("ThreeCoralAuto");
-        return new PathPlannerAuto(autonChooser.getSelected());
+        return (new PathPlannerAuto(autonChooser.getSelected())); //.withTimeout(15)) .andThen(new InstantCommand(() ->limelightAligner.zeroDrive(relativeDrive)));
+        // PathConstraints constraints = new PathConstraints(
+        //     4,5,
+        //     Units.degreesToRadians(540), Units.degreesToRadians(720));
+        // return Pathplanner.pathfindToPose(FieldConstants.reefFacesRed[0], constraints, 0.0);
     }
 }

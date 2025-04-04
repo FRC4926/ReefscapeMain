@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "StartTime"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "ThreeCoralRight1"
@@ -84,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.15
                       }
                     },
                     {
@@ -167,7 +161,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.25
+                        "waitTime": 0.15
                       }
                     },
                     {
@@ -185,13 +179,58 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight6Slow"
+            "name": "ZeroDrive"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "EndTime"
+            "name": "AlignRight6Slow"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "ThreeCoralRight6"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SmallDrive"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.15
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CoralPickup"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]

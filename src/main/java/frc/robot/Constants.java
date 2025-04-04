@@ -10,6 +10,8 @@ import com.ctre.phoenix6.swerve.*;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -58,8 +60,8 @@ public class Constants {
 
         public static final double climberRatio = 340;
 
-        public static final double climbVelocityForward = 0.5;
-        public static final double climbVelocityBack = -0.6;
+        public static final double climbVoltageForward = 0.5;
+        public static final double climbVoltageBack = -0.85;
 
         public static final double climbThres = 129;
     }
@@ -94,6 +96,7 @@ public class Constants {
         public static final int motorId = 16;
         public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
         public static final int innerProximitySensorChannel = 3;
+        public static final double cliffSensorThreshold = 2.0;
         // public static final int outerProximitySensorChannel = 9;
 
         public static final double motorRotationsPerWheelRotation = 12.0;
@@ -185,7 +188,7 @@ public class Constants {
             new CameraWrapperConstants("ArducamRight",
                 new Transform3d(new Translation3d(-11.804*0.0254, -4.828*0.0254, 16*0.0254), new Rotation3d(0,-15*Math.PI/180,-Math.PI/3)), 1),
             new CameraWrapperConstants("limelight",
-                 new Transform3d(new Translation3d(-1.75*0.0254, 12.5*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)), 1.25)
+                 new Transform3d(new Translation3d(0, 7*0.0254, 10.5*0.0254), new Rotation3d(0,-15*Math.PI/18,Math.PI)), 1.25)
         };
         public static final double kalmanPositionStdDevCoeefficient = 0.15;
         public static final double kalmanRotationStdDev = 0.99;
@@ -196,11 +199,11 @@ public class Constants {
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(6); // 6, 0, 0
         public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8, 0, 0.75); // 8, 0, 0.75
         // public static final double limelightMaxDistance = 0.5;
-        public static final double limelightElevatorDistance = Units.inchesToMeters(25);
-        public static final double autonLimelightElevatorDistance = Units.inchesToMeters(27);
+        public static final double limelightElevatorDistance = Units.inchesToMeters(33.5);
+        public static final double autonLimelightElevatorDistance = Units.inchesToMeters(35.5);
 
-        public static final double dunkingTime = 0.3;
-    }
+        public static final double autonDunkingTime = 0.45;
+        }
 
     public class AutonConstants {
         public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
@@ -209,17 +212,21 @@ public class Constants {
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(18, 0, 0);
         public static final PIDConstants flyRotationPIDConstants = new PIDConstants(10, 0, 0);
 
-        public static final double smallDriveVelocity = 1;
+        public static final double smallDriveVelocity = 0.65;
         public static final double smallReverseDriveVelocity = -1.5;
 
-        public static final double autonSmallDriveTimeoutSeconds = 0.7;  //1.5 works
-        public static final double autonSmallReverseDriveTimeoutSeconds = 0.35;
+        public static final double autonSmallDriveTimeoutSeconds = 0.3;  //1.5 works
+        public static final double autonSmallReverseDriveTimeoutSeconds = 0.25;
         
-        public static final double smallDriveTimeoutSeconds = 0.7;
+        public static final double smallDriveTimeoutSeconds = 0.3;
 
+        public static final double limelightXSetpoint = Units.inchesToMeters(5.25);
     }
 
+
     public class FieldConstants {
+        public static final AprilTagFieldLayout tagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
         public static final double fieldWidth = Units.inchesToMeters(26*12 + 5);
         public static final double fieldHeight = Units.inchesToMeters(57*12 + 6 + 7.0/8.0);
         public static final Rectangle2d fieldRect = new Rectangle2d(new Translation2d(), new Translation2d(fieldHeight, fieldWidth));
