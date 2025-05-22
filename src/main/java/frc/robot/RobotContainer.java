@@ -185,7 +185,7 @@ public class RobotContainer {
 
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         Command cmd = new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive))
-            .andThen(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx))
+            //.andThen(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx))
             .andThen(limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
             .alongWith(reefscape.applyStateCommandManual(() -> ReefscapeState.Clear, false, true, false))
             .alongWith(
