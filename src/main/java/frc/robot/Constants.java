@@ -197,7 +197,7 @@ public class Constants {
 
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(6); // 6, 0, 0
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(8, 0, 0.75); // 8, 0, 0.75
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6, 0, 0.75); // 8, 0, 0.75
         // public static final double limelightMaxDistance = 0.5;
         public static final double limelightElevatorDistance = Units.inchesToMeters(33.5);
         public static final double autonLimelightElevatorDistance = Units.inchesToMeters(35.5);
@@ -309,18 +309,21 @@ public class Constants {
         public static final double limelightCurrent = 30;
         public static final double autonLimelightCurrent = 40;
         public static final double autonLimelightCurrentSlow = 40;
-         public static final double driveCurrent = 40;
+
+        public static final double driveCurrent = 70;
+        public static final double steerCurrent = 60;
         // The steer motor uses any SwerveModule.SteerRequestType control request with the
         // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
         private static final Slot0Configs steerGains = new Slot0Configs()
             .withKP(100).withKI(0).withKD(0.5)
-            .withKS(0.1).withKV(0).withKA(0)
+            .withKS(0.1).withKV(0).withKA(0) //kV = 2.66
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
         // When using closed-loop control, the drive motor uses the control
         // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
         private static final Slot0Configs driveGains = new Slot0Configs()
-            .withKP(0.1).withKI(0).withKD(0)
-            .withKS(0).withKV(0.124);
+            .withKP(10).withKS(5.5);
+            // .withKP(0.1).withKI(0).withKD(0)
+            // .withKS(0).withKV(0.124);
 
         // The closed-loop output type to use for the steer motors;
         // This affects the PID/FF gains for the steer motors
@@ -340,7 +343,7 @@ public class Constants {
 
         // The stator current at which the wheels start to slip;
         // This needs to be tuned to your individual robot
-        private static final Current kSlipCurrent = Amps.of(40);
+        private static final Current kSlipCurrent = Amps.of(85);
 
         // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
         // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -350,7 +353,7 @@ public class Constants {
                 new CurrentLimitsConfigs()
                     // Swerve azimuth does not require much torque output, so we can set a relatively low
                     // stator current limit to help avoid brownouts without impacting performance.
-                    .withStatorCurrentLimit(Amps.of(40))
+                    .withStatorCurrentLimit(Amps.of(steerCurrent))
                     .withStatorCurrentLimitEnable(true)
             );
         private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
@@ -419,7 +422,7 @@ public class Constants {
         private static final int kFrontLeftDriveMotorId = 1;
         private static final int kFrontLeftSteerMotorId = 5;
         private static final int kFrontLeftEncoderId = 9;
-        private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.28271484375);
+        private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.481181640625);
         private static final boolean kFrontLeftSteerMotorInverted = false;
         private static final boolean kFrontLeftEncoderInverted = false;
 

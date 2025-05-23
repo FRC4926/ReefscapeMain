@@ -228,21 +228,23 @@ public class LimelightAligner extends SubsystemBase {
     }
     // TODO should LimelightAligner be added as a requirement?
     public Command alignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
-        return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.limelightCurrent))
+        // return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.limelightCurrent))
+        return runOnce(() -> drivetrain.setDriveLimit(50))
+        .andThen(runOnce(() -> drivetrain.setSteerLimit(40)))
         .andThen(drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign()))
-        .andThen(runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.driveCurrent)));
+        .andThen(runOnce(() -> drivetrain.setDefaultLimits()));
     }
 
     public Command autonAlignCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
         return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.autonLimelightCurrent)).andThen(
         drivetrain.applyRequest(() -> autonAlign(drive, direction)).until(() -> isFinishedAlignAuton()))
-        .andThen(runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.driveCurrent)));
+        .andThen(runOnce(() -> drivetrain.setDefaultLimits()));
     }
 
     public Command autonAlignCommandSlow(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
         return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.autonLimelightCurrentSlow)).andThen(
         drivetrain.applyRequest(() -> autonAlign(drive, direction)).until(() -> isFinishedAlignAuton()))
-        .andThen(runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.driveCurrent)));
+        .andThen(runOnce(() -> drivetrain.setDefaultLimits()));
     }
 
 

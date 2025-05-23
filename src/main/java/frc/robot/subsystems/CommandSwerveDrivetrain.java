@@ -33,6 +33,7 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Constants;
 import frc.robot.Pathplanner;
 import frc.robot.RobotContainer;
 
@@ -232,6 +233,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         for (var module : getModules()) {
             module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
             module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
+    }
+
+    public void setDriveLimit(double current)
+    {
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
+    }
+
+    
+    public void setSteerLimit(double current)
+    {
+        CurrentLimitsConfigs currentLimitsConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(current);
+        for (var module : getModules()) {
+            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigs);
+        }
+    }
+
+    public void setDefaultLimits()
+    {
+        CurrentLimitsConfigs currentLimitsConfigsDrive = new CurrentLimitsConfigs().withStatorCurrentLimit(Constants.TunerConstants.driveCurrent);
+        CurrentLimitsConfigs currentLimitsConfigsSteer = new CurrentLimitsConfigs().withStatorCurrentLimit(Constants.TunerConstants.steerCurrent);
+
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentLimitsConfigsDrive);
+            module.getSteerMotor().getConfigurator().apply(currentLimitsConfigsSteer);
         }
     }
 
