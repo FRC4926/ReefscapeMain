@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.net.CacheRequest;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -12,6 +13,7 @@ import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
@@ -45,6 +47,7 @@ public class LimelightAligner extends SubsystemBase {
     private Rotation2d rotation = Rotation2d.kZero;
     private final PIDController rotationController  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
     private final PIDController rotationController2  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
+    private final PIDController rotationController3  = makePIDFromConstants(VisionConstants.limelightRotationPIDConstants);
     private final PIDController relativeXController = makePIDFromConstants(VisionConstants.limelightRelativeXPIDConstants);
     private final PIDController relativeYController = makePIDFromConstants(VisionConstants.limelightRelativeYPIDConstants);
 
@@ -52,6 +55,9 @@ public class LimelightAligner extends SubsystemBase {
     // Timer timeSmall = new Timer();
 
     private boolean interupt = true;
+    private boolean manualTurn = false;
+
+    private Pose2d targetPose = new Pose2d();
 
     public LimelightAligner() {
         for (var cam : RobotContainer.visionSubsystem.getCameras()) {
@@ -64,10 +70,13 @@ public class LimelightAligner extends SubsystemBase {
         side = DriverStation.getAlliance().orElse(Alliance.Red);
         rotationController.setTolerance(0.1);
         rotationController2.setTolerance(5);
+        rotationController3.setTolerance(3);
         relativeXController.setTolerance(0.01);
         relativeYController.setTolerance(0.01);
 
         rotationController2.enableContinuousInput(-180, 180);
+        rotationController3.enableContinuousInput(-180, 180);
+
     }
 
     public boolean getInterrupt()
@@ -263,6 +272,32 @@ public class LimelightAligner extends SubsystemBase {
             .withRotationalRate(calculation);
     }
 
+    public double setpointRotate(CommandSwerveDrivetrain drivetrain, boolean hasCoral) {
+        setRot(drivetrain, hasCoral);
+        Pose2d currentPose = drivetrain.getState().Pose;
+        double measurement = currentPose.getRotation().getDegrees();
+        double setpoint = targetPose.getRotation().getDegrees();
+
+        // Alliance mySide = DriverStation.getAlliance().orElse(Alliance.Red);
+        // if (mySide == Alliance.Red)
+        //     setpoint = FieldConstants.reefFacesRed[idx].getRotation().getDegrees();
+        // else
+        //     setpoint = FieldConstants.reefFacesBlue[idx].getRotation().getDegrees();
+
+        double calculation = rotationController3.calculate(measurement, setpoint);
+
+        if (Math.abs(setpoint  - measurement) < rotationController3.getErrorTolerance() || targetPose.getTranslation().getDistance(currentPose.getTranslation()) > 1.5)
+        {
+            calculation = 0;
+        }
+
+        SmartDashboard.putNumber("rot", calculation);
+        SmartDashboard.putNumber("rot2", targetPose.getTranslation().getDistance(currentPose.getTranslation()));
+
+
+        return calculation;
+    }
+
     public Command autoRotateCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, IntSupplier idxSupplier)
     {
         return drivetrain.applyRequest(() -> autoRotate(drivetrain, drive, idxSupplier.getAsInt())).until(this::isFinishedRot);
@@ -294,6 +329,21 @@ public class LimelightAligner extends SubsystemBase {
     public boolean isFinishedRot()
     {
         return rotationController2.atSetpoint();
+    }
+
+    public boolean getManualTurn()
+    {
+        return manualTurn;
+    }
+
+    public void toggleTurn()
+    {
+        manualTurn = !manualTurn;
+    }
+
+    public void setTurn(boolean val)
+    {
+        manualTurn = val;
     }
 
     public boolean isFinishedAlign()
@@ -378,6 +428,44 @@ public class LimelightAligner extends SubsystemBase {
         .andThen(reefscape.autonLevelCommand().withTimeout(VisionConstants.autonDunkingTime))
         .andThen(reefscape.applyStateCommandManual(ReefscapeState.Clear, false, true, false))
         .andThen(reefscape.zeroCommand());
+    }
+
+    public void setRot(CommandSwerveDrivetrain drivetrain, boolean hasCoral)
+    {
+        Alliance color = DriverStation.getAlliance().orElse(Alliance.Red);
+        Pose2d closestPose = new Pose2d();
+        Pose2d currentPose = drivetrain.getState().Pose;
+        double closestDistance = 0;
+        double currentDistance = 0;
+        if (hasCoral)
+        {
+            closestPose = Constants.FieldConstants.getReefPose(color, 0);
+            closestDistance = currentPose.getTranslation().getDistance(closestPose.getTranslation());
+
+            for (int i = 1; i <= 5; i++)
+            {
+                currentDistance = currentPose.getTranslation().getDistance(Constants.FieldConstants.getReefPose(color, i).getTranslation());
+                if (currentDistance < closestDistance)
+                {
+                    closestPose = Constants.FieldConstants.getReefPose(color, i);
+                    closestDistance = currentDistance;
+                }
+            }
+        }
+        else
+        {
+            closestPose = Constants.FieldConstants.getReefPose(color, 6);
+            closestDistance = currentPose.getTranslation().getDistance(closestPose.getTranslation());
+            currentDistance = currentPose.getTranslation().getDistance(Constants.FieldConstants.getReefPose(color, 7).getTranslation());
+            if (currentDistance < closestDistance)
+            {
+                closestPose = Constants.FieldConstants.getReefPose(color, 7);
+                closestDistance = currentDistance;
+            }
+
+        }
+
+        targetPose = closestPose;
     }
 
     private PIDController makePIDFromConstants(PIDConstants constants) {

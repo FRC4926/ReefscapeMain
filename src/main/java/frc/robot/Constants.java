@@ -16,7 +16,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
-
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 
@@ -283,6 +283,17 @@ public class Constants {
 
             for (int i = 0; i < reefFacesBlue.length; i++) {
                 reefFacesBlue[i] = new Pose2d(fieldHeight - reefFacesRed[i].getX(), fieldWidth - reefFacesRed[i].getY(), reefFacesRed[i].getRotation().rotateBy(Rotation2d.k180deg));
+            }
+        }
+
+        public static Pose2d getReefPose(Alliance color, int id)
+        {
+            if (color == Alliance.Red)
+            {
+                return reefFacesRed[id];
+            } else
+            {
+                return reefFacesBlue[id];
             }
         }
 

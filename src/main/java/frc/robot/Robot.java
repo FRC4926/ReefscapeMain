@@ -264,6 +264,9 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Left PID output", RobotContainer.reefscape.elevator.leftMotor.getClosedLoopOutput().getValueAsDouble());
         SmartDashboard.putNumber("Right PID output",RobotContainer.reefscape.elevator.rightMotor.getClosedLoopOutput().getValueAsDouble());
 
+       SmartDashboard.putBoolean("rot3", RobotContainer.limelightAligner.getManualTurn());
+
+
         // RobotContainer.drivetrain.targetChange();
         // List<PhotonPipelineResult> results = bigCamera.getAllUnreadResults();
         // if (!results.isEmpty())
