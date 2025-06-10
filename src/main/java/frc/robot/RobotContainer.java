@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LEDSubsystem;
 // import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.Recorder;
@@ -71,7 +72,8 @@ public class RobotContainer {
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static LimelightAligner limelightAligner = new LimelightAligner();
-    public final static ClimberSubsystem climberSystem = new ClimberSubsystem();
+    public final static ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    public final LEDSubsystem ledSubsytem = new LEDSubsystem();
 
     public static final Recorder recorder = new Recorder();
 
@@ -186,7 +188,6 @@ public class RobotContainer {
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         Command cmd = new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive))
             //.andThen(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx))
-            // .andThen(new InstantCommand(() -> limelightAligner.setTurn(true)))
             .andThen(limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
             .alongWith(reefscape.applyStateCommandManual(() -> ReefscapeState.Clear, false, true, false))
             .alongWith(
@@ -194,7 +195,6 @@ public class RobotContainer {
                     .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, false, false))
             )
             .andThen(limelightAligner.smallDriveCommand(drivetrain, relativeDrive));
-            // .andThen(new InstantCommand(() -> limelightAligner.setTurn(false)));
         return new InstantCommand(() -> limelightAligner.setTagToBestTag()).andThen(cmd);
     }
 
@@ -225,11 +225,17 @@ public class RobotContainer {
                     .withRotationalRate(limelightAligner.getManualTurn() ? -driverController.getRightX() * MaxAngularRate : limelightAligner.setpointRotate(drivetrain, reefscape.intake.isCoralInInnerIntake()))
             ).alongWith(new RunCommand(() -> limelightAligner.setInterupt(true))));
 
-        // bool ? true : false
+        // ternary: bool ? true : false
         visionSubsystem.setDefaultCommand(new RunCommand(() -> {
             if (allowAddVisionMeasurements)
                 visionSubsystem.addVisionMeasurements(drivetrain);
         }, visionSubsystem));
+
+        ledSubsytem.setDefaultCommand(new RunCommand(() -> {
+            ledSubsytem.setLEDState(() -> reefscape.isCoralInInnerIntake(), () -> limelightAligner.canAlign(), () -> limelightAligner.isAligning());
+        }, ledSubsytem));
+
+        
 
         //Liam was here
 
@@ -277,12 +283,12 @@ public class RobotContainer {
 
 
         //climbing
-        operatorController.button(11).onTrue(climberSystem.climbForward());
-        operatorController.button(12).onTrue(climberSystem.climbBack());
+        operatorController.button(11).onTrue(climberSubsystem.climbForward());
+        operatorController.button(12).onTrue(climberSubsystem.climbBack());
 
         operatorController.button(11).negate().and(operatorController.button(12).negate())
-         .whileTrue(climberSystem.climbZero());
-        operatorController.button(13).onTrue(climberSystem.climbZero());
+         .whileTrue(climberSubsystem.climbZero());
+        operatorController.button(13).onTrue(climberSubsystem.climbZero());
 
         //TODO: uncomment
         driverController.y().onTrue(pathOnFly());

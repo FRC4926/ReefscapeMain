@@ -15,7 +15,7 @@ public class Reefscape {
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     public final PivotSubsystem    pivot    = new PivotSubsystem();
-    public final IntakeSubsystem   intake   = new IntakeSubsystem();
+    public final static IntakeSubsystem   intake   = new IntakeSubsystem();
 
     public Reefscape() {
     }

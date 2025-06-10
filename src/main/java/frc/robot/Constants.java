@@ -167,8 +167,8 @@ public class Constants {
     }
 
     public class LEDConstants {
-        public static int port = 0;
-        public static int numLeds = 60;
+        public static final int port = 0;
+        public static final int numLeds = 60;
     }
 
     public enum LimelightAlignerDirection {

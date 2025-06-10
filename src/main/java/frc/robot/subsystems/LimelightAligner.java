@@ -56,6 +56,7 @@ public class LimelightAligner extends SubsystemBase {
 
     private boolean interupt = true;
     private boolean manualTurn = false;
+    private boolean isAligning = false;
 
     private Pose2d targetPose = new Pose2d();
 
@@ -70,7 +71,7 @@ public class LimelightAligner extends SubsystemBase {
         side = DriverStation.getAlliance().orElse(Alliance.Red);
         rotationController.setTolerance(0.1);
         rotationController2.setTolerance(5);
-        rotationController3.setTolerance(3);
+        rotationController3.setTolerance(0.5);
         relativeXController.setTolerance(0.01);
         relativeYController.setTolerance(0.01);
 
@@ -182,6 +183,25 @@ public class LimelightAligner extends SubsystemBase {
             tagId = camera.getLatestResult().getBestTarget().getFiducialId();
         }
     }
+
+    public boolean canAlign()
+    {
+        if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets()) 
+            return false;
+
+        setTagToBestTag();
+        if (distanceX <= 1.5)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isAligning()
+    {
+        return isAligning;
+    }
     
     public RobotCentric zeroDrive(RobotCentric drive) {
        return drive
@@ -196,9 +216,11 @@ public class LimelightAligner extends SubsystemBase {
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             // SmartDashboard.putBoolean("Zerod", true);
+            isAligning = false;
             return zeroDrive(drive);
         } else
         {
+            isAligning = true;
             double setpoint = 0;
             if (direction == LimelightAlignerDirection.Left)
                 setpoint = -6.5;
@@ -216,13 +238,53 @@ public class LimelightAligner extends SubsystemBase {
         }
     }
 
+    public RobotCentric alignInParts(RobotCentric drive, LimelightAlignerDirection direction) {
+        // System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
+        {
+            // SmartDashboard.putBoolean("Zerod", true);
+            isAligning = false;
+            return zeroDrive(drive);
+        } else
+        {
+            isAligning = true;
+            double setpoint = 0;
+            if (direction == LimelightAlignerDirection.Left)
+                setpoint = -6.5;
+            else
+                setpoint = 6.5;
+
+            //  double setpoint = FieldConstants.reefDistanceBetween / 2.0;
+            // if (direction == LimelightAlignerDirection.Left) setpoint = -setpoint;
+            // setpoint = setpoint - 1.75;
+            
+            if (relativeYController.atSetpoint())
+            {
+                return drive
+                .withRotationalRate(0)
+                .withVelocityX(-0.5*relativeXController.calculate(distanceX, AutonConstants.limelightXSetpoint))
+                .withVelocityY(0);
+            } else
+            {
+                return drive
+                .withRotationalRate(-Math.signum(rotation.getDegrees())*rotationController.calculate(Math.abs(rotation.getDegrees()), 180))
+                .withVelocityX(0)
+                .withVelocityY(-relativeYController.calculate(distanceY, Units.inchesToMeters(setpoint)));
+            }
+        }
+    }
+
+
+
     public RobotCentric autonAlign(RobotCentric drive, LimelightAlignerDirection direction) {
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             // SmartDashboard.putBoolean("Zerod", true);
+            isAligning = false;
             return zeroDrive(drive);
         } else
         {
+            isAligning = true;
             double setpoint = 0;
             if (direction == LimelightAlignerDirection.Left)
                 setpoint = -6.5;
@@ -241,6 +303,14 @@ public class LimelightAligner extends SubsystemBase {
         return runOnce(() -> drivetrain.setDriveLimit(50))
         .andThen(runOnce(() -> drivetrain.setSteerLimit(40)))
         .andThen(drivetrain.applyRequest(() -> align(drive, direction)).until(() -> isFinishedAlign()))
+        .andThen(runOnce(() -> drivetrain.setDefaultLimits()));
+    }
+
+    public Command alignInPartsCommand(CommandSwerveDrivetrain drivetrain, RobotCentric drive, LimelightAlignerDirection direction) {
+        // return runOnce(() -> drivetrain.setCurrentLimit(Constants.TunerConstants.limelightCurrent))
+        return runOnce(() -> drivetrain.setDriveLimit(50))
+        .andThen(runOnce(() -> drivetrain.setSteerLimit(40)))
+        .andThen(drivetrain.applyRequest(() -> alignInParts(drive, direction)).until(() -> isFinishedAlign()))
         .andThen(runOnce(() -> drivetrain.setDefaultLimits()));
     }
 
@@ -349,19 +419,24 @@ public class LimelightAligner extends SubsystemBase {
     public boolean isFinishedAlign()
     {
         // (!latestResult.hasTargets() || latestResult == null)
-        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        boolean isFinished = (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        if (isFinished)
+        {
+            isAligning = false;
+        }
+        return isFinished;
         //return relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
     }
 
     public boolean isFinishedAlignAuton()
     {
-        boolean atSetpoint = relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint();
-        // (!latestResult.hasTargets() || latestResult == null)
-        // if (Math.abs(distanceX) <= VisionConstants.limelightMaxDistance)
-        //     return atSetpoint || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
-        // else
-        //return atSetpoint;
-        return (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        boolean isFinished = (relativeXController.atSetpoint() && relativeYController.atSetpoint() && rotationController.atSetpoint()) || (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets());
+        if (isFinished)
+        {
+            isAligning = false;
+        }
+
+        return isFinished;
 
     }
 

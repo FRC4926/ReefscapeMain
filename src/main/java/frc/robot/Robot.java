@@ -97,7 +97,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Pivot Position", RobotContainer.reefscape.pivot.getConvertedPosition());
         // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
         // ;
-         SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSystem.getClimb1Position());
+         SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSubsystem.getClimb1Position());
         // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
         // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());
 
