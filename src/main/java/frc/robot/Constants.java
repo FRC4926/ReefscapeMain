@@ -83,7 +83,7 @@ public class Constants {
             10, // level 1
             117, // level 2
             123, // level 3
-            103, // level 4 //122
+            98, // level 4 //103 //122
             51, // algae L3
             51, //algae L2
             135 //clear
@@ -220,7 +220,7 @@ public class Constants {
         
         public static final double smallDriveTimeoutSeconds = 0.3;
 
-        public static final double limelightXSetpoint = Units.inchesToMeters(5.25);
+        public static final double limelightXSetpoint = Units.inchesToMeters(6); //5.25
     }
 
 

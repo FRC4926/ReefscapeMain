@@ -55,7 +55,7 @@ public class LimelightAligner extends SubsystemBase {
     // Timer timeSmall = new Timer();
 
     private boolean interupt = true;
-    private boolean manualTurn = false;
+    private boolean manualTurn = true;
     private boolean isAligning = false;
 
     private Pose2d targetPose = new Pose2d();
@@ -190,7 +190,7 @@ public class LimelightAligner extends SubsystemBase {
             return false;
 
         setTagToBestTag();
-        if (distanceX <= 1.5)
+        if (distanceX <= 1.5 && distanceX >= 0.5)
         {
             return true;
         }
