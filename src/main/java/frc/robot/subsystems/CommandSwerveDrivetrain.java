@@ -231,8 +231,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         for (int i = 0; i < getModules().length; i++)
         {
-            SmartDashboard.putNumber("DRIVE CURRENT " + i, getModules()[i].getDriveMotor().getStatorCurrent().getValueAsDouble());
-            SmartDashboard.putNumber("STEER CURRENT " + i, getModules()[i].getSteerMotor().getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("DRIVE CURRENT: " + i, getModules()[i].getDriveMotor().getStatorCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("STEER CURRENT: " + i, getModules()[i].getSteerMotor().getStatorCurrent().getValueAsDouble());
         }
     }
 
@@ -240,15 +240,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         for (int i = 0; i < getModules().length; i++)
         {
-            SmartDashboard.putNumber("DRIVE OUTPUT " + i, getModules()[i].getDriveMotor().getClosedLoopOutput().getValueAsDouble());
-            SmartDashboard.putNumber("STEER OUTPUT " + i, getModules()[i].getSteerMotor().getClosedLoopOutput().getValueAsDouble());
+            SmartDashboard.putNumber("DRIVE OUTPUT: " + i, getModules()[i].getDriveMotor().getClosedLoopOutput().getValueAsDouble());
+            SmartDashboard.putNumber("STEER OUTPUT: " + i, getModules()[i].getSteerMotor().getClosedLoopOutput().getValueAsDouble());
         }
     }
 
     public void logEncoders()
     {
         for (int i = 0; i < getModules().length; i++) {
-            SmartDashboard.putNumber("ENCODER " + i, getModules()[i].getEncoder().getAbsolutePosition().getValueAsDouble());
+            SmartDashboard.putNumber("ENCODER: " + i, getModules()[i].getEncoder().getAbsolutePosition().getValueAsDouble());
         }
     }
 
