@@ -58,7 +58,7 @@ public class RobotContainer {
     public static final SwerveRequest.RobotCentric relativeDrive = new SwerveRequest.RobotCentric()
         .withDeadband(MaxSpeed * deadband).withRotationalDeadband(MaxAngularRate * deadband) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -297,7 +297,8 @@ public class RobotContainer {
          .whileTrue(climberSubsystem.climbZero());
         operatorController.button(13).onTrue(climberSubsystem.climbZero());
 
-        driverController.y().onTrue(pathOnFly());
+        // driverController.y().onTrue(pathOnFly());
+        driverController.y().whileTrue(drivetrain.applyRequest(() -> brake));
         driverController.a().onTrue(new InstantCommand(() -> limelightAligner.setInterupt(false)));
         driverController.x().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Left).onlyWhile(() -> limelightAligner.getInterrupt()));
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterrupt()));
@@ -313,7 +314,6 @@ public class RobotContainer {
         
         driverController.start().onTrue(new InstantCommand(() -> limelightAligner.toggleTurn()));
 
-        //till here
 
         // driverController.y().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         // driverController.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
