@@ -112,7 +112,6 @@ public abstract class ReefscapeBaseSubsystem extends SubsystemBase {
             return;
         
         double parameter = getParameterFromArray(state.ordinal());
-        // SmartDashboard.putNumber("My parameter", parameter);
         if (velocityBased)
             setReferenceVelocity(parameter);
         else

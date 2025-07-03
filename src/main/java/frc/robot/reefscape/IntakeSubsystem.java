@@ -12,63 +12,41 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
-public class IntakeSubsystem extends ReefscapeBaseSubsystem {
+public class IntakeSubsystem extends SubsystemBase{
     public final SparkMax motor = new SparkMax(IntakeConstants.motorId, MotorType.kBrushless);
     public final AnalogInput innerProximitySensor = new AnalogInput(IntakeConstants.innerProximitySensorChannel);
     // private final DigitalInput outerProximitySensor = new DigitalInput(IntakeConstants.outerProximitySensorChannel);
 
     public IntakeSubsystem() {
-        super(true, true);
-
         innerProximitySensor.setAverageBits(4);
 
         SparkMaxConfig intakeMotorConf = new SparkMaxConfig();
-        // TODO does this work???
         intakeMotorConf.encoder.velocityConversionFactor(IntakeConstants.inchesPerMotorRotation);
         intakeMotorConf.encoder.positionConversionFactor(IntakeConstants.inchesPerMotorRotation);
-        intakeMotorConf.closedLoop
-            .pid(
-                IntakeConstants.motorPidConstants.kP,
-                IntakeConstants.motorPidConstants.kI,
-                IntakeConstants.motorPidConstants.kD
-            );
         intakeMotorConf.smartCurrentLimit(IntakeConstants.currentLimit);
         motor.configure(intakeMotorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    @Override
-    void setVoltage(Voltage voltage) {
-        motor.setVoltage(voltage);
-    }
-    @Override
     Voltage getVoltage() {
         return Voltage.ofRelativeUnits(motor.getBusVoltage(), Units.Volts);
     }
-    @Override
-    double getParameterFromArray(int stateIdx) {
-        return IntakeConstants.velocitiesInchesPerSecond[stateIdx];
-    }
-    @Override
-    void setReferencePosition(double position) {
-        motor.getClosedLoopController().setReference(position, ControlType.kPosition);
-    }
-    @Override
+
     double getPosition() {
         return motor.getEncoder().getPosition();
     }
-    @Override
+
     void setReferenceVelocity(double effort) {
 
         motor.set(effort);
     }
-    @Override
+
     double getVelocity() {
         return motor.getEncoder().getVelocity();
     }
-    @Override
+
     public double getCurrent() {
         return motor.getOutputCurrent();
     }
@@ -78,25 +56,14 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         setReferenceVelocity(IntakeConstants.intakeVelocity);
     }
 
-    public Command actualIntakeCommand()
-    {
-        boolean coralInIntakeShouldBecome = getState().isLevel() ? false : true;
-        return runOnce(() -> setReferenceVelocity(Constants.IntakeConstants.intakeVelocity))
-            .andThen(
-                Commands.idle(this)
-                    .until(() -> isCoralInInnerIntake() == coralInIntakeShouldBecome)
-            )
-            .andThen(runOnce(() -> setReferenceVelocity(0)));
-    }
-
-    public Command autonIntakeCommand(double velocity, boolean isLevel) {
-        boolean coralInIntakeShouldBecome = isLevel ? false : true;
+    public Command autonIntakeCommand(double velocity) {
         return runOnce(() -> setReferenceVelocity(velocity))
             .andThen(
-                Commands.waitUntil(() -> (isCoralInInnerIntake() == coralInIntakeShouldBecome))
+                Commands.waitUntil(() -> (isCoralInInnerIntake() == true))
             )
             .andThen(runOnce(() -> setReferenceVelocity(0)));
     }
+    
     public void intake() {
         double velocity = 0;
 
@@ -106,24 +73,9 @@ public class IntakeSubsystem extends ReefscapeBaseSubsystem {
         } else {
             velocity = IntakeConstants.intakeVelocity;
         }
-        // }
-        // if (current == ReefscapeState.Home)
-        // {
-        //     velocity = 0;
-        // } else if (current == ReefscapeState.CoralStation && isCoralInInnerIntake())
-        // {
-        //     velocity = 0;
-
-        // } else if (current == ReefscapeState.CoralStation && !isCoralInInnerIntake())
-        // {
-        //     velocity = IntakeConstants.intakeVelocity;
-        // } else if (current.isLevel())
-        // {
-        //     velocity = IntakeConstants.intakeVelocity;
-        // }
         setReferenceVelocity(velocity);
-        //(IntakeConstants.intakeVelocity);
     }
+
     public void outtake() {
         setReferenceVelocity(IntakeConstants.outtakeVelocity);
     }

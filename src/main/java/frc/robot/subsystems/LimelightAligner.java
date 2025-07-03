@@ -211,8 +211,15 @@ public class LimelightAligner extends SubsystemBase {
 
     }
 
+    public RobotCentric driveRobotRelative(RobotCentric drive, double velX, double velY, double rot)
+    {
+        return drive
+            .withVelocityX(velX)
+            .withVelocityY(velY)
+            .withRotationalRate(rot);
+    }
+
     public RobotCentric align(RobotCentric drive, LimelightAlignerDirection direction) {
-        // System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
         {
             // SmartDashboard.putBoolean("Zerod", true);
@@ -273,8 +280,6 @@ public class LimelightAligner extends SubsystemBase {
             }
         }
     }
-
-
 
     public RobotCentric autonAlign(RobotCentric drive, LimelightAlignerDirection direction) {
         if (camera.getLatestResult() == null || !camera.getLatestResult().hasTargets())
@@ -360,10 +365,6 @@ public class LimelightAligner extends SubsystemBase {
         {
             calculation = 0;
         }
-
-        SmartDashboard.putNumber("rot", calculation);
-        SmartDashboard.putNumber("rot2", targetPose.getTranslation().getDistance(currentPose.getTranslation()));
-
 
         return calculation;
     }

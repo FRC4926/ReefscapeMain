@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ReefscapeState;
-import frc.robot.reefscape.Reefscape;
 import frc.robot.subsystems.ThroughboreEncoder;
 
 public class Robot extends TimedRobot {
@@ -82,12 +81,12 @@ public class Robot extends TimedRobot {
 
 
         // double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
-         double c = RobotContainer.reefscape.pivot.getCurrent(); //, d = RobotContainer.reefscape.intake.getCurrent();
+        // double c = RobotContainer.reefscape.pivot.getCurrent(); //, d = RobotContainer.reefscape.intake.getCurrent();
         //     // e = RobotContainer.climberSystem.getCurrent();
 
         // SmartDashboard.putNumber("CURRENT: Drivetrain", a);
         // SmartDashboard.putNumber("CURRENT: Elevator", b);
-        SmartDashboard.putNumber("CURRENT: Pivot", c);
+        // SmartDashboard.putNumber("CURRENT: Pivot", c);
         // SmartDashboard.putNumber("CURRENT: Intake", d);
         // // SmartDashboard.putNumber("CURRENT: Climber", e);
         // SmartDashboard.putNumber("CURRENT: Total", a + b + c + d);
@@ -95,8 +94,6 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("Elevator Position", RobotContainer.reefscape.elevator.getPosition());
         SmartDashboard.putNumber("Pivot Position", RobotContainer.reefscape.pivot.getConvertedPosition());
-        // SmartDashboard.putNumber("Pivot Converted Position", RobotContainer.reefscape.pivot.getPosition()/32.0*360.0)
-        // ;
          SmartDashboard.putNumber("Climber 1 Position", RobotContainer.climberSubsystem.getClimb1Position());
         // SmartDashboard.putNumber("Climber 2 Position", RobotContainer.climberSystem.getClimb2Position());
         // SmartDashboard.putNumber("Climber 1 Position Converted", RobotContainer.climberSystem.getClimb2Converted());

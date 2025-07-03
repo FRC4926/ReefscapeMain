@@ -30,8 +30,11 @@ public class Constants {
         Level2,
         Level3,
         Level4,
-        AlgaeL3,
+        DeAlgaeL2,
+        DeAlgaeL3,
         AlgaeL2,
+        AlgaeL3,
+        Barge,
         Clear,
         Manual;
 
@@ -83,10 +86,39 @@ public class Constants {
             10, // level 1
             117, // level 2
             123, // level 3
-            98, // level 4 //103 //122
-            51, // algae L3
-            51, //algae L2
+            98, // level 4
+            51, // dealgae L2
+            51, // dealgae L3
+            0.0, //algae L2
+            0.0, //algae L3
+            0.0, //barge
             135 //clear
+        };
+    }
+
+    
+    public class AlgaeConstants {
+        // TODO CHANGE THESE!!!
+        public static final int motorId = 20;
+        public static final PIDConstants motorPidConstants  = new PIDConstants(0.0, 0.0, 0.0);
+        public static final double motorkG = 1.0;
+        public static final double currentLimit = 20;
+        public static final double gearRatio = 100;
+
+
+        public static final double[] anglesDegrees = {
+            0, // home
+            0, // coral station
+            0, // level 1
+            0, // level 2
+            0, // level 3
+            0, // level 4
+            0, // dealgae L2
+            0, // dealgae l3
+            0, // algae L2
+            0, //algae L3
+            0, //barge
+            0 //clear
         };
     }
 
@@ -94,7 +126,7 @@ public class Constants {
     public class IntakeConstants {
         // TODO CHANGE THESE!!!
         public static final int motorId = 16;
-        public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
+        // public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
         public static final int innerProximitySensorChannel = 3;
         public static final double cliffSensorThreshold = 2.0;
         // public static final int outerProximitySensorChannel = 9;
@@ -113,17 +145,20 @@ public class Constants {
 
         public static final int currentLimit = 30;
 
-        public static final double[] velocitiesInchesPerSecond = {
-            0.0,             // home
-            intakeVelocity,  // coral station
-            outtakeVelocity, // level 1
-            outtakeVelocity, // level 2
-            outtakeVelocity, // level 3
-            intakeVelocity,  // level 4 (for level 4 we just intake in the other direction to outtake)
-            0.0,             // algae L3
-            0.0,              //  algae L2
-            0.0
-        };
+        // public static final double[] velocitiesInchesPerSecond = {
+        //     0.0,             // home
+        //     intakeVelocity,  // coral station
+        //     outtakeVelocity, // level 1
+        //     outtakeVelocity, // level 2
+        //     outtakeVelocity, // level 3
+        //     intakeVelocity,  // level 4 (for level 4 we just intake in the other direction to outtake)
+        //     0.0,
+        //     0.0,
+        //     0.0,             // algae L3
+        //     0.0,             //  algae L2
+        //     0.0,             // barge
+        //     0.0
+        // };
 
         // public static enum Velocity {
         //     Zero,
@@ -160,8 +195,11 @@ public class Constants {
             0.0,  // level 2
             7.0,  // level 3
             21.5, // level 4
-            10.8,  // algae L3
-            4,   // algae L2
+            4,    // dealgae L2
+            10.8, // dealgae L3
+            0,    // algae L2
+            0,    // algae L3
+            0,    // barge
             0
         };
     }

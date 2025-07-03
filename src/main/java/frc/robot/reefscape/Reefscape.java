@@ -14,30 +14,37 @@ public class Reefscape {
     private ReefscapeState lastLevel = ReefscapeState.Level2;
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
-    public final PivotSubsystem    pivot    = new PivotSubsystem();
-    public final static IntakeSubsystem   intake   = new IntakeSubsystem();
+    public final PivotSubsystem pivot = new PivotSubsystem();
+    public final AlgaeSubsytem algae = new AlgaeSubsytem();
+    public final IntakeSubsystem intake = new IntakeSubsystem();
 
     public Reefscape() {
     }
 
-    // Applies `state` to elevator, pivot, and intake
+    // Applies `state` to elevator, pivot, algae, and intake
     public void applyState(ReefscapeState state) {
         applyState(state, true, true, true);
     }
-    // Applies the current state of the subsystem to the elevator, pivot, and/or intake
-    public void applyState(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        applyState(currentState, applyToElevator, applyToPivot, applyToIntake);
+
+    // Applies the current state of the subsystem to the elevator, pivot, and/or
+    // intake
+    public void applyState(boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
+        applyState(currentState, applyToElevator, applyToPivot, applyToAlgae);
     }
-    public void applyState(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+
+    public void applyState(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
 
     }
+
     public Command applyStateCommand(ReefscapeState state) {
         return applyStateCommand(state, true, true, true);
     }
+
     public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier) {
         return applyStateCommand(stateSupplier, true, true, true);
     }
-    public Command applyStateCommand(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+
+    public Command applyStateCommand(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
         ParallelCommandGroup command = new ParallelCommandGroup();
         command.addCommands(new InstantCommand(() -> {
             currentState = state;
@@ -46,14 +53,15 @@ public class Reefscape {
         }));
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(state));
-        if (applyToPivot)   
+        if (applyToPivot)
             command.addCommands(pivot.setStateCommand(state));
+        if(applyToAlgae)
+            command.addCommands(algae.setStateCommand(state));
 
-        // if (applyToIntake)
-        //     command.addCommands(intake.setStateCommand(state));
         return command;
     }
-    public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+
+    public Command applyStateCommand(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
         ParallelCommandGroup command = new ParallelCommandGroup();
         command.addCommands(new InstantCommand(() -> {
             ReefscapeState state = stateSupplier.get();
@@ -65,12 +73,11 @@ public class Reefscape {
             command.addCommands(elevator.setStateCommand(stateSupplier));
         if (applyToPivot)
             command.addCommands(pivot.setStateCommand(stateSupplier));
-        // if (applyToIntake)
-        //     command.addCommands(intake.setStateCommand(stateSupplier));
+
         return command;
     }
 
-    public Command applyStateCommandManual(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+    public Command applyStateCommandManual(Supplier<ReefscapeState> stateSupplier, boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
         ParallelCommandGroup command = new ParallelCommandGroup();
         command.addCommands(new InstantCommand(() -> {
             ReefscapeState state = stateSupplier.get();
@@ -80,38 +87,39 @@ public class Reefscape {
             command.addCommands(elevator.setStateCommand(stateSupplier));
         if (applyToPivot)
             command.addCommands(pivot.setStateCommand(stateSupplier));
-        // if (applyToIntake)
-        //     command.addCommands(intake.setStateCommand(stateSupplier));
+ 
         return command;
     }
 
-    public Command applyStateCommandManual(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
+    public Command applyStateCommandManual(ReefscapeState state, boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae) {
         ParallelCommandGroup command = new ParallelCommandGroup();
         command.addCommands(new InstantCommand(() -> currentState = state));
         if (applyToElevator)
             command.addCommands(elevator.setStateCommand(state));
         if (applyToPivot)
             command.addCommands(pivot.setStateCommand(state));
-        // if (applyToIntake)
-        //     command.addCommands(intake.setStateCommand(stateSupplier));
+
         return command;
     }
 
-
-    public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToIntake) {
-        return applyStateCommand(currentState, applyToElevator, applyToPivot, applyToIntake);
+    public Command applyStateCommand(boolean applyToElevator, boolean applyToPivot, boolean applyToAlgae, boolean applyToIntake) {
+        return applyStateCommand(currentState, applyToElevator, applyToPivot, applyToAlgae);
     }
+
     public ReefscapeState getState() {
         return currentState;
     }
+
     public ReefscapeState getElevatorState() {
         return elevator.getState();
     }
+
     public ReefscapeState getPivotState() {
         return pivot.getState();
     }
-    public ReefscapeState getIntakeState() {
-        return intake.getState();
+
+    public ReefscapeState getAlgaeState() {
+        return algae.getState();
     }
 
     public ReefscapeState getLastLevel() {
@@ -121,46 +129,44 @@ public class Reefscape {
     public boolean isCoralInInnerIntake() {
         return intake.isCoralInInnerIntake();
     }
-    // public boolean coralInOuterIntake() {
-    //     return intake.isCoralInOuterIntake();
-    // }
 
     public void toggleElevatorManual() {
         elevator.toggleManualControl();
     }
+
     public Command toggleElevatorManualCommand() {
         return elevator.toggleManualControlCommand();
     }
+
     public Trigger elevatorIsManual() {
         return new Trigger(() -> elevator.isManualControl());
     }
+
     public Command elevatorMoveWithVelocityCommand(double velocity) {
         return elevator.setManualVelocityCommand(() -> velocity);
     }
+
     public Command elevatorMoveWithVelocityCommand(DoubleSupplier velocity) {
         return elevator.setManualVelocityCommand(velocity);
     }
 
-    public Command levelCommand()
-    {
+    public Command levelCommand() {
         return intake.levelCommand();
     }
 
-    
-    public Command autonLevelCommand()
-    {
+    public Command autonLevelCommand() {
         return intake.autonLevelCommand();
     }
-    
+
     public Command intakeCommand() {
         return intake.intakeCommand();
     }
+
     public Command outtakeCommand() {
         return intake.outtakeCommand();
     }
 
-    public Command zeroCommand()
-    {
+    public Command zeroCommand() {
         return intake.zeroIntake();
     }
 }
