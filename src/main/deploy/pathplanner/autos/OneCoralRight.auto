@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ThreeCoralRight1"
+            "pathName": "OneCoralMiddle"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft5Slow"
+            "name": "AlignLeft4Slow"
           }
         }
       ]

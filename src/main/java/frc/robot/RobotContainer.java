@@ -166,6 +166,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("Home", limelightAligner.autonHomeSequence(drivetrain, relativeDrive, reefscape));
         NamedCommands.registerCommand("Clear", limelightAligner.autonClearSequence(drivetrain, relativeDrive, reefscape));
 
+        NamedCommands.registerCommand("AlgaeHome", reefscape.applyStateCommand(ReefscapeState.Home, false, false, true).alongWith(reefscape.algaeZeroCommand()));
+        NamedCommands.registerCommand("AlgaeL2", reefscape.applyStateCommand(ReefscapeState.AlgaeL2, false, false, true).alongWith(reefscape.algaeIntakeCommand()));
+        NamedCommands.registerCommand("AlgaeL3", reefscape.applyStateCommand(ReefscapeState.AlgaeL3, false, false, true).alongWith(reefscape.algaeIntakeCommand()));
+        NamedCommands.registerCommand("AlgaeBarge", reefscape.applyStateCommand(ReefscapeState.Barge, false, false, true).andThen(reefscape.algaeOuttakeCommand()));
+
         NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, Constants.AutonConstants.autonSmallDriveTimeoutSeconds));
         NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
         NamedCommands.registerCommand("ZeroDrive", new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive)));
@@ -234,9 +239,7 @@ public class RobotContainer {
         
 
         //Liam was here
-
-        SmartDashboard.putNumber("bob sheesh joe whatever", reefFaceIdxToOperatorButtonId.length);
-
+        
         for (int i = 0; i < reefFaceIdxToOperatorButtonId.length; i++) {
             final int idx = i;
             operatorController.button(reefFaceIdxToOperatorButtonId[idx])
@@ -263,13 +266,18 @@ public class RobotContainer {
         );
 
         //dealgaeify
-        operatorController.button(14).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL2, true, true, false));
-        operatorController.button(15).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL3, true, true, false));
+        operatorController.button(15).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL2, true, true, false));
+        operatorController.button(16).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL3, true, true, false));
 
         //algae mech states
         // operatorController.button(17).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL2, true, false, true));
         // operatorController.button(18).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL3, true, false, true));
         // operatorController.button(19).onTrue(reefscape.applyStateCommand(ReefscapeState.Barge, true, false, true));
+        
+        //algae intake states
+        // operatorController.button(9).onTrue(reefscape.algaeIntakeCommand());
+        // operatorController.button(10).onTrue(reefscape.algaeOuttakeCommand());
+        // operatorController.button(9).negate().and(operatorController.button(10).negate()).onTrue(reefscape.algaeZeroCommand());
 
         //L1
         operatorController.button(5).onTrue(reefscape.outtakeCommand());
@@ -304,13 +312,25 @@ public class RobotContainer {
         driverController.b().onTrue(limelightAlignToDirection(LimelightAlignerDirection.Right).onlyWhile(() -> limelightAligner.getInterrupt()));
         // driverController.rightBumper().onTrue(limelightAligner.autoRotateTeleopCommand(drivetrain, drive, RobotContainer::getReefFaceIdx, driverController::getLeftX, driverController::getLeftY, MaxSpeed).onlyWhile(() -> limelightAligner.getInterrupt()));
         
-        driverController.rightBumper().whileTrue(drivetrain.applyRequest(() -> limelightAligner.driveRobotRelative(relativeDrive, driverController.getLeftY(), driverController.getLeftX(), -driverController.getRightX())));
+        driverController.rightBumper().whileTrue(drivetrain.applyRequest(() -> limelightAligner.driveRobotRelative(relativeDrive, 
+            -driverController.getLeftY()*MaxSpeed, 
+            -driverController.getLeftX()*MaxSpeed, 
+            -driverController.getRightX()*MaxAngularRate)));
         
+        // driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
+        //     drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
+        //         .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)
+        //         .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
+        // ));
+
+        //-0.1*(x-1)^2+0.1
         driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
-            drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
-                .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)
-                .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
-        ));
+            drive.withVelocityX(-Math.pow(driverController.getLeftY(),2) * MaxSpeed * 0.1 + MaxSpeed * 0.1) // Drive forward with negative Y (forward)
+            .withVelocityY(-Math.pow(driverController.getLeftX(),2) * MaxSpeed * 0.1 + MaxSpeed * 0.1) // Drive left with negative X (left)
+            .withRotationalRate(Math.pow(driverController.getRightX(),2) * MaxAngularRate * 0.1 + MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
+            ));
+
+        
         
         driverController.start().onTrue(new InstantCommand(() -> limelightAligner.toggleTurn()));
 

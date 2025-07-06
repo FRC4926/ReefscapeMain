@@ -1,20 +1,14 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.InchesPerSecond;
-
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDConstants;
-import frc.robot.reefscape.Reefscape;
 
 public class LEDSubsystem extends SubsystemBase {
     private final AddressableLED led = new AddressableLED(LEDConstants.port);
@@ -33,32 +27,27 @@ public class LEDSubsystem extends SubsystemBase {
         }
         x++;
         x %= LEDConstants.numLeds;
-        SmartDashboard.putNumber("x", x);
     };
 
     double b = 0;
 
     
     LEDPattern hasCoralIn = (reader, writer) -> {
-        SmartDashboard.putNumber("len", reader.getLength()); 
         for (int i = 0; i < LEDConstants.numLeds; i++) {
              writer.setLED(i, Color.kWhite);
           }
     };
     LEDPattern hasNoCoral = (reader, writer) -> {
-        SmartDashboard.putNumber("len", reader.getLength()); 
         for (int i = 0; i < LEDConstants.numLeds; i++) {
              writer.setLED(i, Color.kRed);
           }
     };
     LEDPattern seesTag = (reader, writer) -> {
-        SmartDashboard.putNumber("len", reader.getLength()); 
         for (int i = 0; i < LEDConstants.numLeds; i++) {
              writer.setLED(i, Color.kGreen);
           }
     };
     LEDPattern inAlign = (reader, writer) -> {
-        SmartDashboard.putNumber("len", reader.getLength());
         for (int i = 0; i < LEDConstants.numLeds; i++) {
             if ((Math.round(counter/10))%2==0)
                 writer.setLED(i, Color.kBlack);
@@ -102,7 +91,6 @@ public class LEDSubsystem extends SubsystemBase {
         }
         y=0;
         }
-        SmartDashboard.putNumber("x", x);
     };
 
     public void setLEDState(BooleanSupplier hasCoral, BooleanSupplier canAlign, BooleanSupplier isAligning)

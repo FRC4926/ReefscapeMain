@@ -80,6 +80,11 @@ public class CameraWrapper {
         return robotToCam;
     }
 
+    public String getName()
+    {
+        return camera.getName();
+    }
+
     public boolean isConnected() {
         return camera.isConnected();
     }

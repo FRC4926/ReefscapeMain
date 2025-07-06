@@ -19,15 +19,21 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 
 import edu.wpi.first.units.measure.Voltage;
-
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     public final TalonFX leftMotor  = new TalonFX(ElevatorConstants.leftMotorCanId);
     public final TalonFX rightMotor = new TalonFX(ElevatorConstants.rightMotorCanId);
 
-    // private final Mechanism2d mech = new Mechanism2d(10.0, 10.0);
-    // private final MechanismRoot2d mechRoot = mech.getRoot("elevator", 0.0, 0.0);
+    private MechanismLigament2d m_elevator  = null;
 
     public ElevatorSubsystem() {
         super(false, false);
@@ -38,6 +44,14 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
         rightMotor.getConfigurator().apply(
             new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
         );
+
+        if (Robot.isSimulation())
+        {
+            Mechanism2d mech = new Mechanism2d(3, 3);
+            MechanismRoot2d root = mech.getRoot("root", 1, 0);
+            m_elevator = root.append(new MechanismLigament2d("elevator", 0.5,90));
+            SmartDashboard.putData("Mech2d", mech);
+        }
 
         Slot0Configs slot0Conf = new Slot0Configs()
             .withGravityType(GravityTypeValue.Elevator_Static)
@@ -83,7 +97,7 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
 
     @Override
     public void periodic() {
-
+        m_elevator.setLength(0.5 + leftMotor.getPosition().getValueAsDouble()*10);
     }
 
     @Override

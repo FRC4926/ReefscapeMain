@@ -122,6 +122,24 @@ public class Constants {
         };
     }
 
+    public class AlgaeIntakeConstants {
+        // TODO CHANGE THESE!!!
+        public static final int motorId = 21;
+        // public static final PIDConstants motorPidConstants = new PIDConstants(1.0, 0.0, 0.0);
+
+        public static final double motorRotationsPerWheelRotation = 12.0;
+        public static final double wheelRadiusInches = 3.0;
+        public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
+
+        public static final double intakeVelocity  =  0.9;
+        public static final double outtakeVelocity = -0.65;
+
+        //public static final double autonIntakeVelocity  =  0.8;
+
+        public static final int currentLimit = 30;
+
+    }
+
     // All intake constants are in inches
     public class IntakeConstants {
         // TODO CHANGE THESE!!!
@@ -135,7 +153,7 @@ public class Constants {
         public static final double wheelRadiusInches = 3.0;
         public static final double inchesPerMotorRotation = wheelRadiusInches / motorRotationsPerWheelRotation;
 
-        public static final double intakeVelocity  =  0.7;
+        public static final double intakeVelocity  =  0.9;
         public static final double outtakeVelocity = -0.65;
 
         public static final double autonIntakeVelocity  =  0.8;
@@ -190,7 +208,7 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            6.8,  // coral //6.8
+            7.2,  // coral //6.8
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3
@@ -244,8 +262,8 @@ public class Constants {
         }
 
     public class AutonConstants {
-        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(3, 0, 0);
-        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(5, 0, 0);
+        public static final PIDConstants pathplannerTranslationPIDConstants = new PIDConstants(10, 0, 0); //3
+        public static final PIDConstants pathplannerRotationPIDConstants    = new PIDConstants(18, 0, 0); //5
 
         public static final PIDConstants flyTranslationPIDConstants = new PIDConstants(18, 0, 0);
         public static final PIDConstants flyRotationPIDConstants = new PIDConstants(10, 0, 0);

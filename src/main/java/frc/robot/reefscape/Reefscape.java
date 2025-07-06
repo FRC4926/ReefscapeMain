@@ -16,6 +16,7 @@ public class Reefscape {
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     public final PivotSubsystem pivot = new PivotSubsystem();
     public final AlgaeSubsytem algae = new AlgaeSubsytem();
+    public final AlgaeIntakeSubsystem algaeIntake = new AlgaeIntakeSubsystem();
     public final IntakeSubsystem intake = new IntakeSubsystem();
 
     public Reefscape() {
@@ -168,5 +169,17 @@ public class Reefscape {
 
     public Command zeroCommand() {
         return intake.zeroIntake();
+    }
+
+    public Command algaeIntakeCommand() {
+        return algaeIntake.intakeCommand();
+    }
+
+    public Command algaeOuttakeCommand() {
+        return algaeIntake.outtakeCommand();
+    }
+
+    public Command algaeZeroCommand() {
+        return algaeIntake.zeroIntake();
     }
 }

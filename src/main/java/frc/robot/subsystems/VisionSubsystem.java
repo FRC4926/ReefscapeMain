@@ -85,10 +85,12 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         if (Robot.isSimulation()) {
+            // visionSim = null;
             visionSim = new VisionSystemSim("main");
             visionSim.addAprilTags(FieldConstants.tagLayout);
             for (CameraWrapper cam : camWrappers) {
-                cam.addToSimulator(visionSim);
+                if (cam.getName().equals("limelight"))
+                    cam.addToSimulator(visionSim);
             }
         } else {
             visionSim = null;
@@ -255,6 +257,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (Robot.isSimulation()) {
             visionSim.update(RobotContainer.drivetrain.getState().Pose);
         }
+        
         //visionSim.getDebugField();
     
 
