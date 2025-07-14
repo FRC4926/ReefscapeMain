@@ -203,7 +203,7 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putBoolean("teleop", DriverStation.isTeleop());
         SmartDashboard.putBoolean("teleop enabled", DriverStation.isTeleopEnabled());
-        SmartDashboard.putString("state", RobotContainer.reefscape.getLastLevel().toString());
+        SmartDashboard.putString("state level", RobotContainer.reefscape.getLastLevel().toString());
         SmartDashboard.putString("state fr", RobotContainer.reefscape.getState().toString());
     }
 

@@ -33,7 +33,7 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     public final TalonFX leftMotor  = new TalonFX(ElevatorConstants.leftMotorCanId);
     public final TalonFX rightMotor = new TalonFX(ElevatorConstants.rightMotorCanId);
 
-    private MechanismLigament2d m_elevator  = null;
+    // private MechanismLigament2d m_elevator  = null;
 
     public ElevatorSubsystem() {
         super(false, false);
@@ -45,13 +45,13 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
             new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
         );
 
-        if (Robot.isSimulation())
-        {
-            Mechanism2d mech = new Mechanism2d(3, 3);
-            MechanismRoot2d root = mech.getRoot("root", 1, 0);
-            m_elevator = root.append(new MechanismLigament2d("elevator", 0.5,90));
-            SmartDashboard.putData("Mech2d", mech);
-        }
+        // if (Robot.isSimulation())
+        // {
+        //     Mechanism2d mech = new Mechanism2d(3, 3);
+        //     MechanismRoot2d root = mech.getRoot("root", 1, 0);
+        //     m_elevator = root.append(new MechanismLigament2d("elevator", 0.5,90));
+        //     SmartDashboard.putData("Mech2d", mech);
+        // }
 
         Slot0Configs slot0Conf = new Slot0Configs()
             .withGravityType(GravityTypeValue.Elevator_Static)
@@ -97,7 +97,7 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
 
     @Override
     public void periodic() {
-        m_elevator.setLength(0.5 + leftMotor.getPosition().getValueAsDouble()*10);
+        // m_elevator.setLength(0.5 + leftMotor.getPosition().getValueAsDouble()*10);
     }
 
     @Override

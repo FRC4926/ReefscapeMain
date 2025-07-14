@@ -11,7 +11,7 @@ import frc.robot.Constants.ReefscapeState;
 
 public class Reefscape {
     private ReefscapeState currentState = ReefscapeState.Home;
-    private ReefscapeState lastLevel = ReefscapeState.Level2;
+    private ReefscapeState lastLevel = ReefscapeState.Level3;
 
     public final ElevatorSubsystem elevator = new ElevatorSubsystem();
     public final PivotSubsystem pivot = new PivotSubsystem();
@@ -74,6 +74,8 @@ public class Reefscape {
             command.addCommands(elevator.setStateCommand(stateSupplier));
         if (applyToPivot)
             command.addCommands(pivot.setStateCommand(stateSupplier));
+        if (applyToAlgae)
+            command.addCommands(algae.setStateCommand(stateSupplier));
 
         return command;
     }

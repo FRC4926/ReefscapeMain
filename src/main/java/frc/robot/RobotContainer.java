@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -157,7 +159,7 @@ public class RobotContainer {
 
         //aligning without rotation
         NamedCommands.registerCommand("AlignLeft",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
-        NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Left, reefscape));
+        NamedCommands.registerCommand("AlignRight",  limelightAligner.autonCommand(drivetrain, relativeDrive, LimelightAlignerDirection.Right, reefscape));
 
         NamedCommands.registerCommand("CoralPickup", reefscape.applyStateCommand(ReefscapeState.CoralStation, true, true, false)
             .alongWith(reefscape.intake.autonIntakeCommand(IntakeConstants.autonIntakeVelocity)));
@@ -171,7 +173,9 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlgaeL3", reefscape.applyStateCommand(ReefscapeState.AlgaeL3, false, false, true).alongWith(reefscape.algaeIntakeCommand()));
         NamedCommands.registerCommand("AlgaeBarge", reefscape.applyStateCommand(ReefscapeState.Barge, false, false, true).andThen(reefscape.algaeOuttakeCommand()));
 
-        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, Constants.AutonConstants.autonSmallDriveTimeoutSeconds));
+        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, 0.2));
+        NamedCommands.registerCommand("SmallDriveCoral",  limelightAligner.coralSmallDriveCommand(drivetrain, relativeDrive));
+
         NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
         NamedCommands.registerCommand("ZeroDrive", new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive)));
 
@@ -186,11 +190,25 @@ public class RobotContainer {
         configureBindings();
     }
 
+    private ReefscapeState getClearState(Supplier<ReefscapeState> goalState, boolean in)
+    {
+        if (goalState.get().equals(ReefscapeState.Level1))
+        {
+            return ReefscapeState.Level1;
+        } else
+        {
+            if(in)
+                return ReefscapeState.Clear;
+            else
+                return ReefscapeState.Level3;
+        }
+    }
+
     private Command limelightAlignToDirection(LimelightAlignerDirection direction) {
         Command cmd = new InstantCommand(() -> limelightAligner.zeroDrive(relativeDrive))
             //.andThen(limelightAligner.autoRotateCommand(drivetrain, relativeDrive, RobotContainer::getReefFaceIdx))
             .andThen(limelightAligner.alignCommand(drivetrain, relativeDrive, direction))
-            .alongWith(reefscape.applyStateCommandManual(() -> ReefscapeState.Clear, false, true, false))
+            .alongWith(reefscape.applyStateCommandManual(getClearState(() -> reefscape.getLastLevel(), true), false, true, false))
             .alongWith(
                 Commands.idle().until(() -> limelightAligner.distanceX <= VisionConstants.limelightElevatorDistance)
                     .andThen(reefscape.applyStateCommand(() -> reefscape.getLastLevel(), true, false, false))
@@ -266,8 +284,8 @@ public class RobotContainer {
         );
 
         //dealgaeify
-        operatorController.button(15).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL2, true, true, false));
-        operatorController.button(16).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL3, true, true, false));
+        operatorController.button(16).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL2, true, true, false));
+        operatorController.button(15).onTrue(reefscape.applyStateCommand(ReefscapeState.DeAlgaeL3, true, true, false));
 
         //algae mech states
         // operatorController.button(17).onTrue(reefscape.applyStateCommand(ReefscapeState.AlgaeL2, true, false, true));
@@ -281,14 +299,16 @@ public class RobotContainer {
 
         //L1
         operatorController.button(5).onTrue(reefscape.outtakeCommand());
+        operatorController.button(4).onTrue(reefscape.applyStateCommand(ReefscapeState.Level1, false, false, false));
+
 
         
         // When left trigger pressed, pivot moved to last known level
         driverController.leftTrigger(0.2).onTrue(
             reefscape.applyStateCommand(() -> reefscape.getLastLevel(), false, true, false)
             .andThen(reefscape.levelCommand()));
-        driverController.leftTrigger(0.2).onFalse(reefscape.applyStateCommandManual(ReefscapeState.Level3, false, true, false));
-
+        // driverController.leftTrigger(0.2).onFalse(reefscape.applyStateCommandManual(ReefscapeState.Level3, false, true, false));
+        driverController.leftTrigger(0.2).onFalse(reefscape.applyStateCommandManual(getClearState(() -> reefscape.getLastLevel(), false), false, true, false));
 
         driverController.rightTrigger(0.2).onTrue(reefscape.intakeCommand());
         
@@ -325,9 +345,9 @@ public class RobotContainer {
 
         //-0.1*(x-1)^2+0.1
         driverController.leftBumper().whileTrue(drivetrain.applyRequest(() ->
-            drive.withVelocityX(-Math.pow(driverController.getLeftY(),2) * MaxSpeed * 0.1 + MaxSpeed * 0.1) // Drive forward with negative Y (forward)
-            .withVelocityY(-Math.pow(driverController.getLeftX(),2) * MaxSpeed * 0.1 + MaxSpeed * 0.1) // Drive left with negative X (left)
-            .withRotationalRate(Math.pow(driverController.getRightX(),2) * MaxAngularRate * 0.1 + MaxAngularRate * 0.1) // Drive counterclockwise with negative X (left)
+            drive.withVelocityX(driverController.getLeftY() * MaxSpeed * 0.1) // Drive forward with negative Y (forward)
+            .withVelocityY(driverController.getLeftX() * MaxSpeed * 0.1) // Drive left with negative X (left)
+            .withRotationalRate(-driverController.getRightX() * MaxAngularRate * 0.3) // Drive counterclockwise with negative X (left)
             ));
 
         
@@ -347,7 +367,7 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         //return new PathPlannerAuto("ThreeCoralAuto");
-        return (new PathPlannerAuto(autonChooser.getSelected())); //.withTimeout(15)) .andThen(new InstantCommand(() ->limelightAligner.zeroDrive(relativeDrive)));
+        return (new PathPlannerAuto(autonChooser.getSelected()).withTimeout(15)).andThen(new InstantCommand(() ->limelightAligner.zeroDrive(relativeDrive)));
         // PathConstraints constraints = new PathConstraints(
         //     4,5,
         //     Units.degreesToRadians(540), Units.degreesToRadians(720));

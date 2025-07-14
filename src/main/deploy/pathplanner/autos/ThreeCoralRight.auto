@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft5Slow"
+            "name": "AlignLeft"
           }
         },
         {
@@ -33,7 +33,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "SmallDrive"
+                        "name": "SmallDriveCoral"
                       }
                     }
                   ]
@@ -96,7 +96,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft6Slow"
+            "name": "AlignLeft"
           }
         },
         {
@@ -116,7 +116,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "SmallDrive"
+                        "name": "SmallDriveCoral"
                       }
                     }
                   ]
@@ -185,7 +185,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignRight6Slow"
+            "name": "AlignRight"
           }
         },
         {
@@ -205,7 +205,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "SmallDrive"
+                        "name": "SmallDriveCoral"
                       }
                     }
                   ]
