@@ -208,7 +208,7 @@ public class Constants {
 
         public static final double[] levelsInches = {
             0.0,  // home
-            6.8,  // coral //6.8
+            7.0,  // coral //6.8
             0.0,  // level 1
             0.0,  // level 2
             7.0,  // level 3

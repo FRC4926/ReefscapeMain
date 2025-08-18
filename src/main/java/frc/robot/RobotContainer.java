@@ -173,7 +173,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlgaeL3", reefscape.applyStateCommand(ReefscapeState.AlgaeL3, false, false, true).alongWith(reefscape.algaeIntakeCommand()));
         NamedCommands.registerCommand("AlgaeBarge", reefscape.applyStateCommand(ReefscapeState.Barge, false, false, true).andThen(reefscape.algaeOuttakeCommand()));
 
-        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, 0.2));
+        NamedCommands.registerCommand("SmallDrive",  limelightAligner.smallDriveCommand(drivetrain, relativeDrive, AutonConstants.smallDriveTimeoutSeconds));
         NamedCommands.registerCommand("SmallDriveCoral",  limelightAligner.coralSmallDriveCommand(drivetrain, relativeDrive));
 
         NamedCommands.registerCommand("SmallRDrive", limelightAligner.autonSmallRDriveCommand(drivetrain, relativeDrive));
