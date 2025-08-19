@@ -18,6 +18,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -555,6 +556,12 @@ public class Constants {
          * Creates a CommandSwerveDrivetrain instance.
          * This should only be called once in your robot program,.
          */
+        public static final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+            new Translation2d(kFrontLeftXPos, kFrontLeftYPos),
+            new Translation2d(kFrontRightXPos, kFrontRightYPos),
+            new Translation2d(kBackLeftXPos, kBackLeftYPos),
+            new Translation2d(kBackRightXPos, kBackRightYPos)
+        );
         public static CommandSwerveDrivetrain createDrivetrain() {
             return new CommandSwerveDrivetrain(
                 DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight

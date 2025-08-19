@@ -20,6 +20,8 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ReefscapeState;
 import frc.robot.Constants.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.Constants;
 import frc.robot.Pathplanner;
@@ -375,11 +378,48 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     // }
 
+    private ChassisSpeeds prevSpeed = new ChassisSpeeds();
+
+    public void savePrevSpeeds() {
+        prevSpeed = ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+    }
+    public ChassisSpeeds getLastSpeed() {
+        if (prevSpeed != null) {
+            return prevSpeed;
+        } else {
+            return new ChassisSpeeds(0.0, 0.0, 0.0);
+        }
+    }
+
+    // public Command calcAccelLimitsCommand(Supplier<ChassisSpeeds> commandedSpeedsSupplier, ReefscapeState elevatorState)
+    // {
+    //     return runOnce(() -> calcAccelLimits(commandedSpeedsSupplier.get(), ReefscapeState elevatorState));
+    // }
+
+    //Returns multiplier to be applied to speeds to stay within the acceleration limits
+    public double getAccelMultiplier(ChassisSpeeds commandedSpeeds, ReefscapeState elevatorState)
+    {
+        SwerveModuleState lastState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(getLastSpeed())[0];
+        SwerveModuleState commandedState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(commandedSpeeds)[0];
+        double elevatorHeightInches = Constants.ElevatorConstants.levelsInches[elevatorState.ordinal()];
+        double accelLimit = (-3.0/21.5) * elevatorHeightInches + 6; //Line: 6m/s^2 at Home and 3m/s^2 at L4
+        double velocityOld = lastState.speedMetersPerSecond;
+        double velocityCommanded = commandedState.speedMetersPerSecond;
+        double diff = Math.abs(velocityCommanded - velocityOld);
+        if (diff > accelLimit) {
+            return accelLimit/diff;
+        } else {
+            return 1.0;
+        }
+    }
+
     public Command updatedPathCommand(Supplier<Integer> targetPoseSupplier) {
         // Pose2d targetPose = targetPoseSupplier.get();
 
         // RobotContainer.targetPosePublisher.set(targetPose);
         
+        // ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+
         PathConstraints constraints = new PathConstraints(
                 4,5,
                 Units.degreesToRadians(540), Units.degreesToRadians(720));

@@ -17,6 +17,10 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -42,6 +46,7 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightAligner;
 import frc.robot.subsystems.Recorder;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.LimelightAlignerDirection;
@@ -69,7 +74,7 @@ public class RobotContainer {
     public static final CommandXboxController driverController = new CommandXboxController(0);
     public static final CommandJoystick operatorController = new CommandJoystick(1);
 
-    public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();    
     public static SendableChooser<Command> autonChooser;
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
@@ -224,25 +229,41 @@ public class RobotContainer {
         .onlyWhile(() -> limelightAligner.getInterrupt());
     }
 
+    private ChassisSpeeds getCommandedSpeeds() {
+        return new ChassisSpeeds(driverController.getLeftY() * MaxSpeed, driverController.getLeftX() * MaxSpeed, drivetrain.getState().Pose.getRotation().getRadians());
+    }
+
+    private SwerveRequest getCommandedRequest(double mult) {
+        return drive.withVelocityX(driverController.getLeftY() * MaxSpeed * mult) // Drive forward with negative Y (forward)
+                    .withVelocityY(driverController.getLeftX() * MaxSpeed * mult) // Drive left with negative X (left)
+                    .withRotationalRate(limelightAligner.getManualTurn() ? -driverController.getRightX() * MaxAngularRate : limelightAligner.setpointRotate(drivetrain, reefscape.isCoralInInnerIntake()));
+    }
+
     private void configureBindings() { 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
 
+
+        drivetrain.setDefaultCommand(new RunCommand(() -> {
+            double mult = drivetrain.getAccelMultiplier(getCommandedSpeeds(), reefscape.getElevatorState());
+            drivetrain.setControl(getCommandedRequest(mult));
+            limelightAligner.setInterupt(true);
+            drivetrain.savePrevSpeeds();
+        }));
+
         // drivetrain.setDefaultCommand(
         //     // Drivetrain will execute this command periodically
+        //     (drivetrain.calcAccelLimitsCommand(this::getCommandedSpeeds))
+        //     .andThen(
         //     drivetrain.applyRequest(() ->
         //         drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
         //             .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        //             .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        //     ).alongWith(new RunCommand(() -> limelightAligner.setInterupt(true))));
+        //             .withRotationalRate(limelightAligner.getManualTurn() ? -driverController.getRightX() * MaxAngularRate : limelightAligner.setpointRotate(drivetrain, reefscape.isCoralInInnerIntake()))
+        //     ))
+        //     .alongWith(new RunCommand(() -> limelightAligner.setInterupt(true)))
+        //     .andThen(drivetrain.savePrevSpeedsCommand())
+        // );
 
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(driverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(limelightAligner.getManualTurn() ? -driverController.getRightX() * MaxAngularRate : limelightAligner.setpointRotate(drivetrain, reefscape.isCoralInInnerIntake()))
-            ).alongWith(new RunCommand(() -> limelightAligner.setInterupt(true))));
 
         // ternary: bool ? true : false
         visionSubsystem.setDefaultCommand(new RunCommand(() -> {
