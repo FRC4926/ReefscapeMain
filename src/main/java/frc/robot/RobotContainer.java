@@ -249,7 +249,8 @@ public class RobotContainer {
             drivetrain.setControl(getCommandedRequest(mult));
             limelightAligner.setInterupt(true);
             drivetrain.savePrevSpeeds();
-        }));
+        }, drivetrain
+        ));
 
         // drivetrain.setDefaultCommand(
         //     // Drivetrain will execute this command periodically
