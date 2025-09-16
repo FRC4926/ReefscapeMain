@@ -397,20 +397,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // }
 
     //Returns multiplier to be applied to speeds to stay within the acceleration limits
-    public double getAccelMultiplier(ChassisSpeeds commandedSpeeds, ReefscapeState elevatorState)
+    public double getAccelMultiplier(ChassisSpeeds commandedSpeeds)
     {
-        SwerveModuleState lastState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(getLastSpeed())[0];
-        SwerveModuleState commandedState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(commandedSpeeds)[0];
-        double elevatorHeightInches = Constants.ElevatorConstants.levelsInches[elevatorState.ordinal()];
-        double accelLimit = (-3.0/21.5) * elevatorHeightInches + 6; //Line: 6m/s^2 at Home and 3m/s^2 at L4
-        double velocityOld = lastState.speedMetersPerSecond;
-        double velocityCommanded = commandedState.speedMetersPerSecond;
-        double diff = Math.abs(velocityCommanded - velocityOld);
-        if (diff > accelLimit) {
-            return accelLimit/diff;
-        } else {
-            return 1.0;
-        }
+        // SwerveModuleState lastState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(getLastSpeed())[0];
+        // SwerveModuleState commandedState = Constants.TunerConstants.m_kinematics.toSwerveModuleStates(commandedSpeeds)[0];
+        double elevatorHeightInches = RobotContainer.reefscape.elevator.getPosition();
+        double speedLimitMult = (-0.00151229) * (elevatorHeightInches * elevatorHeightInches) + 1; // OLD: Line: 6m/s^2 at Home and 3m/s^2 at L4
+        return Math.abs(speedLimitMult);
+        // double velocityOld = lastState.speedMetersPerSecond;
+        // double velocityCommanded = commandedState.speedMetersPerSecond;
+        // double diff = Math.abs(velocityCommanded - velocityOld);
+        // SmartDashboard.putNumber("Elevator h", elevatorHeightInches);
+        // if (elevatorHeightInches > 18) {
+        //     return 0.2;
+        // } else {
+        //     return 1.0;
+        // }
     }
 
     public Command updatedPathCommand(Supplier<Integer> targetPoseSupplier) {

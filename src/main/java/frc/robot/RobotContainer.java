@@ -245,7 +245,7 @@ public class RobotContainer {
 
 
         drivetrain.setDefaultCommand(new RunCommand(() -> {
-            double mult = drivetrain.getAccelMultiplier(getCommandedSpeeds(), reefscape.getElevatorState());
+            double mult = drivetrain.getAccelMultiplier(getCommandedSpeeds());
             drivetrain.setControl(getCommandedRequest(mult));
             limelightAligner.setInterupt(true);
             drivetrain.savePrevSpeeds();
