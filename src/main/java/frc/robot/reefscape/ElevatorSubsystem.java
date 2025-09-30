@@ -147,6 +147,12 @@ public class ElevatorSubsystem extends ReefscapeBaseSubsystem {
     public double getCurrent() {
         return sumMotors(motor -> motor.getStatorCurrent().getValueAsDouble());
     }
+    public double[] getStatorCurrents() {
+        return new double[] {leftMotor.getStatorCurrent().getValueAsDouble(), rightMotor.getStatorCurrent().getValueAsDouble()};
+    }
+    public double[] getSupplyCurrents() {
+        return new double[] {leftMotor.getSupplyCurrent().getValueAsDouble(), rightMotor.getSupplyCurrent().getValueAsDouble()};
+    }
 
     // Utility methods
 

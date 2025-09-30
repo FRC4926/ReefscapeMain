@@ -13,8 +13,12 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,6 +44,7 @@ public class Robot extends TimedRobot {
     Timer timer = new Timer();
     Timer timer2 = new Timer();
 
+    Alert lowBatteryAlert = new Alert("Battery voltage is low!", AlertType.kWarning);
     // static Alliance alliance = null;
 
     // AnalogInput myInput = new AnalogInput(1);
@@ -50,7 +55,7 @@ public class Robot extends TimedRobot {
     // Encoder enc2 = new Encoder(new DigitalInput(0), new DigitalInput(1));
 
     public Robot() {
-
+        DataLogManager.start();
         timer.start();
         timer2.start();
         // bigCamera = new PhotonCamera("bigcam");
@@ -79,11 +84,22 @@ public class Robot extends TimedRobot {
 
         // SmartDashboard.putData("myMech", myMech);
 
-
-        // double a = RobotContainer.drivetrain.getCurrent(), b = RobotContainer.reefscape.elevator.getCurrent(),
+        // double driveCurrentTotal = RobotContainer.drivetrain.getCurrent();
         // double c = RobotContainer.reefscape.pivot.getCurrent(); //, d = RobotContainer.reefscape.intake.getCurrent();
         //     // e = RobotContainer.climberSystem.getCurrent();
+        //This code works to display an alert if battery voltage is irregular
+        SmartDashboard.putNumberArray("Current: Elevator-Supply", RobotContainer.reefscape.elevator.getSupplyCurrents());
+        SmartDashboard.putNumberArray("Current: Elevator-Stator", RobotContainer.reefscape.elevator.getStatorCurrents());
 
+        double batteryVoltage = RobotController.getBatteryVoltage();
+          // Create an alert for a low battery
+        SmartDashboard.putNumber("Battery Voltage", batteryVoltage);
+        if(batteryVoltage<13){
+            lowBatteryAlert.set(true);
+        }
+        else{
+            lowBatteryAlert.set(false);
+        }
         // SmartDashboard.putNumber("CURRENT: Drivetrain", a);
         // SmartDashboard.putNumber("CURRENT: Elevator", b);
         // SmartDashboard.putNumber("CURRENT: Pivot", c);
