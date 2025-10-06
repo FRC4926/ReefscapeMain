@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
     ThroughboreEncoder encoder = new ThroughboreEncoder(new DigitalInput(0), new DigitalInput(1), new DigitalInput(2), 1.0);
     // Encoder enc2 = new Encoder(new DigitalInput(0), new DigitalInput(1));
 
+    CurrentTelemetry elevatorCurrentTelemetry;
+
     public Robot() {
         DataLogManager.start();
         timer.start();
@@ -62,6 +64,9 @@ public class Robot extends TimedRobot {
         Pathfinding.setPathfinder(new RemoteADStar());
         //PathfindingCommand.warmupCommand().schedule();
         m_robotContainer = new RobotContainer();
+
+        elevatorCurrentTelemetry = new CurrentTelemetry(RobotContainer.reefscape.elevator::getSupplyCurrents, RobotContainer.reefscape.elevator::getStatorCurrents, "Elevator");
+        SmartDashboard.putData(elevatorCurrentTelemetry);
 
         // makeMech();
 
@@ -87,14 +92,15 @@ public class Robot extends TimedRobot {
         // double driveCurrentTotal = RobotContainer.drivetrain.getCurrent();
         // double c = RobotContainer.reefscape.pivot.getCurrent(); //, d = RobotContainer.reefscape.intake.getCurrent();
         //     // e = RobotContainer.climberSystem.getCurrent();
-        //This code works to display an alert if battery voltage is irregular
-        SmartDashboard.putNumberArray("Current: Elevator-Supply", RobotContainer.reefscape.elevator.getSupplyCurrents());
-        SmartDashboard.putNumberArray("Current: Elevator-Stator", RobotContainer.reefscape.elevator.getStatorCurrents());
+        
+        // SmartDashboard.putNumberArray("Current: Elevator-Supply", RobotContainer.reefscape.elevator.getSupplyCurrents());
+        // SmartDashboard.putNumberArray("Current: Elevator-Stator", RobotContainer.reefscape.elevator.getStatorCurrents());
 
+        //This code works to display an alert if battery voltage is irregular
         double batteryVoltage = RobotController.getBatteryVoltage();
           // Create an alert for a low battery
         SmartDashboard.putNumber("Battery Voltage", batteryVoltage);
-        if(batteryVoltage<13){
+        if(batteryVoltage<12){
             lowBatteryAlert.set(true);
         }
         else{
