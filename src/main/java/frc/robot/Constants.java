@@ -386,11 +386,13 @@ public class Constants {
             .withKP(100).withKI(0).withKD(0.5)
             .withKS(0.1).withKV(0).withKA(0) //kV = 2.66
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+            //sys id duds .withKS(0.46966).withKV(1.2388).withKP(0.07876);
         // When using closed-loop control, the drive motor uses the control
         // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
         private static final Slot0Configs driveGains = new Slot0Configs()
-            .withKP(10).withKS(5.5);
-            // .withKP(0.1).withKI(0).withKD(0)
+            .withKP(0.10397).withKS(0.1584).withKV(0.11483);
+            //og 1.withKP(10).withKS(5.5);
+            //og 2.withKP(0.1).withKI(0).withKD(0)
             // .withKS(0).withKV(0.124);
 
         // The closed-loop output type to use for the steer motors;

@@ -82,6 +82,10 @@ public class PivotSubsystem extends ReefscapeBaseSubsystem {
         return motor.getStatorCurrent().getValueAsDouble();
     }
 
+    public double[] getStatorCurrents() {
+        return new double[] {motor.getStatorCurrent().getValueAsDouble()};
+    }
+
     private double degreesFromMotorRotations(double rotations) {
         return rotations/32.0*360.0;
     }

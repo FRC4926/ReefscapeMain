@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
-public class ClimberSubsystem  extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase {
     public final TalonFX climbMotor1  = new TalonFX(ClimberConstants.climb1Id);
     public final TalonFX climbMotor2 = new TalonFX(ClimberConstants.climb2Id);
 
@@ -169,6 +169,10 @@ public class ClimberSubsystem  extends SubsystemBase {
 
     public double getCurrent() {
         return climbMotor1.getStatorCurrent().getValueAsDouble() + climbMotor2.getStatorCurrent().getValueAsDouble();
+    }
+
+    public double[] getStatorCurrents() {
+        return new double[] {climbMotor1.getStatorCurrent().getValueAsDouble(), climbMotor2.getStatorCurrent().getValueAsDouble()};
     }
 
     @Override

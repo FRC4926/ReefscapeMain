@@ -47,9 +47,11 @@ public class IntakeSubsystem extends SubsystemBase{
         return motor.getEncoder().getVelocity();
     }
 
-    public double getCurrent() {
-        return motor.getOutputCurrent();
+
+    public double[] getStatorCurrents() {
+        return new double[] {motor.getOutputCurrent()};
     }
+
 
     public void level()
     {

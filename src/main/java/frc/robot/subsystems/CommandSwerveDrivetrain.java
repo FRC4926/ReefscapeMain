@@ -129,7 +129,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -231,15 +231,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return ret;
     }
 
-    public void logCurrent()
-    {
+    public void logCurrent() {
         for (int i = 0; i < getModules().length; i++)
         {
             SmartDashboard.putNumber("DRIVE CURRENT: " + i, getModules()[i].getDriveMotor().getStatorCurrent().getValueAsDouble());
             SmartDashboard.putNumber("STEER CURRENT: " + i, getModules()[i].getSteerMotor().getStatorCurrent().getValueAsDouble());
         }
     }
-
+    public double[] getDriveStatorCurrents() {
+        return new double[] {
+            getModules()[0].getDriveMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[1].getDriveMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[2].getDriveMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[3].getDriveMotor().getStatorCurrent().getValueAsDouble()};
+    }
+    public double[] getSteerStatorCurrents() {
+        return new double[] {
+            getModules()[0].getSteerMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[1].getSteerMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[2].getSteerMotor().getStatorCurrent().getValueAsDouble(),
+            getModules()[3].getSteerMotor().getStatorCurrent().getValueAsDouble()};
+    }
     public void logClosedLoopOutput()
     {
         for (int i = 0; i < getModules().length; i++)

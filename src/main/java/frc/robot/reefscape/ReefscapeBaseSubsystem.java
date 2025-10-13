@@ -52,16 +52,16 @@ public abstract class ReefscapeBaseSubsystem extends SubsystemBase {
         }
     }
 
-    public Command sysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
-        if (!hasSysId)
-            return null;
-        return sysIdRoutine.quasistatic(direction);
-    }
-    public Command sysIdDynamicCommand(SysIdRoutine.Direction direction) {
-        if (!hasSysId)
-            return null;
-        return sysIdRoutine.dynamic(direction);
-    }
+    // public Command sysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
+    //     if (!hasSysId)
+    //         return null;
+    //     return sysIdRoutine.quasistatic(direction);
+    // }
+    // public Command sysIdDynamicCommand(SysIdRoutine.Direction direction) {
+    //     if (!hasSysId)
+    //         return null;
+    //     return sysIdRoutine.dynamic(direction);
+    // }
 
     public boolean isManualControl() {
         return currentState == ReefscapeState.Manual;

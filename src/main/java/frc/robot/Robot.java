@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -55,6 +56,12 @@ public class Robot extends TimedRobot {
     // Encoder enc2 = new Encoder(new DigitalInput(0), new DigitalInput(1));
 
     CurrentTelemetry elevatorCurrentTelemetry;
+    CurrentTelemetry intakeCurrentTelemetry;
+    CurrentTelemetry pivotCurrentTelemetry;
+    CurrentTelemetry climberCurrentTelemetry;
+    CurrentTelemetry steerCurrentTelemetry;
+    CurrentTelemetry driveCurrentTelemetry;
+
 
     public Robot() {
         DataLogManager.start();
@@ -65,8 +72,23 @@ public class Robot extends TimedRobot {
         //PathfindingCommand.warmupCommand().schedule();
         m_robotContainer = new RobotContainer();
 
-        elevatorCurrentTelemetry = new CurrentTelemetry(RobotContainer.reefscape.elevator::getSupplyCurrents, RobotContainer.reefscape.elevator::getStatorCurrents, "Elevator");
-        SmartDashboard.putData(elevatorCurrentTelemetry);
+        elevatorCurrentTelemetry = new CurrentTelemetry(RobotContainer.reefscape.elevator::getStatorCurrents);
+        SmartDashboard.putData("Currents: Elevator", elevatorCurrentTelemetry);
+
+        intakeCurrentTelemetry = new CurrentTelemetry(RobotContainer.reefscape.intake::getStatorCurrents);
+        SmartDashboard.putData("Currents: Intake", intakeCurrentTelemetry);
+
+        pivotCurrentTelemetry = new CurrentTelemetry(RobotContainer.reefscape.pivot::getStatorCurrents);
+        SmartDashboard.putData("Currents: Pivot", pivotCurrentTelemetry);
+
+        climberCurrentTelemetry = new CurrentTelemetry(RobotContainer.climberSubsystem::getStatorCurrents);
+        SmartDashboard.putData("Currents: Climber", climberCurrentTelemetry);
+
+        steerCurrentTelemetry = new CurrentTelemetry(RobotContainer.drivetrain::getSteerStatorCurrents);
+        SmartDashboard.putData("Currents: Steer", steerCurrentTelemetry);
+
+        driveCurrentTelemetry = new CurrentTelemetry(RobotContainer.drivetrain::getDriveStatorCurrents);
+        SmartDashboard.putData("Currents: Drive", driveCurrentTelemetry);
 
         // makeMech();
 
@@ -231,6 +253,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
+        SignalLogger.stop();
     }
 
     @Override
@@ -269,6 +292,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         RobotContainer.setAllowAddVisionMeasurements(true);
+        SignalLogger.start();
 
         RobotContainer.reefscape.applyState(ReefscapeState.Home);
         if (m_autonomousCommand != null) {
