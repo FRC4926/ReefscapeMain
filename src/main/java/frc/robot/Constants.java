@@ -254,7 +254,7 @@ public class Constants {
 
         public static final PIDConstants limelightRotationPIDConstants  = new PIDConstants(0.07, 0, 0);
         public static final PIDConstants limelightRelativeXPIDConstants = new PIDConstants(6); // 6, 0, 0
-        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6, 0, 0.75); // 8, 0, 0.75
+        public static final PIDConstants limelightRelativeYPIDConstants = new PIDConstants(6, 0, 0.75); // 6, 0, 0.75
 
         public static final double limelightElevatorDistance = Units.inchesToMeters(33.5);
         public static final double autonLimelightElevatorDistance = Units.inchesToMeters(35.5);
@@ -514,7 +514,7 @@ public class Constants {
         private static final int kBackLeftDriveMotorId = 2;
         private static final int kBackLeftSteerMotorId = 6;
         private static final int kBackLeftEncoderId = 10;
-        private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.01708984375);
+        private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.28076171875); //-0.01708984375
         private static final boolean kBackLeftSteerMotorInverted = false;
         private static final boolean kBackLeftEncoderInverted = false;
 
